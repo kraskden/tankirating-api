@@ -21,6 +21,6 @@ public class TrackSupplyRecord extends IdRecord {
 
     private String name;
 
-    private Long usages;
+    private long usages;
 
 }

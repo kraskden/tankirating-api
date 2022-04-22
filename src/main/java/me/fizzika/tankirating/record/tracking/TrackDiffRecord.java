@@ -24,6 +24,6 @@ public class TrackDiffRecord {
     private TrackDiffPeriod period;
 
     @Column(name = "premium_days")
-    private Integer premiumDays;
+    private int premiumDays;
 
 }

@@ -1,6 +1,6 @@
 package me.fizzika.tankirating.enums;
 
-public enum TargetType {
+public enum TrackTargetType {
 
     ACCOUNT, GROUP;
 

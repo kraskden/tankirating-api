@@ -19,6 +19,6 @@ public class TrackSnapshotRecord {
     private TrackRecord trackData;
 
     @Column(name = "has_premium")
-    private Boolean hasPremium;
+    private boolean hasPremium;
 
 }

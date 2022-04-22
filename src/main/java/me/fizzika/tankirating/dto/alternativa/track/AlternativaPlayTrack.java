@@ -7,8 +7,8 @@ import lombok.*;
 @ToString
 public abstract class AlternativaPlayTrack extends AlternativaTrackEntity {
 
-    private Integer scoreEarned;
+    private int scoreEarned;
 
-    private Long timePlayed;
+    private long timePlayed;
 
 }

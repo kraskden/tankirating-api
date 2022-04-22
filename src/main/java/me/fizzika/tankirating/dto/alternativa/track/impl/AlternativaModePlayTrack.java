@@ -14,8 +14,7 @@ public class AlternativaModePlayTrack extends AlternativaPlayTrack {
     private String type;
 
     @Override
-    public String getId() {
-        // TODO: add prefix
+    public String getName() {
         return type;
     }
 

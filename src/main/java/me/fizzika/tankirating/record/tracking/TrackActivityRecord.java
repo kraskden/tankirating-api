@@ -22,8 +22,8 @@ public class TrackActivityRecord extends IdRecord {
     @Enumerated(EnumType.STRING)
     private TrackActivityType type;
 
-    private Integer score;
+    private int score;
 
-    private Long time;
+    private long time;
 
 }

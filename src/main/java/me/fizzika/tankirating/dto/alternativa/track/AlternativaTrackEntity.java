@@ -7,7 +7,7 @@ import java.util.Objects;
  */
 public abstract class AlternativaTrackEntity {
 
-    public abstract String getId();
+    public abstract String getName();
 
     @Override
     public boolean equals(Object obj) {
@@ -15,12 +15,12 @@ public abstract class AlternativaTrackEntity {
             return false;
         }
         AlternativaTrackEntity o = (AlternativaTrackEntity) obj;
-        return this.getId().equals(o.getId());
+        return this.getName().equals(o.getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hashCode(getName());
     }
 
 }

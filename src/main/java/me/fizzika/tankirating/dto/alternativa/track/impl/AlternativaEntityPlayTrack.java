@@ -10,15 +10,10 @@ import me.fizzika.tankirating.dto.alternativa.track.AlternativaPlayTrack;
 @ToString(callSuper = true)
 public class AlternativaEntityPlayTrack extends AlternativaPlayTrack {
 
-    private Long id;
+    private long id;
 
-    private Integer grade;
+    private int grade;
 
     private String name;
-
-    @Override
-    public String getId() {
-        return id.toString();
-    }
 
 }

@@ -10,12 +10,7 @@ import me.fizzika.tankirating.dto.alternativa.track.AlternativaUsageTrack;
 @ToString(callSuper = true)
 public class AlternativaSupplyUsageTrack extends AlternativaUsageTrack {
 
-    private Long id;
+    private long id;
     private String name;
-
-    @Override
-    public String getId() {
-        return id.toString();
-    }
 
 }

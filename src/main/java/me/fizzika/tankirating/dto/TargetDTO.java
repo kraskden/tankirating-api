@@ -1,13 +1,15 @@
 package me.fizzika.tankirating.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import me.fizzika.tankirating.enums.TargetType;
+import me.fizzika.tankirating.enums.TrackTargetType;
 
 @Data
+@AllArgsConstructor
 public class TargetDTO {
 
     private String name;
 
-    private TargetType type;
+    private TrackTargetType type;
 
 }

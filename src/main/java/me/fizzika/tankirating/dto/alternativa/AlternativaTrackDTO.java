@@ -12,19 +12,22 @@ public class AlternativaTrackDTO {
 
     private String name;
 
-    private Integer caughtGolds;
-    private Integer deaths;
-    private Integer earnedCrystals;
-    private Integer gearScore;
-    private Boolean hasPremium;
-    private Integer kills;
-    private Integer rank;
-    private Integer score;
+    private int caughtGolds;
+    private int deaths;
+    private int earnedCrystals;
+    private int gearScore;
+    private boolean hasPremium;
+    private int kills;
+    private int rank;
+    private int score;
 
     private List<AlternativaEntityPlayTrack> dronesPlayed;
     private List<AlternativaEntityPlayTrack> hullsPlayed;
     private List<AlternativaEntityPlayTrack> turretsPlayed;
+    private List<AlternativaEntityPlayTrack> resistanceModules;
+
     private List<AlternativaModePlayTrack> modesPlayed;
+
 
     private List<AlternativaSupplyUsageTrack> suppliesUsage;
 
