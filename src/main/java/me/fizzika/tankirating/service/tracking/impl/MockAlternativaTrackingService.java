@@ -6,15 +6,14 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.alternativa.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.alternativa.AlternativaTrackResponseDTO;
-import me.fizzika.tankirating.dto.tracking.FullTrackingDTO;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
+import me.fizzika.tankirating.model.tracking.FullTrackModel;
 import me.fizzika.tankirating.service.tracking.AlternativaTrackingService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.time.LocalDateTime;
 
 /**
  * Mock service for testing purposes
@@ -38,8 +37,8 @@ public class MockAlternativaTrackingService implements AlternativaTrackingServic
     @PostConstruct
     public void test() {
         AlternativaTrackDTO aTrack = getTracking("fizzika");
-        FullTrackingDTO track = alternativaTrackingMapper.toTrackingDTO(aTrack, LocalDateTime.now());
-        System.out.println(track.toString());
+        FullTrackModel trackModel = alternativaTrackingMapper.toFullTrackModel(aTrack);
+        log.info("Track is: {}", trackModel);
     }
 
 }

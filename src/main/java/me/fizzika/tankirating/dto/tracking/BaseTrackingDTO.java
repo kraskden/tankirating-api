@@ -1,7 +1,22 @@
 package me.fizzika.tankirating.dto.tracking;
 
 import lombok.Data;
-import me.fizzika.tankirating.dto.tracking.track_data.BaseTrackData;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class BaseTrackingDTO extends TrackingDTO<BaseTrackData> { }
+@EqualsAndHashCode(callSuper = true)
+public class BaseTrackingDTO extends TrackingDTO {
+
+    private int gold;
+
+    private int kills;
+
+    private int deaths;
+
+    private int cry;
+
+    private int score;
+
+    private long time;
+
+}

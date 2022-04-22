@@ -1,14 +1,13 @@
-package me.fizzika.tankirating.dto.tracking.track_data;
+package me.fizzika.tankirating.dto.tracking;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// TODO: Refactor this shit
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActivityTrack  {
+@Data
+public class ActivityTrackDTO {
 
     private String name;
 

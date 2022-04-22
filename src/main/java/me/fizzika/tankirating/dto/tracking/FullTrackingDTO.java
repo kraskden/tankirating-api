@@ -1,7 +1,18 @@
 package me.fizzika.tankirating.dto.tracking;
 
-import me.fizzika.tankirating.dto.tracking.track_data.FullTrackData;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import me.fizzika.tankirating.enums.TrackActivityType;
 
-public class FullTrackingDTO extends TrackingDTO<FullTrackData> {
+import java.util.List;
+import java.util.Map;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class FullTrackingDTO extends BaseTrackingDTO {
+
+    private Map<TrackActivityType, List<ActivityTrackDTO>> activities;
+
+    private List<SupplyTrackDTO> supplies;
 
 }
