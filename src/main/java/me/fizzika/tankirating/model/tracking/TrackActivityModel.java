@@ -12,17 +12,17 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ActivityTrackModel implements TrackModel<ActivityTrackModel> {
+public class TrackActivityModel implements TrackModel<TrackActivityModel> {
 
-    private Map<String, PlayTrackModel> playTracks = new HashMap<>();
+    private Map<String, TrackPlayModel> playTracks = new HashMap<>();
 
-    public ActivityTrackModel(ActivityTrackModel model) {
+    public TrackActivityModel(TrackActivityModel model) {
         add(model);
     }
 
     @Override
-    public void add(ActivityTrackModel other) {
-        TrackUtils.addMap(playTracks, other.playTracks, PlayTrackModel::new);
+    public void add(TrackActivityModel other) {
+        TrackUtils.addMap(playTracks, other.playTracks, TrackPlayModel::new);
     }
 
 }

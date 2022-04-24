@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ActivityTrackDTO {
+public class TrackActivityDTO {
 
     private String name;
 

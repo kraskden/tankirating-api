@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.record.tracking;
 
 import lombok.*;
+import me.fizzika.tankirating.record.GroupRecord;
 import me.fizzika.tankirating.record.IdRecord;
 import org.hibernate.Hibernate;
 

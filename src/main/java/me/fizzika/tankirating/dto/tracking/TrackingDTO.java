@@ -1,15 +1,37 @@
 package me.fizzika.tankirating.dto.tracking;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import me.fizzika.tankirating.dto.TargetDTO;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
-public abstract class TrackingDTO {
+public class TrackingDTO {
 
     private TargetDTO target;
 
     private LocalDateTime timestamp;
+
+    private int gold;
+
+    private int kills;
+
+    private int deaths;
+
+    private int cry;
+
+    private int score;
+
+    private int premiumDays;
+
+    private long time;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private TrackActivitiesDTO activities;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<TrackSupplyDTO> supplies;
 
 }

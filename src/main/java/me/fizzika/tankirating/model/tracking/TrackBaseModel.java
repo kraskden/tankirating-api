@@ -6,7 +6,7 @@ import me.fizzika.tankirating.model.TrackModel;
 
 @Data
 @NoArgsConstructor
-public class BaseTrackModel implements TrackModel<BaseTrackModel> {
+public class TrackBaseModel implements TrackModel<TrackBaseModel> {
 
     private int gold;
 
@@ -20,12 +20,12 @@ public class BaseTrackModel implements TrackModel<BaseTrackModel> {
 
     private long time;
 
-    public BaseTrackModel(BaseTrackModel model) {
+    public TrackBaseModel(TrackBaseModel model) {
         add(model);
     }
 
     @Override
-    public void add(BaseTrackModel other) {
+    public void add(TrackBaseModel other) {
         gold += other.gold;
         kills += other.kills;
         deaths += other.deaths;

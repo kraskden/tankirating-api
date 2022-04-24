@@ -10,12 +10,19 @@
 * Account API Ph.2 (change nickname, froze, hide, delete, statistics)
 * User API (role management: USER, ADMIN, OWNER)
 
-### Tracking design:
+### Track domain model:
 
-**Track**:
-* uuid 
-* 
-* trackType (SNAPSHOT, DIFF)
-* target_id (group_id, account_id)
-* targetType (GROUP, ACCOUNT)
-* timestamp
+#### There are 4 kinds of track object representations:
+
+* alternativa (data that returns official Alternativa site ratings.tankionline.com)
+* record (represent record in the database)
+* dto (view, that returns to the client)
+* model (java object, optimized for track computations)
+
+#### Such transitions must be implemented:
+
+* alternativa -> model
+* record -> model
+* record -> dto 
+* model -> record
+* model -> dto

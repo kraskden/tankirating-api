@@ -8,19 +8,17 @@ import me.fizzika.tankirating.model.TrackModel;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlayTrackModel implements TrackModel<PlayTrackModel> {
+public class TrackUsageModel implements TrackModel<TrackUsageModel> {
 
-    private int score;
-    private long time;
+    private long usage;
 
-    public PlayTrackModel(PlayTrackModel model) {
+    public TrackUsageModel(TrackUsageModel model) {
         add(model);
     }
 
     @Override
-    public void add(PlayTrackModel other) {
-        score += other.score;
-        time += other.time;
+    public void add(TrackUsageModel other) {
+        usage += other.usage;
     }
 
 }

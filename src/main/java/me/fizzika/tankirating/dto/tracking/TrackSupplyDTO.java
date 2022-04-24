@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class SupplyTrackDTO {
+public class TrackSupplyDTO {
 
     private String name;
 

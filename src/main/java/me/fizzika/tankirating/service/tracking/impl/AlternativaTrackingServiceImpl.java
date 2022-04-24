@@ -5,8 +5,6 @@ import me.fizzika.tankirating.service.tracking.AlternativaTrackingService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-@Service
-@Primary
 public class AlternativaTrackingServiceImpl implements AlternativaTrackingService {
 
     @Override
