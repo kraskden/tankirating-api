@@ -7,11 +7,18 @@ import me.fizzika.tankirating.enums.TrackTargetType;
 import java.util.UUID;
 
 @Data
-@AllArgsConstructor
-public class TargetDTO {
+public class TrackTargetDTO {
+
+    private UUID id;
 
     private String name;
 
     private TrackTargetType type;
+
+    public TrackTargetDTO(UUID id, String name) {
+        this.name = name;
+        this.id = id;
+        this.type = TrackTargetType.fromName(name);
+    }
 
 }

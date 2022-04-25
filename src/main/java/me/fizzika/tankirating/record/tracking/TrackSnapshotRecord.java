@@ -1,24 +1,27 @@
 package me.fizzika.tankirating.record.tracking;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import me.fizzika.tankirating.record.IdRecord;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
+@ToString
 @Table(name = "snapshot")
-@Data
-public class TrackSnapshotRecord {
-
-    @Id
-    @Column(name = "track_id")
-    private UUID trackId;
+public class TrackSnapshotRecord extends IdRecord {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @PrimaryKeyJoinColumn(name = "track_id", referencedColumnName = "id")
+    @JoinColumn(name = "track_id", referencedColumnName = "id")
     private TrackRecord trackData;
 
-    @Column(name = "has_premium")
-    private boolean hasPremium;
+    private LocalDateTime timestamp;
+
+    private UUID targetId;
 
 }

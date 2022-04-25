@@ -1,6 +1,6 @@
 package me.fizzika.tankirating.mapper;
 
-import me.fizzika.tankirating.dto.TargetDTO;
+import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivityDTO;
 import me.fizzika.tankirating.dto.tracking.TrackingDTO;
@@ -24,12 +24,12 @@ public abstract class TrackRecordMapper {
 
     @Mapping(target = "premiumDays", ignore = true)
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesDTO")
-    public abstract TrackingDTO toDto(TrackRecord record, TargetDTO target);
+    public abstract TrackingDTO toDto(TrackRecord record, TrackTargetDTO target);
 
     @Mapping(target = "premiumDays", ignore = true)
     @Mapping(target = "activities", ignore = true)
     @Mapping(target = "supplies", ignore = true)
-    public abstract TrackingDTO toShortDto(TrackRecord record, TargetDTO target);
+    public abstract TrackingDTO toShortDto(TrackRecord record, TrackTargetDTO target);
 
     @Mapping(target = "base", source = ".")
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesModelMap")

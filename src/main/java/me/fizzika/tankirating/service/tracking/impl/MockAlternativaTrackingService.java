@@ -34,11 +34,4 @@ public class MockAlternativaTrackingService implements AlternativaTrackingServic
         return res.getTrack();
     }
 
-    @PostConstruct
-    public void test() {
-        AlternativaTrackDTO aTrack = getTracking("fizzika");
-        TrackFullModel trackModel = alternativaTrackingMapper.toFullTrackModel(aTrack);
-        log.info("Track is: {}", trackModel);
-    }
-
 }

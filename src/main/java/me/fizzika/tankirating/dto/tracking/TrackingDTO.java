@@ -2,7 +2,7 @@ package me.fizzika.tankirating.dto.tracking;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import me.fizzika.tankirating.dto.TargetDTO;
+import me.fizzika.tankirating.dto.TrackTargetDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class TrackingDTO {
 
-    private TargetDTO target;
+    private TrackTargetDTO target;
 
     private LocalDateTime timestamp;
 

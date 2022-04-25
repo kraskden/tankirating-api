@@ -1,7 +1,6 @@
 package me.fizzika.tankirating.record.tracking;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import me.fizzika.tankirating.record.IdRecord;
 
 import javax.persistence.Entity;
@@ -11,8 +10,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "track_supply")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@ToString
 public class TrackSupplyRecord extends IdRecord {
 
     @ManyToOne
