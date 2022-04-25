@@ -29,7 +29,7 @@ public abstract class TrackRecordMapper {
     @Mapping(target = "premiumDays", ignore = true)
     @Mapping(target = "activities", ignore = true)
     @Mapping(target = "supplies", ignore = true)
-    public abstract TrackingDTO toShortDto(TrackRecord record);
+    public abstract TrackingDTO toShortDto(TrackRecord record, TargetDTO target);
 
     @Mapping(target = "base", source = ".")
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesModelMap")

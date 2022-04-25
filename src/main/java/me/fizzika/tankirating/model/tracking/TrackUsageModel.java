@@ -10,7 +10,7 @@ import me.fizzika.tankirating.model.TrackModel;
 @AllArgsConstructor
 public class TrackUsageModel implements TrackModel<TrackUsageModel> {
 
-    private long usage;
+    private long usages;
 
     public TrackUsageModel(TrackUsageModel model) {
         add(model);
@@ -18,7 +18,7 @@ public class TrackUsageModel implements TrackModel<TrackUsageModel> {
 
     @Override
     public void add(TrackUsageModel other) {
-        usage += other.usage;
+        usages += other.usages;
     }
 
 }

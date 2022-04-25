@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.fizzika.tankirating.enums.TrackTargetType;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 public class TargetDTO {
