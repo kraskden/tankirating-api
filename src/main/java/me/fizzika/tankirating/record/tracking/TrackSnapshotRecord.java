@@ -16,9 +16,9 @@ import java.util.UUID;
 @Table(name = "snapshot")
 public class TrackSnapshotRecord extends IdRecord {
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "track_id", referencedColumnName = "id")
-    private TrackRecord trackData;
+    private TrackRecord trackRecord;
 
     private LocalDateTime timestamp;
 

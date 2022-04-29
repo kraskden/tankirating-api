@@ -12,18 +12,23 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class TrackDiffRecord extends IdRecord {
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "track_id", referencedColumnName = "id")
-    private TrackRecord trackData;
+    private TrackRecord trackRecord;
 
     @Enumerated(EnumType.STRING)
     private TrackDiffPeriod period;
 
-    private LocalDateTime from;
+    private LocalDateTime periodStart;
 
-    private LocalDateTime to;
+    private LocalDateTime periodEnd;
+
+    private LocalDateTime trackStart;
+
+    private LocalDateTime trackEnd;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_id", referencedColumnName = "id")

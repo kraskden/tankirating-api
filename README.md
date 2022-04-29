@@ -26,3 +26,10 @@
 * record -> dto 
 * model -> record
 * model -> dto
+
+### Snapshot update algorithm: 
+
+* Select all targets (accounts & groups)
+* For each target get alternativa model
+* Convert 
+

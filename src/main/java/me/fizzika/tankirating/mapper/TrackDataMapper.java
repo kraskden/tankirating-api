@@ -1,10 +1,9 @@
 package me.fizzika.tankirating.mapper;
 
 import me.fizzika.tankirating.enums.TrackActivityType;
-import me.fizzika.tankirating.model.tracking.TrackActivityModel;
-import me.fizzika.tankirating.model.tracking.TrackFullModel;
-import me.fizzika.tankirating.model.tracking.TrackPlayModel;
-import me.fizzika.tankirating.model.tracking.TrackUsageModel;
+import me.fizzika.tankirating.model.track_data.*;
+import me.fizzika.tankirating.model.track_data.TrackActivityData;
+import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackActivityRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
 import me.fizzika.tankirating.record.tracking.TrackSupplyRecord;
@@ -18,20 +17,28 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
-public abstract class TrackModelMapper {
+public abstract class TrackDataMapper {
+
+    @Named("toTrackRecord")
+    public TrackRecord toTrackRecord(TrackFullData model) {
+        TrackRecord res = toTrackRecordInternal(model);
+        res.getSupplies().forEach(s -> s.setTrack(res));
+        res.getActivities().forEach(a -> a.setTrack(res));
+        return res;
+    }
 
     @Mapping(target = ".", source = "base")
     @Mapping(target = "activities", qualifiedByName = "toTrackActivityRecordList")
     @Mapping(target = "supplies", qualifiedByName = "toTrackSuppliesList")
-    public abstract TrackRecord toTrackRecord(TrackFullModel model);
+    protected abstract TrackRecord toTrackRecordInternal(TrackFullData model);
 
     @Named("toTrackActivityRecordList")
-    protected List<TrackActivityRecord> toTrackActivityRecordList(Map<TrackActivityType, TrackActivityModel> activityMap) {
+    protected List<TrackActivityRecord> toTrackActivityRecordList(Map<TrackActivityType, TrackActivityData> activityMap) {
         var result = new ArrayList<TrackActivityRecord>();
         for (TrackActivityType type : activityMap.keySet()) {
-            TrackActivityModel model = activityMap.get(type);
+            TrackActivityData model = activityMap.get(type);
             for (String entityName : model.getPlayTracks().keySet()) {
-                TrackPlayModel playModel = model.getPlayTracks().get(entityName);
+                TrackPlayData playModel = model.getPlayTracks().get(entityName);
                 result.add(toTrackActivityRecord(playModel, entityName, type));
             }
         }
@@ -39,17 +46,17 @@ public abstract class TrackModelMapper {
     }
 
     @Named("toTrackSuppliesList")
-    protected List<TrackSupplyRecord> toTrackSuppliesList(Map<String, TrackUsageModel> usageMap) {
+    protected List<TrackSupplyRecord> toTrackSuppliesList(Map<String, TrackUsageData> usageMap) {
         return usageMap.keySet().stream()
                 .map(k -> toTrackSupplyRecord(usageMap.get(k), k))
                 .collect(Collectors.toList());
     }
 
     @Mapping(target = ".", source = "model")
-    protected abstract TrackSupplyRecord toTrackSupplyRecord(TrackUsageModel model, String name);
+    protected abstract TrackSupplyRecord toTrackSupplyRecord(TrackUsageData model, String name);
 
     @Mapping(target = ".", source = "playModel")
-    protected abstract TrackActivityRecord toTrackActivityRecord(TrackPlayModel playModel,
+    protected abstract TrackActivityRecord toTrackActivityRecord(TrackPlayData playModel,
                                                                  String name, TrackActivityType type);
 
 

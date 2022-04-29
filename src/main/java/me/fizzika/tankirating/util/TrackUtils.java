@@ -1,20 +1,23 @@
 package me.fizzika.tankirating.util;
 
-import me.fizzika.tankirating.model.TrackModel;
+import me.fizzika.tankirating.model.TrackData;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class TrackUtils {
 
-    public static <K, T extends TrackModel<T>> void addMap(Map<K, T> map, Map<K, T> adder,
-                                                    Function<T, T> copyCreator) {
-        for (K key : adder.keySet()) {
-            T val = adder.get(key);
-            if (map.containsKey(key)) {
-                map.get(key).add(val);
+    public static <K, T> void mergeMap(Map<K, T> fst, Map<K, T> snd,
+                                       BiConsumer<T, T> transformer,
+                                       Function<T, T> copyCreator) {
+        for (K key : snd.keySet()) {
+            T val = snd.get(key);
+            if (fst.containsKey(key)) {
+                transformer.accept(fst.get(key), val);
             } else {
-                map.put(key, copyCreator.apply(val));
+                fst.put(key, copyCreator.apply(val));
             }
         }
     }

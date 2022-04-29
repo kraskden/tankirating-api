@@ -7,12 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.alternativa.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.alternativa.AlternativaTrackResponseDTO;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
-import me.fizzika.tankirating.model.tracking.TrackFullModel;
 import me.fizzika.tankirating.service.tracking.AlternativaTrackingService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 
 /**

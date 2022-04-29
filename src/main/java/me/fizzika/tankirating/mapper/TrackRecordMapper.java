@@ -5,10 +5,9 @@ import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivityDTO;
 import me.fizzika.tankirating.dto.tracking.TrackingDTO;
 import me.fizzika.tankirating.enums.TrackActivityType;
-import me.fizzika.tankirating.model.tracking.TrackActivityModel;
-import me.fizzika.tankirating.model.tracking.TrackFullModel;
-import me.fizzika.tankirating.model.tracking.TrackPlayModel;
-import me.fizzika.tankirating.model.tracking.TrackUsageModel;
+import me.fizzika.tankirating.model.track_data.*;
+import me.fizzika.tankirating.model.track_data.TrackPlayData;
+import me.fizzika.tankirating.model.track_data.TrackUsageData;
 import me.fizzika.tankirating.record.tracking.TrackActivityRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
 import me.fizzika.tankirating.record.tracking.TrackSupplyRecord;
@@ -34,7 +33,7 @@ public abstract class TrackRecordMapper {
     @Mapping(target = "base", source = ".")
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesModelMap")
     @Mapping(target = "supplies", qualifiedByName = "toTrackUsageModelMap")
-    public abstract TrackFullModel toModel(TrackRecord record);
+    public abstract TrackFullData toModel(TrackRecord record);
 
     @Named("toTrackActivitiesDTO")
     protected TrackActivitiesDTO toTrackActivitiesDTO(List<TrackActivityRecord> activityRecords) {
@@ -60,20 +59,20 @@ public abstract class TrackRecordMapper {
     }
 
     @Named("toTrackActivitiesModelMap")
-    protected Map<TrackActivityType, TrackActivityModel> toTrackActivitiesModelMap(List<TrackActivityRecord> records) {
-        Map<TrackActivityType, TrackActivityModel> result = new EnumMap<>(TrackActivityType.class);
-        Arrays.stream(TrackActivityType.values()).forEach(t -> result.put(t, new TrackActivityModel()));
+    protected Map<TrackActivityType, TrackActivityData> toTrackActivitiesModelMap(List<TrackActivityRecord> records) {
+        Map<TrackActivityType, TrackActivityData> result = new EnumMap<>(TrackActivityType.class);
+        Arrays.stream(TrackActivityType.values()).forEach(t -> result.put(t, new TrackActivityData()));
         for (TrackActivityRecord record : records) {
             result.get(record.getType()).getPlayTracks().put(record.getName(),
-                    new TrackPlayModel(record.getScore(), record.getTime()));
+                    new TrackPlayData(record.getScore(), record.getTime()));
         }
         return result;
     }
 
     @Named("toTrackUsageModelMap")
-    protected Map<String, TrackUsageModel> toTrackUsageModelMap(List<TrackSupplyRecord> records) {
+    protected Map<String, TrackUsageData> toTrackUsageModelMap(List<TrackSupplyRecord> records) {
         return records.stream()
-                .collect(Collectors.toMap(TrackSupplyRecord::getName, r -> new TrackUsageModel(r.getUsages())));
+                .collect(Collectors.toMap(TrackSupplyRecord::getName, r -> new TrackUsageData(r.getUsages())));
     }
 
     protected abstract TrackActivityDTO toTrackActivityDTO(TrackActivityRecord record);

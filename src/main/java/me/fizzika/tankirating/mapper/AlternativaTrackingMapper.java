@@ -8,7 +8,7 @@ import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaModePlayTrac
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaSupplyUsageTrack;
 import me.fizzika.tankirating.enums.TankiSupply;
 import me.fizzika.tankirating.enums.TrackActivityType;
-import me.fizzika.tankirating.model.tracking.*;
+import me.fizzika.tankirating.model.track_data.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public abstract class AlternativaTrackingMapper {
 
-    public TrackFullModel toFullTrackModel(AlternativaTrackDTO trackDTO) {
-        TrackFullModel res = new TrackFullModel();
+    public TrackFullData toFullTrackModel(AlternativaTrackDTO trackDTO) {
+        TrackFullData res = new TrackFullData();
         res.setBase(toBaseTrackModel(trackDTO));
         res.setSupplies(toSupplyUsageTrackMap(trackDTO.getSuppliesUsage()));
         res.setActivities(toActivityTrackMap(trackDTO));
@@ -35,7 +35,7 @@ public abstract class AlternativaTrackingMapper {
     @Mapping(source = "earnedCrystals", target = "cry")
     @Mapping(source = "caughtGolds", target = "gold")
     @Mapping(target = "time", source = ".", qualifiedByName = "getFullTime")
-    protected abstract TrackBaseModel toBaseTrackModel(AlternativaTrackDTO trackDTO);
+    protected abstract TrackBaseData toBaseTrackModel(AlternativaTrackDTO trackDTO);
 
     @Named("getFullTime")
     protected long getFullTime(AlternativaTrackDTO track) {
@@ -44,13 +44,13 @@ public abstract class AlternativaTrackingMapper {
                 .reduce(0L, Long::sum) / 1000;
     }
 
-    private Map<String, TrackUsageModel> toSupplyUsageTrackMap(List<AlternativaSupplyUsageTrack> tracks) {
+    private Map<String, TrackUsageData> toSupplyUsageTrackMap(List<AlternativaSupplyUsageTrack> tracks) {
         return tracks.stream()
-                .collect(Collectors.toMap(this::getSupplyName, t -> new TrackUsageModel(t.getUsages())));
+                .collect(Collectors.toMap(this::getSupplyName, t -> new TrackUsageData(t.getUsages())));
     }
 
-    private Map<TrackActivityType, TrackActivityModel> toActivityTrackMap(AlternativaTrackDTO trackDTO) {
-        Map<TrackActivityType, TrackActivityModel> res = new EnumMap<>(TrackActivityType.class);
+    private Map<TrackActivityType, TrackActivityData> toActivityTrackMap(AlternativaTrackDTO trackDTO) {
+        Map<TrackActivityType, TrackActivityData> res = new EnumMap<>(TrackActivityType.class);
         res.put(TrackActivityType.HULL, toEntityActivityTrackModel(trackDTO.getHullsPlayed()));
         res.put(TrackActivityType.TURRET, toEntityActivityTrackModel(trackDTO.getTurretsPlayed()));
         res.put(TrackActivityType.MODULE, toEntityActivityTrackModel(trackDTO.getResistanceModules()));
@@ -58,13 +58,13 @@ public abstract class AlternativaTrackingMapper {
         return res;
     }
 
-    private TrackActivityModel toModeActivityTrackModel(List<AlternativaModePlayTrack> modeTracks) {
-        return new TrackActivityModel(modeTracks.stream()
+    private TrackActivityData toModeActivityTrackModel(List<AlternativaModePlayTrack> modeTracks) {
+        return new TrackActivityData(modeTracks.stream()
                 .collect(Collectors.toMap(AlternativaTrackEntity::getName, this::toPlayTrackModel)));
     }
 
-    private TrackActivityModel toEntityActivityTrackModel(List<AlternativaEntityPlayTrack> entityTracks) {
-        Map<String, TrackPlayModel> playTrackMap = new HashMap<>();
+    private TrackActivityData toEntityActivityTrackModel(List<AlternativaEntityPlayTrack> entityTracks) {
+        Map<String, TrackPlayData> playTrackMap = new HashMap<>();
         for (AlternativaEntityPlayTrack entityPlayTrack : entityTracks) {
             String name = entityPlayTrack.getName();
             if (playTrackMap.containsKey(name)) {
@@ -73,11 +73,11 @@ public abstract class AlternativaTrackingMapper {
                 playTrackMap.put(name, toPlayTrackModel(entityPlayTrack));
             }
         }
-        return new TrackActivityModel(playTrackMap);
+        return new TrackActivityData(playTrackMap);
     }
 
-    private TrackPlayModel toPlayTrackModel(AlternativaPlayTrack playTrack) {
-        return new TrackPlayModel(playTrack.getScoreEarned(), playTrack.getTimePlayed() / 1000);
+    private TrackPlayData toPlayTrackModel(AlternativaPlayTrack playTrack) {
+        return new TrackPlayData(playTrack.getScoreEarned(), playTrack.getTimePlayed() / 1000);
     }
 
     private String getSupplyName(AlternativaSupplyUsageTrack supplyUsageTrack) {
