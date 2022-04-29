@@ -3,6 +3,7 @@ package me.fizzika.tankirating.enums;
 import lombok.AllArgsConstructor;
 import me.fizzika.tankirating.model.DatePeriod;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -15,7 +16,12 @@ public enum TrackDiffPeriod {
     WEEK(stamp -> getDiffPeriod(stamp, ChronoField.DAY_OF_WEEK, ChronoUnit.WEEKS)),
     MONTH(stamp -> getDiffPeriod(stamp, ChronoField.DAY_OF_MONTH, ChronoUnit.MONTHS)),
     YEAR(stamp -> getDiffPeriod(stamp, ChronoField.DAY_OF_YEAR, ChronoUnit.YEARS)),
-    ALL_TIME(stamp -> new DatePeriod(LocalDateTime.MIN, LocalDateTime.MAX));
+
+    // LocalDateTime.MIN...LocalDateTime.MAX is not fit into postgres timestamp range
+    ALL_TIME(stamp -> new DatePeriod(
+            LocalDate.of(2000, 1, 1).atStartOfDay(),
+            LocalDate.of(3000, 1, 1).atStartOfDay()
+    ));
 
     private final Function<LocalDateTime, DatePeriod> periodGenerator;
 
@@ -33,7 +39,7 @@ public enum TrackDiffPeriod {
     }
 
     private static LocalDateTime getPeriodStartDate(LocalDateTime now, ChronoField resetField) {
-        return now.with(resetField, 0);
+        return now.with(resetField, 1);
     }
 
 }

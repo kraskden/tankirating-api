@@ -10,6 +10,7 @@ import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
+import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.TrackDiffRepository;
 import me.fizzika.tankirating.repository.TrackRepository;
 import me.fizzika.tankirating.service.tracking.*;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -41,46 +44,52 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         LocalDateTime now = LocalDateTime.now();
 
         // Save current snapshot
-        snapshotService.saveSnapshot(new TrackSnapshot(targetId, now, currentData));
+        saveDaySnapshot(targetId, now, currentData);
 
         // Calculate diff for each period
         for (TrackDiffPeriod diffPeriod : TrackDiffPeriod.values()) {
             DatePeriod diffDates = diffPeriod.getDatePeriod(now);
 
-            TrackFullData periodDiff = snapshotService.findClosestSnapshot(targetId, diffDates.getStart(), diffDates.getEnd())
+            Optional<TrackFullData> periodDiff = snapshotService.findClosestSnapshot(targetId, diffDates.getStart(), diffDates.getEnd())
                     .map(TrackSnapshot::getTrackData)
                     .map(snap -> TrackData.diff(currentData, snap))
-                    .filter(TrackFullData::notEmpty)
-                    .orElse(null);
+                    .filter(TrackFullData::notEmpty);
 
             TrackDiffRecord diffRecord = diffRepository.findByTargetIdAndPeriodStartAndPeriodEnd(targetId,
-                    diffDates.getStart(), diffDates.getEnd()).orElseGet(() -> emptyRecord(diffPeriod, diffDates));
+                    diffDates.getStart(), diffDates.getEnd()).orElseGet(() -> emptyRecord(targetId, diffPeriod, diffDates));
             diffRecord.setTrackEnd(now);
             diffRecord.setTrackStart(diffRecord.getTrackStart() != null ? diffRecord.getTrackStart() : now);
             if (diffRecord.getTrackRecord() != null) {
                 trackRepository.delete(diffRecord.getTrackRecord());
             }
-            diffRecord.setTrackRecord(dataMapper.toTrackRecord(periodDiff));
+            diffRecord.setTrackRecord(periodDiff.map(dataMapper::toTrackRecord).orElse(null));
             diffRepository.save(diffRecord);
         }
     }
 
     @Override
-//    @PostConstruct
+    @PostConstruct
     public void updateAll() {
         targetService.getAllTargets().stream()
                 .filter(t -> t.getType() == TrackTargetType.ACCOUNT)
                 .forEach(t -> updateAccount(t.getId(), t.getName()));
     }
 
-    @PostConstruct
-    public void test() {
-        var res = snapshotService.findClosestSnapshot(UUID.fromString("93c549cd-f173-41d7-94c5-1aaac895a0b6"),
-                LocalDateTime.parse("2022-04-20T14:48:00.000"), LocalDateTime.parse("2022-04-29T14:48:00.000"));
+    private void saveDaySnapshot(UUID targetId, LocalDateTime now, TrackFullData data) {
+        LocalDateTime dayStart = now.truncatedTo(ChronoUnit.DAYS);
+        if (snapshotService.existsSnapshot(targetId, dayStart)) {
+            snapshotService.saveSnapshot(new TrackSnapshot(targetId, now, data));
+        } else {
+            snapshotService.saveSnapshot(new TrackSnapshot(targetId, dayStart, data));
+        }
     }
 
-    private TrackDiffRecord emptyRecord(TrackDiffPeriod period, DatePeriod periodDates) {
+    private TrackDiffRecord emptyRecord(UUID targetId, TrackDiffPeriod period, DatePeriod periodDates) {
         var rec = new TrackDiffRecord();
+        var target = new TrackTargetRecord();
+        target.setId(targetId);
+
+        rec.setTarget(target);
         rec.setPeriodStart(periodDates.getStart());
         rec.setPeriodEnd(periodDates.getEnd());
         rec.setPeriod(period);

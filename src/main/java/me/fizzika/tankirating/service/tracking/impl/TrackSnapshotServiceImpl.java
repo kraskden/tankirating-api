@@ -32,6 +32,7 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     }
 
     @Override
+    @Transactional
     public Optional<TrackSnapshot> findClosestSnapshot(UUID targetId, LocalDateTime from, LocalDateTime to) {
        return repository.findClosestSnapshot(targetId, from, to)
                .map(snapshotMapper::toSnapshot);

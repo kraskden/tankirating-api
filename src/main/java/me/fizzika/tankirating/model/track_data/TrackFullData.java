@@ -22,6 +22,7 @@ public class TrackFullData implements TrackData<TrackFullData> {
     private Map<TrackActivityType, TrackActivityData> activities;
 
     {
+        base = new TrackBaseData();
         supplies = new HashMap<>();
         activities = new EnumMap<>(TrackActivityType.class);
         Arrays.stream(TrackActivityType.values()).forEach(t -> activities.put(t, new TrackActivityData()));
