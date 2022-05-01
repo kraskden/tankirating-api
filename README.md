@@ -1,6 +1,6 @@
-## Tanki Rating API V2.0
+# Tanki Rating API V2.0
 
-### Roadmap: 
+## Roadmap: 
 
 * Tracking API (fetch, store and process tracking data for accounts)
 * Account API Ph.1 (GET + CREATE)
@@ -9,6 +9,18 @@
 * Auth for User
 * Account API Ph.2 (change nickname, froze, hide, delete, statistics)
 * User API (role management: USER, ADMIN, OWNER)
+
+## TODO:
+
+### Tracking: 
+* Groups update. Store percents for ITEMS_PLAYED and SUPPLIES_USAGE, don't store any
+absolute values, cuz the overflow error may be occups.
+Think about synchronized for group values calculations. 
+* Track API (snapshots, diffs). Dynamic diff calculations for 2 snapshots
+* Snapshot&Diff sanitization. I think DaySnapshotTrackSanitizer is a good first point to start with it
+
+
+## Dev docs:
 
 ### Track domain model:
 
@@ -27,9 +39,4 @@
 * model -> record
 * model -> dto
 
-### Snapshot update algorithm: 
-
-* Select all targets (accounts & groups)
-* For each target get alternativa model
-* Convert 
 

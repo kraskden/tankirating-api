@@ -7,7 +7,6 @@ import me.fizzika.tankirating.repository.TrackTargetRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Collectors;
 

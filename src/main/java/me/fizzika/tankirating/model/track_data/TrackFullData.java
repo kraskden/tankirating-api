@@ -35,15 +35,15 @@ public class TrackFullData implements TrackData<TrackFullData> {
     @Override
     public void add(TrackFullData other) {
         base.add(other.base);
-        TrackUtils.mergeMap(supplies, other.supplies, TrackData::add, TrackUsageData::new);
-        TrackUtils.mergeMap(activities, other.activities, TrackData::add, TrackActivityData::new);
+        TrackUtils.mergeMapValues(supplies, other.supplies, TrackData::add, TrackUsageData::new);
+        TrackUtils.mergeMapValues(activities, other.activities, TrackData::add, TrackActivityData::new);
     }
 
     @Override
     public void sub(TrackFullData other) {
         base.sub(other.base);
-        TrackUtils.mergeMap(supplies, other.supplies, TrackData::sub, TrackUsageData::new);
-        TrackUtils.mergeMap(activities, other.activities, TrackData::sub, TrackActivityData::new);
+        TrackUtils.mergeMapValues(supplies, other.supplies, TrackData::sub, TrackUsageData::new);
+        TrackUtils.mergeMapValues(activities, other.activities, TrackData::sub, TrackActivityData::new);
     }
 
     @Override

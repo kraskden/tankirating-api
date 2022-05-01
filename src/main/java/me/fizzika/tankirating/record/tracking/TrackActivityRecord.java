@@ -1,6 +1,8 @@
 package me.fizzika.tankirating.record.tracking;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import me.fizzika.tankirating.enums.TrackActivityType;
 import me.fizzika.tankirating.record.IdRecord;
 

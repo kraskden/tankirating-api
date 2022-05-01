@@ -22,12 +22,12 @@ public class TrackActivityData implements TrackData<TrackActivityData> {
 
     @Override
     public void add(TrackActivityData other) {
-        TrackUtils.mergeMap(playTracks, other.playTracks, TrackData::add, TrackPlayData::new);
+        TrackUtils.mergeMapValues(playTracks, other.playTracks, TrackData::add, TrackPlayData::new);
     }
 
     @Override
     public void sub(TrackActivityData other) {
-        TrackUtils.mergeMap(playTracks, other.playTracks, TrackData::sub, TrackPlayData::new);
+        TrackUtils.mergeMapValues(playTracks, other.playTracks, TrackData::sub, TrackPlayData::new);
     }
 
     @Override

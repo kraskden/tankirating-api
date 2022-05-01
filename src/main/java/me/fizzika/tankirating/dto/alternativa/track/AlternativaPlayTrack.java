@@ -1,6 +1,8 @@
 package me.fizzika.tankirating.dto.alternativa.track;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter

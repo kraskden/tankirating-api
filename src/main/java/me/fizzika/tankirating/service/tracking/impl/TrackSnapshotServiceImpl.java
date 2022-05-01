@@ -1,10 +1,8 @@
 package me.fizzika.tankirating.service.tracking.impl;
 
 import lombok.RequiredArgsConstructor;
-import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackSnapshotMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
-import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.repository.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackSnapshotService;
 import org.springframework.stereotype.Service;

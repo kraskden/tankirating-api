@@ -5,7 +5,8 @@ import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivityDTO;
 import me.fizzika.tankirating.dto.tracking.TrackingDTO;
 import me.fizzika.tankirating.enums.TrackActivityType;
-import me.fizzika.tankirating.model.track_data.*;
+import me.fizzika.tankirating.model.track_data.TrackActivityData;
+import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.model.track_data.TrackPlayData;
 import me.fizzika.tankirating.model.track_data.TrackUsageData;
 import me.fizzika.tankirating.record.tracking.TrackActivityRecord;
@@ -15,7 +16,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")

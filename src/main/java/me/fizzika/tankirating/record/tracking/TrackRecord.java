@@ -1,6 +1,9 @@
 package me.fizzika.tankirating.record.tracking;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import me.fizzika.tankirating.record.IdRecord;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;

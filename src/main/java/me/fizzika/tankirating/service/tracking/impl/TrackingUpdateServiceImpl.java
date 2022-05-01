@@ -14,11 +14,12 @@ import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.TrackDiffRepository;
 import me.fizzika.tankirating.repository.TrackRepository;
-import me.fizzika.tankirating.service.tracking.*;
+import me.fizzika.tankirating.service.tracking.AlternativaTrackingService;
+import me.fizzika.tankirating.service.tracking.TrackSnapshotService;
+import me.fizzika.tankirating.service.tracking.TrackTargetService;
+import me.fizzika.tankirating.service.tracking.TrackingUpdateService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -41,13 +42,11 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     private final TrackRepository trackRepository;
 
     @Override
-    @Transactional
     public void updateAccount(UUID targetId, String nickname) {
         updateAccountAsync(targetId, nickname);
     }
 
     @Override
-    @PostConstruct
     public void updateAll() {
         targetService.getAllTargets().stream()
                 .filter(t -> t.getType() == TrackTargetType.ACCOUNT)

@@ -1,7 +1,6 @@
 package me.fizzika.tankirating.service.tracking.sanitizer.impl;
 
 import me.fizzika.tankirating.service.tracking.sanitizer.TrackSanitizer;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
