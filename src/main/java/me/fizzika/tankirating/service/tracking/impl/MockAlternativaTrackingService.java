@@ -9,9 +9,11 @@ import me.fizzika.tankirating.dto.alternativa.AlternativaTrackResponseDTO;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
 import me.fizzika.tankirating.service.tracking.AlternativaTrackingService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Mock service for testing purposes
@@ -27,9 +29,15 @@ public class MockAlternativaTrackingService implements AlternativaTrackingServic
 
     @SneakyThrows
     @Override
-    public AlternativaTrackDTO getTracking(String username) {
+    @Async
+    public CompletableFuture<AlternativaTrackDTO> getTracking(String username) {
+        Thread.sleep(1000);
         var res = objectMapper.readValue(new File("/home/den/docs/fizzika.json"), AlternativaTrackResponseDTO.class);
-        return res.getTrack();
+        if ("OK".equals(res.getResponseType())) {
+            return CompletableFuture.completedFuture(res.getTrack());
+        } else {
+            return CompletableFuture.failedFuture(new RuntimeException("Wrong tracking..."));
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.service.tracking.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.enums.TrackDiffPeriod;
 import me.fizzika.tankirating.enums.TrackTargetType;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
@@ -22,7 +23,9 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrackingUpdateServiceImpl implements TrackingUpdateService {
@@ -40,7 +43,31 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     @Override
     @Transactional
     public void updateAccount(UUID targetId, String nickname) {
-        TrackFullData currentData = alternativaMapper.toFullTrackModel(alternativaService.getTracking(nickname));
+        updateAccountAsync(targetId, nickname);
+    }
+
+    @Override
+    @PostConstruct
+    public void updateAll() {
+        targetService.getAllTargets().stream()
+                .filter(t -> t.getType() == TrackTargetType.ACCOUNT)
+                .forEach(t -> updateAccount(t.getId(), t.getName()));
+    }
+
+    private CompletableFuture<Void> updateAccountAsync(UUID targetId, String nickname) {
+        return alternativaService.getTracking(nickname)
+                .thenApply(alternativaMapper::toFullTrackModel)
+                .thenAccept(data -> updateAccountData(targetId, data))
+                .whenComplete((res, ex) -> {
+                    if (ex == null) {
+                        log.info("Updated {}", nickname);
+                    } else {
+                        log.error("Error due updating {}", nickname, ex);
+                    }
+                });
+    }
+
+    private void updateAccountData(UUID targetId, TrackFullData currentData) {
         LocalDateTime now = LocalDateTime.now();
 
         // Save current snapshot
@@ -65,15 +92,9 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
             diffRecord.setTrackRecord(periodDiff.map(dataMapper::toTrackRecord).orElse(null));
             diffRepository.save(diffRecord);
         }
+
     }
 
-    @Override
-    @PostConstruct
-    public void updateAll() {
-        targetService.getAllTargets().stream()
-                .filter(t -> t.getType() == TrackTargetType.ACCOUNT)
-                .forEach(t -> updateAccount(t.getId(), t.getName()));
-    }
 
     private void saveDaySnapshot(UUID targetId, LocalDateTime now, TrackFullData data) {
         LocalDateTime dayStart = now.truncatedTo(ChronoUnit.DAYS);

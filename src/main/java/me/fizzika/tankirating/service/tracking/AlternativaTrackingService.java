@@ -2,8 +2,10 @@ package me.fizzika.tankirating.service.tracking;
 
 import me.fizzika.tankirating.dto.alternativa.AlternativaTrackDTO;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface AlternativaTrackingService {
     
-    AlternativaTrackDTO getTracking(String username);
+    CompletableFuture<AlternativaTrackDTO> getTracking(String username);
     
 }
