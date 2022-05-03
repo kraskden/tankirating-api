@@ -2,8 +2,8 @@ package me.fizzika.tankirating.service.tracking.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.enums.TrackDiffPeriod;
-import me.fizzika.tankirating.enums.TrackTargetType;
+import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.model.DatePeriod;

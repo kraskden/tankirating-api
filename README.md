@@ -10,6 +10,20 @@
 * Account API Ph.2 (change nickname, froze, hide, delete, statistics)
 * User API (role management: USER, ADMIN, OWNER)
 
+## API: 
+
+* `/account/{name}/snapshot?fmt=[BASE, FULL]`
+  * `/latest`
+  * `/init`
+  * `/2022-05-01` -- later
+  * `/[period]/[offset]` -- later
+* `/account/{name}/diff`
+  * `/custom?from=...&to...` 
+  * `/alltime`
+  * `/[period]?from=...&to...&page=...&size=...`
+* `/group/{name}/diff`
+  * `/[period]?from=2022-05-01`
+
 ## TODO:
 
 ### Tracking: 
@@ -18,7 +32,6 @@ absolute values, cuz the overflow error may be occups.
 Think about synchronized for group values calculations. 
 * Track API (snapshots, diffs). Dynamic diff calculations for 2 snapshots
 * Snapshot&Diff sanitization. I think DaySnapshotTrackSanitizer is a good first point to start with it
-
 
 ## Dev docs:
 

@@ -12,8 +12,6 @@ public class TrackingDTO {
 
     private TrackTargetDTO target;
 
-    private LocalDateTime timestamp;
-
     private int gold;
 
     private int kills;

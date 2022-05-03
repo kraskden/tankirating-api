@@ -4,7 +4,7 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivityDTO;
 import me.fizzika.tankirating.dto.tracking.TrackingDTO;
-import me.fizzika.tankirating.enums.TrackActivityType;
+import me.fizzika.tankirating.enums.track.TrackActivityType;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.model.track_data.TrackPlayData;
@@ -27,7 +27,7 @@ public abstract class TrackRecordMapper {
 
     @Mapping(target = "premiumDays", ignore = true)
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesDTO")
-    public abstract TrackingDTO toDto(TrackRecord record, TrackTargetDTO target);
+    public abstract TrackingDTO toFullDto(TrackRecord record, TrackTargetDTO target);
 
     @Mapping(target = "premiumDays", ignore = true)
     @Mapping(target = "activities", ignore = true)

@@ -2,6 +2,8 @@ package me.fizzika.tankirating.repository;
 
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -28,5 +30,19 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
     default Optional<TrackSnapshotRecord> findClosestSnapshot(UUID targetId, LocalDateTime from, LocalDateTime to) {
         return findFirstByTargetIdAndTimestampBetweenOrderByTimestampAsc(targetId, from, to);
     }
+
+    @Query("select S from TrackSnapshotRecord S " +
+            "where S.targetId = :targetId and " +
+            "S.timestamp = (select max(S2.timestamp) from TrackSnapshotRecord S2 " +
+                "where S2.targetId = :targetId" +
+            ")")
+    Optional<TrackSnapshotRecord> getLatest(@Param("targetId") UUID targetId);
+
+    @Query("select S from TrackSnapshotRecord S " +
+            "where S.targetId = :targetId and " +
+            "S.timestamp = (select min(S2.timestamp) from TrackSnapshotRecord S2 " +
+            "where S2.targetId = :targetId" +
+            ")")
+    Optional<TrackSnapshotRecord> getInit(@Param("targetId") UUID targetId);
 
 }

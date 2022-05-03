@@ -2,7 +2,7 @@ package me.fizzika.tankirating.model.track_data;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.fizzika.tankirating.enums.TrackActivityType;
+import me.fizzika.tankirating.enums.track.TrackActivityType;
 import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.util.TrackUtils;
 

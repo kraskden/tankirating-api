@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import me.fizzika.tankirating.enums.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
 import me.fizzika.tankirating.record.IdRecord;
 
 import javax.persistence.*;

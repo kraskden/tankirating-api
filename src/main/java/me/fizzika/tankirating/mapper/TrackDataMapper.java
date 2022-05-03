@@ -1,6 +1,6 @@
 package me.fizzika.tankirating.mapper;
 
-import me.fizzika.tankirating.enums.TrackActivityType;
+import me.fizzika.tankirating.enums.track.TrackActivityType;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.model.track_data.TrackPlayData;

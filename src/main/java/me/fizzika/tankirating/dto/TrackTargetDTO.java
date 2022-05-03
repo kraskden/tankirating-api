@@ -1,7 +1,7 @@
 package me.fizzika.tankirating.dto;
 
 import lombok.Data;
-import me.fizzika.tankirating.enums.TrackTargetType;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 
 import java.util.UUID;
 
