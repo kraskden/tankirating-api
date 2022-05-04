@@ -1,5 +1,8 @@
 package me.fizzika.tankirating.mapper;
 
+import lombok.Setter;
+import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.tracking.TrackingDTO;
 import me.fizzika.tankirating.enums.track.TrackActivityType;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
@@ -11,6 +14,7 @@ import me.fizzika.tankirating.record.tracking.TrackSupplyRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +23,13 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class TrackDataMapper {
+
+    @Setter(onMethod_ = {@Autowired})
+    private TrackRecordMapper recordMapper;
+
+    public TrackingDTO toFullDTO(TrackFullData model, TrackTargetDTO target) {
+        return recordMapper.toFullDto(toTrackRecordInternal(model), target);
+    }
 
     @Named("toTrackRecord")
     public TrackRecord toTrackRecord(TrackFullData model) {

@@ -5,6 +5,7 @@ import me.fizzika.tankirating.mapper.TrackSnapshotMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.repository.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackSnapshotService;
+import me.fizzika.tankirating.util.Pair;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -34,6 +35,12 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     public Optional<TrackSnapshot> findClosestSnapshot(UUID targetId, LocalDateTime from, LocalDateTime to) {
        return repository.findClosestSnapshot(targetId, from, to)
                .map(snapshotMapper::toSnapshot);
+    }
+
+    @Override
+    public Optional<Pair<TrackSnapshot>> findBorderSnapshots(UUID targetId, LocalDateTime from, LocalDateTime to) {
+        return repository.findBorderSnapshots(targetId, from, to)
+                .map(p -> p.map(snapshotMapper::toSnapshot));
     }
 
     @Override

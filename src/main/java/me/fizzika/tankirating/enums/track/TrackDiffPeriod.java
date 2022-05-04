@@ -12,15 +12,16 @@ import java.util.function.Function;
 @AllArgsConstructor
 public enum TrackDiffPeriod {
 
-    DAY(stamp -> new DatePeriod(stamp, getPeriodEndDate(stamp, ChronoUnit.DAYS, 1))),
+    DAY(stamp -> new DatePeriod(stamp, getPeriodEndDate(stamp, ChronoUnit.DAYS, 1), ChronoUnit.DAYS)),
     WEEK(stamp -> getDiffPeriod(stamp, ChronoField.DAY_OF_WEEK, ChronoUnit.WEEKS)),
     MONTH(stamp -> getDiffPeriod(stamp, ChronoField.DAY_OF_MONTH, ChronoUnit.MONTHS)),
     YEAR(stamp -> getDiffPeriod(stamp, ChronoField.DAY_OF_YEAR, ChronoUnit.YEARS)),
 
     // LocalDateTime.MIN...LocalDateTime.MAX is not fit into postgres timestamp range
     ALL_TIME(stamp -> new DatePeriod(
-            LocalDate.of(2000, 1, 1).atStartOfDay(),
-            LocalDate.of(3000, 1, 1).atStartOfDay()
+            LocalDate.EPOCH.atStartOfDay(),
+            LocalDate.of(3000, 1, 1).atStartOfDay(),
+            ChronoUnit.FOREVER
     ));
 
     private final Function<LocalDateTime, DatePeriod> periodGenerator;
@@ -31,7 +32,7 @@ public enum TrackDiffPeriod {
 
     private static DatePeriod getDiffPeriod(LocalDateTime now, ChronoField resetField, ChronoUnit addUnit) {
         LocalDateTime startDate = getPeriodStartDate(now, resetField);
-        return new DatePeriod(startDate, getPeriodEndDate(startDate, addUnit, 1));
+        return new DatePeriod(startDate, getPeriodEndDate(startDate, addUnit, 1), addUnit);
     }
 
     private static LocalDateTime getPeriodEndDate(LocalDateTime startDate, ChronoUnit addUnit, long duration) {

@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 @Data
 public class TrackFormatFilter {
 
-    @NotNull
-    TrackFormat format;
+    TrackFormat format = TrackFormat.FULL;
 
 }

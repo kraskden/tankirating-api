@@ -22,8 +22,17 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, UUID
             "where D.target.id = :targetId " +
             "and D.period = :period " +
             "and D.periodStart between :from and :to")
-    List<TrackDiffRecord> findDiffs(UUID targetId, TrackDiffPeriod period, LocalDateTime from,
-                                    LocalDateTime to);
+    List<TrackDiffRecord> findAllDiffsForPeriod(UUID targetId, TrackDiffPeriod period, LocalDateTime from,
+                                                LocalDateTime to);
+
+
+
+    @Query(value = "select D from TrackDiffRecord D " +
+            "where D.target.id = :targetId " +
+            "and D.period = :period " +
+            "and D.periodStart = :periodStart")
+    Optional<TrackDiffRecord> findDiffForPeriod(UUID targetId, TrackDiffPeriod period,
+                                                LocalDateTime periodStart);
 
     @Query("select D from TrackDiffRecord D where D.target.id = :targetId and D.period = 'ALL_TIME'")
     Optional<TrackDiffRecord> findAllTimeDiff(UUID targetId);

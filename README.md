@@ -13,14 +13,15 @@
 ## API: 
 
 * `/account/{name}/snapshot?fmt=[BASE, FULL]`
-  * `/latest`
-  * `/init`
-  * `/2022-05-01` -- later
-  * `/[period]/[offset]` -- later
+  * `/latest` -- Done
+  * `/init` -- Done
+  * `/2022-05-01` -- ???
+  * `/[period]/[offset]` -- ???
 * `/account/{name}/diff`
-  * `/custom?from=...&to...` 
-  * `/alltime`
-  * `/[period]?from=...&to...&page=...&size=...`
+  * `/custom?from=...&to...`  -- Done
+  * `/alltime` -- Done
+  * `/[period]?from=...&to...` -- Done
+  * `/[period]/[offset]` -- Done
 * `/group/{name}/diff`
   * `/[period]?from=2022-05-01`
 

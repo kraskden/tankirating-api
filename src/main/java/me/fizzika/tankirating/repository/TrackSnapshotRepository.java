@@ -1,6 +1,8 @@
 package me.fizzika.tankirating.repository;
 
+import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
+import me.fizzika.tankirating.util.Pair;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,9 +29,28 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
                                                                                            LocalDateTime from,
                                                                                            LocalDateTime to);
 
+    Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampGreaterThanEqualOrderByTimestampAsc(
+            UUID targetId, LocalDateTime timestamp);
+
+    Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampLessThanEqualOrderByTimestampDesc(
+            UUID targetId, LocalDateTime timestamp);
+
     default Optional<TrackSnapshotRecord> findClosestSnapshot(UUID targetId, LocalDateTime from, LocalDateTime to) {
         return findFirstByTargetIdAndTimestampBetweenOrderByTimestampAsc(targetId, from, to);
     }
+
+    default Optional<Pair<TrackSnapshotRecord>> findBorderSnapshots(UUID targetId, LocalDateTime from,
+                                                                    LocalDateTime to) {
+        Optional<TrackSnapshotRecord> optStart = findFirstByTargetIdAndTimestampGreaterThanEqualOrderByTimestampAsc(
+                targetId, from
+        );
+        Optional<TrackSnapshotRecord> optEnd = findFirstByTargetIdAndTimestampLessThanEqualOrderByTimestampDesc(
+                targetId, to
+        );
+        return optStart.isPresent() && optEnd.isPresent() ? Optional.of(Pair.of(optStart.get(), optEnd.get())) :
+                Optional.empty();
+    }
+
 
     @Query("select S from TrackSnapshotRecord S " +
             "where S.targetId = :targetId and " +
