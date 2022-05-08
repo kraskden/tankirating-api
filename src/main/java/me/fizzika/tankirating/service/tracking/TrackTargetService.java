@@ -11,4 +11,8 @@ public interface TrackTargetService {
 
     Optional<TrackTargetDTO> getByName(String name);
 
+    boolean existsByName(String name);
+
+    TrackTargetDTO create(String name);
+
 }

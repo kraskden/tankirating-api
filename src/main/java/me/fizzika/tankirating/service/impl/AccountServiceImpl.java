@@ -8,6 +8,7 @@ import me.fizzika.tankirating.mapper.AccountMapper;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.TrackTargetRepository;
 import me.fizzika.tankirating.service.AccountService;
+import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,18 +17,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
+    private final TrackTargetService trackTargetService;
     private final TrackTargetRepository trackTargetRepository;
     private final AccountMapper accountMapper;
 
     @Override
     public AccountDTO create(AccountDTO account) {
         // TODO: check if alternativa user is exists
-        if (trackTargetRepository.existsByNameIgnoreCase(account.getName())) {
-            throw new ExternalException(ExceptionType.ACCOUNT_ALREADY_EXISTS)
-                    .arg("name", account.getName());
-        }
-        TrackTargetRecord saved = trackTargetRepository.save(accountMapper.toRecord(account));
-        return accountMapper.toAccountDTO(saved);
+        return new AccountDTO(trackTargetService.create(account.getName()).getName());
     }
 
     @Override
@@ -35,8 +32,8 @@ public class AccountServiceImpl implements AccountService {
         if (name.startsWith("~")) {
             throw new ExternalException(ExceptionType.ACCOUNT_NOT_FOUND).arg("name", name);
         }
-        return trackTargetRepository.findByNameIgnoreCase(name)
-                .map(accountMapper::toAccountDTO)
+        return trackTargetService.getByName(name)
+                .map(target -> new AccountDTO(target.getName()))
                 .orElseThrow(() -> new ExternalException(ExceptionType.ACCOUNT_NOT_FOUND).arg("name", name));
     }
 

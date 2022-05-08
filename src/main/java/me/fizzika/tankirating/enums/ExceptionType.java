@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 @Getter
 public enum ExceptionType {
+    TRACK_TARGET_ALREADY_EXISTS("Track target already exists in the system", HttpStatus.CONFLICT),
 
     ACCOUNT_SNAPSHOT_NOT_FOUND("Account snapshot is not found", HttpStatus.NOT_FOUND),
     ACCOUNT_DIFF_NOT_FOUND("Account diff not found", HttpStatus.NOT_FOUND),
