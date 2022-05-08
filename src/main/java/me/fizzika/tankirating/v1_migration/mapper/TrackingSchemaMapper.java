@@ -19,6 +19,10 @@ import java.util.Optional;
 public abstract class TrackingSchemaMapper {
 
     public TrackRecord toRecord(TrackingSchema schema) {
+        if (schema == null || schema.getTime() == null || schema.getTime().equals(0)) {
+            return null;
+        }
+
         TrackRecord res = toRecordInternal(schema);
         res.getActivities().forEach(a -> a.setTrack(res));
         res.getSupplies().forEach(s -> s.setTrack(res));

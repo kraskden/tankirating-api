@@ -4,7 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.TankiSupply;
+import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
+import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
+import me.fizzika.tankirating.repository.TrackDiffRepository;
 import me.fizzika.tankirating.repository.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.v1_migration.mapper.TrackingSchemaMapper;
@@ -32,8 +36,10 @@ public class AccountMigrationService implements V1MigrationService {
     private final TrackingSchemaMapper schemaMapper;
 
     private final TrackSnapshotRepository snapshotRepository;
+    private final TrackDiffRepository diffRepository;
 
     @Override
+    @PostConstruct
     public void migrate() {
         List<String> logins = mongoTemplateRepository.getAccountLogins();
         log.info("Found {} accounts", logins.size());
@@ -51,6 +57,7 @@ public class AccountMigrationService implements V1MigrationService {
                 .orElseGet(() -> createAccount(login));
 
         migrateSnapshots(account, target);
+        migrateDiffs(account, target);
 
     }
 
@@ -60,7 +67,35 @@ public class AccountMigrationService implements V1MigrationService {
                 .map(schema -> toSnapshot(schema, target))
                 .collect(Collectors.toList());
         snapshotRepository.saveAllAndFlush(snapshots);
-        log.debug("Successfully migrate {} snapshots", snapshots.size());
+        log.info("Successfully migrate {} snapshots", snapshots.size());
+    }
+
+
+    private void migrateDiffs(AccountDocument account, TrackTargetDTO target) {
+        migrateDiffs(account.getDaily(), TrackDiffPeriod.DAY, target);
+        migrateDiffs(account.getWeekly(), TrackDiffPeriod.WEEK, target);
+        migrateDiffs(account.getMonthly(), TrackDiffPeriod.MONTH, target);
+    }
+
+    private void migrateDiffs(List<TrackingSchema> schemas, TrackDiffPeriod period, TrackTargetDTO target) {
+        List<TrackDiffRecord> records = schemas.stream()
+                .peek(this::fixTrackingSchema)
+                .map(schema -> toDiff(schema, period, target))
+                .collect(Collectors.toList());
+        diffRepository.saveAllAndFlush(records);
+        log.info("Successfully migrate {} diffs for {} period", records.size(), period);
+    }
+
+    private TrackDiffRecord toDiff(TrackingSchema diff, TrackDiffPeriod period, TrackTargetDTO target) {
+        TrackDiffRecord res = new TrackDiffRecord();
+        TrackTargetRecord targetRec = new TrackTargetRecord();
+        targetRec.setId(target.getId());
+
+        res.setTarget(targetRec);
+        res.setTrackRecord(schemaMapper.toRecord(diff));
+        res.setPeriod(period);
+        // TODO: dates
+        return res;
     }
 
     private TrackSnapshotRecord toSnapshot(TrackingSchema snapshot, TrackTargetDTO target) {
@@ -78,7 +113,7 @@ public class AccountMigrationService implements V1MigrationService {
 
     private TrackTargetDTO createAccount(String login) {
         var res = trackTargetService.create(login);
-        log.debug("Create account {}", login);
+        log.info("Create account {}", login);
         return res;
     }
 
