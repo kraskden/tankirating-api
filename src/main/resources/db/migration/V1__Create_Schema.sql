@@ -31,7 +31,7 @@ create table track
 create table diff
 (
     id           int8 not null primary key,
-    target_id    int8 not null references target (id) on delete CASCADE,
+    target_id    int4 not null references target (id) on delete CASCADE,
     period_start timestamp,
     period_end   timestamp,
     "period"     text,

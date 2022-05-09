@@ -51,16 +51,16 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
 
 
     @Query("select S from TrackSnapshotRecord S " +
-            "where S.target.id = :target.id and " +
+            "where S.target.id = :targetId and " +
             "S.timestamp = (select max(S2.timestamp) from TrackSnapshotRecord S2 " +
-                "where S2.target.id = :target.id" +
+                "where S2.target.id = :targetId" +
             ")")
     Optional<TrackSnapshotRecord> getLatest(@Param("targetId") Integer targetId);
 
     @Query("select S from TrackSnapshotRecord S " +
-            "where S.target.id = :target.id and " +
+            "where S.target.id = :targetId and " +
             "S.timestamp = (select min(S2.timestamp) from TrackSnapshotRecord S2 " +
-            "where S2.target.id = :target.id" +
+            "where S2.target.id = :targetId" +
             ")")
     Optional<TrackSnapshotRecord> getInit(@Param("targetId") Integer targetId);
 
