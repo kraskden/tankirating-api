@@ -4,10 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.IdRecord;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -15,12 +15,25 @@ import javax.persistence.Table;
 @ToString
 @Table(name = "target")
 @NoArgsConstructor
-public class TrackTargetRecord extends IdRecord {
+public class TrackTargetRecord extends IdRecord<Integer> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "target_seq_generator")
+    @SequenceGenerator(name = "target_seq_generator", sequenceName = "target_seq", allocationSize = 1)
+    private Integer id;
 
     private String name;
 
-    public TrackTargetRecord(String name) {
+    @Enumerated(EnumType.STRING)
+    private TrackTargetType type;
+
+    public TrackTargetRecord(String name, TrackTargetType type) {
         this.name = name;
+        this.type = type;
+    }
+
+    public TrackTargetRecord(Integer id) {
+        this.id = id;
     }
 
 }

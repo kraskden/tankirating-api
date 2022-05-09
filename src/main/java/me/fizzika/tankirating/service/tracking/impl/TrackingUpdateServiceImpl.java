@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -42,7 +41,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     private final TrackRepository trackRepository;
 
     @Override
-    public void updateAccount(UUID targetId, String nickname) {
+    public void updateAccount(Integer targetId, String nickname) {
         updateAccountAsync(targetId, nickname);
     }
 
@@ -53,7 +52,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                 .forEach(t -> updateAccount(t.getId(), t.getName()));
     }
 
-    private CompletableFuture<Void> updateAccountAsync(UUID targetId, String nickname) {
+    private CompletableFuture<Void> updateAccountAsync(Integer targetId, String nickname) {
         return alternativaService.getTracking(nickname)
                 .thenApply(alternativaMapper::toFullTrackModel)
                 .thenAccept(data -> updateAccountData(targetId, data))
@@ -66,7 +65,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                 });
     }
 
-    private void updateAccountData(UUID targetId, TrackFullData currentData) {
+    private void updateAccountData(Integer targetId, TrackFullData currentData) {
         LocalDateTime now = LocalDateTime.now();
 
         // Save current snapshot
@@ -95,7 +94,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     }
 
 
-    private void saveDaySnapshot(UUID targetId, LocalDateTime now, TrackFullData data) {
+    private void saveDaySnapshot(Integer targetId, LocalDateTime now, TrackFullData data) {
         LocalDateTime dayStart = now.truncatedTo(ChronoUnit.DAYS);
         if (snapshotService.existsSnapshot(targetId, dayStart)) {
             snapshotService.saveSnapshot(new TrackSnapshot(targetId, now, data));
@@ -104,7 +103,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         }
     }
 
-    private TrackDiffRecord emptyRecord(UUID targetId, TrackDiffPeriod period, DatePeriod periodDates) {
+    private TrackDiffRecord emptyRecord(Integer targetId, TrackDiffPeriod period, DatePeriod periodDates) {
         var rec = new TrackDiffRecord();
         var target = new TrackTargetRecord();
         target.setId(targetId);

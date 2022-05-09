@@ -4,8 +4,6 @@ import lombok.Setter;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.tracking.TrackSnapshotDTO;
 import me.fizzika.tankirating.dto.tracking.TrackingDTO;
-import me.fizzika.tankirating.enums.TrackFormat;
-import me.fizzika.tankirating.exceptions.ServerException;
 import me.fizzika.tankirating.mapper.prototype.TrackFormatMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;

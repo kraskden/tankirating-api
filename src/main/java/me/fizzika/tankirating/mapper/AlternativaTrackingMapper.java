@@ -6,8 +6,8 @@ import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackEntity;
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaEntityPlayTrack;
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaModePlayTrack;
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaSupplyUsageTrack;
+import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.enums.track.TankiSupply;
-import me.fizzika.tankirating.enums.track.TrackActivityType;
 import me.fizzika.tankirating.model.track_data.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -49,12 +49,12 @@ public abstract class AlternativaTrackingMapper {
                 .collect(Collectors.toMap(this::getSupplyName, t -> new TrackUsageData(t.getUsages())));
     }
 
-    private Map<TrackActivityType, TrackActivityData> toActivityTrackMap(AlternativaTrackDTO trackDTO) {
-        Map<TrackActivityType, TrackActivityData> res = new EnumMap<>(TrackActivityType.class);
-        res.put(TrackActivityType.HULL, toEntityActivityTrackModel(trackDTO.getHullsPlayed()));
-        res.put(TrackActivityType.TURRET, toEntityActivityTrackModel(trackDTO.getTurretsPlayed()));
-        res.put(TrackActivityType.MODULE, toEntityActivityTrackModel(trackDTO.getResistanceModules()));
-        res.put(TrackActivityType.MODE, toModeActivityTrackModel(trackDTO.getModesPlayed()));
+    private Map<TankiEntityType, TrackActivityData> toActivityTrackMap(AlternativaTrackDTO trackDTO) {
+        Map<TankiEntityType, TrackActivityData> res = new EnumMap<>(TankiEntityType.class);
+        res.put(TankiEntityType.HULL, toEntityActivityTrackModel(trackDTO.getHullsPlayed()));
+        res.put(TankiEntityType.TURRET, toEntityActivityTrackModel(trackDTO.getTurretsPlayed()));
+        res.put(TankiEntityType.MODULE, toEntityActivityTrackModel(trackDTO.getResistanceModules()));
+        res.put(TankiEntityType.MODE, toModeActivityTrackModel(trackDTO.getModesPlayed()));
         return res;
     }
 

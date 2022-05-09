@@ -1,7 +1,5 @@
 package me.fizzika.tankirating.util;
 
-import me.fizzika.tankirating.model.track_data.TrackFullData;
-
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;

@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.repository;
 
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,15 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
-import java.util.UUID;
 
-public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, UUID> {
+public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, Integer> {
 
-    Optional<TrackTargetRecord> findByNameIgnoreCase(String name);
+    Optional<TrackTargetRecord> findByNameIgnoreCaseAndType(String name, TrackTargetType type);
 
-    boolean existsByNameIgnoreCase(String name);
+    boolean existsByNameIgnoreCaseAndType(String name, TrackTargetType type);
 
-    @Query(value = "select * from target t where not starts_with(t.name, '~')", nativeQuery = true)
+    @Query(value = "select T from TrackTargetRecord T where T.type = 'ACCOUNT'")
     Page<TrackTargetRecord> findAllAccounts(Pageable pageable);
 
 }

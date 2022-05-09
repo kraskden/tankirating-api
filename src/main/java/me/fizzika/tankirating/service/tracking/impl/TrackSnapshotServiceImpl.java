@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,19 +25,19 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     }
 
     @Override
-    public boolean existsSnapshot(UUID targetId, LocalDateTime timestamp) {
+    public boolean existsSnapshot(Integer targetId, LocalDateTime timestamp) {
         return repository.existsByTargetIdAndTimestamp(targetId, timestamp);
     }
 
     @Override
     @Transactional
-    public Optional<TrackSnapshot> findClosestSnapshot(UUID targetId, LocalDateTime from, LocalDateTime to) {
+    public Optional<TrackSnapshot> findClosestSnapshot(Integer targetId, LocalDateTime from, LocalDateTime to) {
        return repository.findClosestSnapshot(targetId, from, to)
                .map(snapshotMapper::toSnapshot);
     }
 
     @Override
-    public Optional<Pair<TrackSnapshot>> findBorderSnapshots(UUID targetId, LocalDateTime from, LocalDateTime to) {
+    public Optional<Pair<TrackSnapshot>> findBorderSnapshots(Integer targetId, LocalDateTime from, LocalDateTime to) {
         return repository.findBorderSnapshots(targetId, from, to)
                 .map(p -> p.map(snapshotMapper::toSnapshot));
     }

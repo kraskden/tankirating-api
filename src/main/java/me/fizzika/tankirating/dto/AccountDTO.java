@@ -5,14 +5,13 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 public class AccountDTO {
 
     @Null
-    private UUID id;
+    private Integer id;
 
     @NotBlank
     private String name;

@@ -1,61 +1,79 @@
-create table if not exists "group"
+create table target
 (
-    id     uuid primary key,
-    "name" text unique not null
+    id     int4 not null primary key,
+    "name" text not null,
+    "type" text not null,
+
+    constraint target_name_type unique ("name", "type")
 );
 
-create table if not exists "account"
+create table entity
 (
-    id       uuid primary key,
-    nickname text unique not null
+    id     int2 not null primary key,
+    "name" text not null,
+    "type" text not null,
+
+    constraint entity_name_type unique ("name", "type")
 );
 
-create table if not exists "track"
+create table track
 (
-    id          uuid primary key,
-    target_id   uuid      not null,
-    "timestamp" timestamp not null,
-
-    gold        int       not null,
-    kills       int       not null,
-    deaths      int       not null,
-    cry         int       not null,
-    score       int       not null,
-    "time"      bigint    not null,
-
-    constraint fk_target_account foreign key (target_id) references account (id) on delete cascade,
-    constraint fk_target_group foreign key (target_id) references "group" (id) on delete cascade
+    id      int8 not null primary key,
+    gold    int4 not null,
+    kills   int4 not null,
+    deaths  int4 not null,
+    cry     int4 not null,
+    score   int4 not null,
+    "time"  int8 not null,
+    premium int4 not null
 );
 
-create table if not exists "track_activity"
+create table diff
 (
-    id       uuid primary key,
-    track_id uuid   not null references track (id),
-    "name"   text   not null,
-    "type"   text   not null,
-    "score"  int    not null,
-    "time"   bigint not null
+    id           int8 not null primary key,
+    target_id    int4 not null references target (id) on delete CASCADE,
+    period_start timestamp,
+    period_end   timestamp,
+    "period"     text,
+    track_id     int8 references track (id) on delete CASCADE,
+    track_start  timestamp,
+    track_end    timestamp
 );
 
-create table if not exists "track_supply"
+create table "snapshot"
 (
-    id       uuid primary key,
-    track_id uuid   not null references track (id),
-    "name"   text   not null,
-    usages   bigint not null
+    id          int8      not null primary key,
+    target_id   int4 references target (id) on delete CASCADE,
+    "timestamp" timestamp null,
+    track_id    int8 references track (id) on delete CASCADE
 );
 
-create table if not exists "snapshot"
+create index idx_target_timestamp on "snapshot" (target_id, "timestamp");
+
+create table track_activity
 (
-    track_id    uuid primary key references track (id),
-    has_premium bool not null
+    id        int8 not null primary key,
+    track_id  int8 not null references track (id) on delete CASCADE,
+    entity_id int2 references entity (id),
+    score     int4 not null,
+    "time"    int8 not null
 );
 
-create table if not exists "diff_track"
+create table track_usage
 (
-    track_id       uuid primary key references track (id),
-    "period"       text not null,
-    "premium_days" int  not null
+    id        int8 not null primary key,
+    track_id  int8 not null references track (id) on delete CASCADE,
+    entity_id int2 references entity (id),
+    usages    int4 not null
 );
 
 
+create sequence target_seq increment 1;
+create sequence entity_seq increment 1;
+
+-- Use hibernate sequence pooling optimisation
+create sequence track_seq increment 50;
+create sequence diff_seq increment 50;
+create sequence snapshot_seq increment 50;
+create sequence track_usage_seq increment 50;
+create sequence track_activity_seq increment 50;

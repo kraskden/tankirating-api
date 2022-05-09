@@ -2,7 +2,6 @@ package me.fizzika.tankirating.mapper;
 
 
 import me.fizzika.tankirating.dto.AccountDTO;
-import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

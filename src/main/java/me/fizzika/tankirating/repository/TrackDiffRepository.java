@@ -9,12 +9,11 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, UUID> {
+public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long> {
 
-    Optional<TrackDiffRecord> findByTargetIdAndPeriodStartAndPeriodEnd(UUID targetId,
+    Optional<TrackDiffRecord> findByTargetIdAndPeriodStartAndPeriodEnd(Integer targetId,
                                                                        LocalDateTime periodStart,
                                                                        LocalDateTime periodEnd);
 
@@ -22,7 +21,7 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, UUID
             "where D.target.id = :targetId " +
             "and D.period = :period " +
             "and D.periodStart between :from and :to")
-    List<TrackDiffRecord> findAllDiffsForPeriod(UUID targetId, TrackDiffPeriod period, LocalDateTime from,
+    List<TrackDiffRecord> findAllDiffsForPeriod(Integer targetId, TrackDiffPeriod period, LocalDateTime from,
                                                 LocalDateTime to);
 
 
@@ -31,10 +30,10 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, UUID
             "where D.target.id = :targetId " +
             "and D.period = :period " +
             "and D.periodStart = :periodStart")
-    Optional<TrackDiffRecord> findDiffForPeriod(UUID targetId, TrackDiffPeriod period,
+    Optional<TrackDiffRecord> findDiffForPeriod(Integer targetId, TrackDiffPeriod period,
                                                 LocalDateTime periodStart);
 
     @Query("select D from TrackDiffRecord D where D.target.id = :targetId and D.period = 'ALL_TIME'")
-    Optional<TrackDiffRecord> findAllTimeDiff(UUID targetId);
+    Optional<TrackDiffRecord> findAllTimeDiff(Integer targetId);
 
 }

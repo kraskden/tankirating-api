@@ -1,10 +1,8 @@
 package me.fizzika.tankirating.service.tracking;
 
-import java.util.UUID;
-
 public interface TrackingUpdateService {
 
-    void updateAccount(UUID id, String nickname);
+    void updateAccount(Integer id, String nickname);
 
     void updateAll();
 

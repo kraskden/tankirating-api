@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
@@ -20,7 +21,6 @@ import me.fizzika.tankirating.v1_migration.repository.AccountMongoTemplateReposi
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +39,6 @@ public class AccountMigrationService implements V1MigrationService {
     private final TrackDiffRepository diffRepository;
 
     @Override
-    @PostConstruct
     public void migrate() {
         List<String> logins = mongoTemplateRepository.getAccountLogins();
         log.info("Found {} accounts", logins.size());
@@ -53,7 +52,7 @@ public class AccountMigrationService implements V1MigrationService {
     private void migrateAccount(AccountDocument account) {
         String login = account.getLogin();
 
-        TrackTargetDTO target = trackTargetService.getByName(login)
+        TrackTargetDTO target = trackTargetService.getByName(login, TrackTargetType.ACCOUNT)
                 .orElseGet(() -> createAccount(login));
 
         migrateSnapshots(account, target);
@@ -100,7 +99,7 @@ public class AccountMigrationService implements V1MigrationService {
 
     private TrackSnapshotRecord toSnapshot(TrackingSchema snapshot, TrackTargetDTO target) {
         TrackSnapshotRecord res = new TrackSnapshotRecord();
-        res.setTargetId(target.getId());
+        res.setTarget(new TrackTargetRecord(target.getId()));
         res.setTimestamp(snapshot.getTimestamp());
         res.setTrackRecord(schemaMapper.toRecord(snapshot));
         return res;
@@ -112,7 +111,7 @@ public class AccountMigrationService implements V1MigrationService {
     }
 
     private TrackTargetDTO createAccount(String login) {
-        var res = trackTargetService.create(login);
+        var res = trackTargetService.create(login, TrackTargetType.ACCOUNT);
         log.info("Create account {}", login);
         return res;
     }
