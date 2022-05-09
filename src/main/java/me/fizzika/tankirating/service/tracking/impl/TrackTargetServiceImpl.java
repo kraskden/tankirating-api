@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.ExceptionType;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackTargetMapper;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
@@ -31,23 +32,23 @@ public class TrackTargetServiceImpl implements TrackTargetService {
     }
 
     @Override
-    public Optional<TrackTargetDTO> getByName(String name) {
-        return repository.findByNameIgnoreCase(name)
+    public Optional<TrackTargetDTO> getByName(String name, TrackTargetType type) {
+        return repository.findByNameIgnoreCaseAndType(name, type)
                 .map(mapper::toDto);
     }
 
     @Override
-    public boolean existsByName(String name) {
-        return repository.existsByNameIgnoreCase(name);
+    public boolean existsByName(String name, TrackTargetType type) {
+        return repository.existsByNameIgnoreCaseAndType(name, type);
     }
 
     @Override
-    public TrackTargetDTO create(String name) {
-        if (existsByName(name)) {
+    public TrackTargetDTO create(String name, TrackTargetType type) {
+        if (existsByName(name, type)) {
             throw new ExternalException(ExceptionType.TRACK_TARGET_ALREADY_EXISTS)
                     .arg("name", name);
         }
-        TrackTargetRecord rec = new TrackTargetRecord(name);
+        TrackTargetRecord rec = new TrackTargetRecord(name, type);
         return mapper.toDto(repository.save(rec));
     }
 

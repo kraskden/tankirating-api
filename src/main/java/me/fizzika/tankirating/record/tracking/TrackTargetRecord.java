@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.IdRecord;
 
 import javax.persistence.*;
@@ -23,8 +24,12 @@ public class TrackTargetRecord extends IdRecord<Integer> {
 
     private String name;
 
-    public TrackTargetRecord(String name) {
+    @Enumerated(EnumType.STRING)
+    private TrackTargetType type;
+
+    public TrackTargetRecord(String name, TrackTargetType type) {
         this.name = name;
+        this.type = type;
     }
 
     public TrackTargetRecord(Integer id) {

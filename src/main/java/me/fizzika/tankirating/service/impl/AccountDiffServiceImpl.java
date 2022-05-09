@@ -7,6 +7,7 @@ import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.TrackFormat;
 import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackDiffMapper;
@@ -85,7 +86,7 @@ public class AccountDiffServiceImpl implements AccountDiffService {
     }
 
     private TrackTargetDTO getTrackTarget(String nickname) {
-        return trackTargetService.getByName(nickname)
+        return trackTargetService.getByName(nickname, TrackTargetType.ACCOUNT)
                 .orElseThrow(() -> new ExternalException(ExceptionType.ACCOUNT_NOT_FOUND).arg("nickname", nickname));
     }
 

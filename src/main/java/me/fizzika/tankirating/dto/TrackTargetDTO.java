@@ -12,10 +12,10 @@ public class TrackTargetDTO {
 
     private TrackTargetType type;
 
-    public TrackTargetDTO(Integer id, String name) {
+    public TrackTargetDTO(Integer id, String name, TrackTargetType type) {
         this.name = name;
         this.id = id;
-        this.type = TrackTargetType.fromName(name);
+        this.type = type;
     }
 
 }

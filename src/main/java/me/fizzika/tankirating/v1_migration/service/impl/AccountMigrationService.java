@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
@@ -51,7 +52,7 @@ public class AccountMigrationService implements V1MigrationService {
     private void migrateAccount(AccountDocument account) {
         String login = account.getLogin();
 
-        TrackTargetDTO target = trackTargetService.getByName(login)
+        TrackTargetDTO target = trackTargetService.getByName(login, TrackTargetType.ACCOUNT)
                 .orElseGet(() -> createAccount(login));
 
         migrateSnapshots(account, target);
@@ -110,7 +111,7 @@ public class AccountMigrationService implements V1MigrationService {
     }
 
     private TrackTargetDTO createAccount(String login) {
-        var res = trackTargetService.create(login);
+        var res = trackTargetService.create(login, TrackTargetType.ACCOUNT);
         log.info("Create account {}", login);
         return res;
     }
