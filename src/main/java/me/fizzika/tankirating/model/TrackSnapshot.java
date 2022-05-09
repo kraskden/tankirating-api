@@ -5,13 +5,12 @@ import lombok.Data;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 public class TrackSnapshot {
 
-    private UUID targetId;
+    private Integer targetId;
 
     private LocalDateTime timestamp;
 

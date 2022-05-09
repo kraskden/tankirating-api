@@ -1,6 +1,5 @@
 package me.fizzika.tankirating.repository;
 
-import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.util.Pair;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,34 +11,33 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotRecord, UUID> {
+public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotRecord, Long> {
 
-    Optional<TrackSnapshotRecord> findOneByTargetIdAndTimestamp(UUID targetId, LocalDateTime timestamp);
+    Optional<TrackSnapshotRecord> findOneByTargetIdAndTimestamp(Integer targetId, LocalDateTime timestamp);
 
-    List<TrackSnapshotRecord> findAllByTargetIdAndTimestampIn(UUID targetId, Collection<LocalDateTime> stamps);
+    List<TrackSnapshotRecord> findAllByTargetIdAndTimestampIn(Integer targetId, Collection<LocalDateTime> stamps);
 
-    boolean existsByTargetIdAndTimestamp(UUID targetId, LocalDateTime timestamp);
+    boolean existsByTargetIdAndTimestamp(Integer targetId, LocalDateTime timestamp);
 
     void deleteByTimestampBetween(LocalDateTime start, LocalDateTime end);
 
-    Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampBetweenOrderByTimestampAsc(UUID targetId,
+    Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampBetweenOrderByTimestampAsc(Integer targetId,
                                                                                            LocalDateTime from,
                                                                                            LocalDateTime to);
 
     Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampGreaterThanEqualOrderByTimestampAsc(
-            UUID targetId, LocalDateTime timestamp);
+            Integer targetId, LocalDateTime timestamp);
 
     Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampLessThanEqualOrderByTimestampDesc(
-            UUID targetId, LocalDateTime timestamp);
+            Integer targetId, LocalDateTime timestamp);
 
-    default Optional<TrackSnapshotRecord> findClosestSnapshot(UUID targetId, LocalDateTime from, LocalDateTime to) {
+    default Optional<TrackSnapshotRecord> findClosestSnapshot(Integer targetId, LocalDateTime from, LocalDateTime to) {
         return findFirstByTargetIdAndTimestampBetweenOrderByTimestampAsc(targetId, from, to);
     }
 
-    default Optional<Pair<TrackSnapshotRecord>> findBorderSnapshots(UUID targetId, LocalDateTime from,
+    default Optional<Pair<TrackSnapshotRecord>> findBorderSnapshots(Integer targetId, LocalDateTime from,
                                                                     LocalDateTime to) {
         Optional<TrackSnapshotRecord> optStart = findFirstByTargetIdAndTimestampGreaterThanEqualOrderByTimestampAsc(
                 targetId, from
@@ -53,17 +51,17 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
 
 
     @Query("select S from TrackSnapshotRecord S " +
-            "where S.targetId = :targetId and " +
+            "where S.target.id = :target.id and " +
             "S.timestamp = (select max(S2.timestamp) from TrackSnapshotRecord S2 " +
-                "where S2.targetId = :targetId" +
+                "where S2.target.id = :target.id" +
             ")")
-    Optional<TrackSnapshotRecord> getLatest(@Param("targetId") UUID targetId);
+    Optional<TrackSnapshotRecord> getLatest(@Param("targetId") Integer targetId);
 
     @Query("select S from TrackSnapshotRecord S " +
-            "where S.targetId = :targetId and " +
+            "where S.target.id = :target.id and " +
             "S.timestamp = (select min(S2.timestamp) from TrackSnapshotRecord S2 " +
-            "where S2.targetId = :targetId" +
+            "where S2.target.id = :target.id" +
             ")")
-    Optional<TrackSnapshotRecord> getInit(@Param("targetId") UUID targetId);
+    Optional<TrackSnapshotRecord> getInit(@Param("targetId") Integer targetId);
 
 }

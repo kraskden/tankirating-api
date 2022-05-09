@@ -10,7 +10,6 @@ import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackDiffMapper;
-import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.repository.TrackDiffRepository;

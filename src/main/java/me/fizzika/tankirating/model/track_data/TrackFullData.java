@@ -2,7 +2,7 @@ package me.fizzika.tankirating.model.track_data;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.fizzika.tankirating.enums.track.TrackActivityType;
+import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.util.TrackUtils;
 
@@ -19,13 +19,13 @@ public class TrackFullData implements TrackData<TrackFullData> {
 
     private Map<String, TrackUsageData> supplies;
 
-    private Map<TrackActivityType, TrackActivityData> activities;
+    private Map<TankiEntityType, TrackActivityData> activities;
 
     {
         base = new TrackBaseData();
         supplies = new HashMap<>();
-        activities = new EnumMap<>(TrackActivityType.class);
-        Arrays.stream(TrackActivityType.values()).forEach(t -> activities.put(t, new TrackActivityData()));
+        activities = new EnumMap<>(TankiEntityType.class);
+        Arrays.stream(TankiEntityType.values()).forEach(t -> activities.put(t, new TrackActivityData()));
     }
 
     public TrackFullData(TrackFullData model) {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data

@@ -1,6 +1,5 @@
 package me.fizzika.tankirating.config.converter;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

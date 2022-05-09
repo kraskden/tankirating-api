@@ -16,7 +16,11 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @NoArgsConstructor
-public class TrackDiffRecord extends IdRecord {
+public class TrackDiffRecord extends IdRecord<Long> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "diff_seq")
+    private Long id;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "track_id", referencedColumnName = "id")

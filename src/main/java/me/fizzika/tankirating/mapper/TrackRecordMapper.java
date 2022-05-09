@@ -1,20 +1,24 @@
 package me.fizzika.tankirating.mapper;
 
+import lombok.Setter;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivityDTO;
+import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.dto.tracking.TrackingDTO;
-import me.fizzika.tankirating.enums.track.TrackActivityType;
+import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.model.track_data.TrackPlayData;
 import me.fizzika.tankirating.model.track_data.TrackUsageData;
 import me.fizzika.tankirating.record.tracking.TrackActivityRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
-import me.fizzika.tankirating.record.tracking.TrackSupplyRecord;
+import me.fizzika.tankirating.record.tracking.TrackUsageRecord;
+import me.fizzika.tankirating.service.tracking.TrackEntityService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -24,6 +28,9 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class TrackRecordMapper {
+
+    @Setter(onMethod_ = {@Autowired})
+    protected TrackEntityService entityService;
 
     @Mapping(target = "premiumDays", ignore = true)
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesDTO")
@@ -43,8 +50,11 @@ public abstract class TrackRecordMapper {
     protected TrackActivitiesDTO toTrackActivitiesDTO(List<TrackActivityRecord> activityRecords) {
        TrackActivitiesDTO activities = new TrackActivitiesDTO();
        for (TrackActivityRecord rec : activityRecords) {
-           TrackActivityDTO activity = toTrackActivityDTO(rec);
-           switch (rec.getType()) {
+           TrackEntityDTO entity = entityService.get(rec.getEntityId());
+
+           TrackActivityDTO activity = toTrackActivityDTO(rec, entity);
+
+           switch (entity.getType()) {
                case HULL:
                    activities.getHulls().add(activity);
                    break;
@@ -63,22 +73,24 @@ public abstract class TrackRecordMapper {
     }
 
     @Named("toTrackActivitiesModelMap")
-    protected Map<TrackActivityType, TrackActivityData> toTrackActivitiesModelMap(List<TrackActivityRecord> records) {
-        Map<TrackActivityType, TrackActivityData> result = new EnumMap<>(TrackActivityType.class);
-        Arrays.stream(TrackActivityType.values()).forEach(t -> result.put(t, new TrackActivityData()));
+    protected Map<TankiEntityType, TrackActivityData> toTrackActivitiesModelMap(List<TrackActivityRecord> records) {
+        Map<TankiEntityType, TrackActivityData> result = new EnumMap<>(TankiEntityType.class);
+        Arrays.stream(TankiEntityType.values()).forEach(t -> result.put(t, new TrackActivityData()));
         for (TrackActivityRecord record : records) {
-            result.get(record.getType()).getPlayTracks().put(record.getName(),
+            TrackEntityDTO entity = entityService.get(record.getEntityId());
+            result.get(entity.getType()).getPlayTracks().put(entity.getName(),
                     new TrackPlayData(record.getScore(), record.getTime()));
         }
         return result;
     }
 
     @Named("toTrackUsageModelMap")
-    protected Map<String, TrackUsageData> toTrackUsageModelMap(List<TrackSupplyRecord> records) {
+    protected Map<String, TrackUsageData> toTrackUsageModelMap(List<TrackUsageRecord> records) {
         return records.stream()
-                .collect(Collectors.toMap(TrackSupplyRecord::getName, r -> new TrackUsageData(r.getUsages())));
+                .collect(Collectors.toMap(r -> entityService.get(r.getEntityId()).getName(),
+                        r -> new TrackUsageData(r.getUsages())));
     }
 
-    protected abstract TrackActivityDTO toTrackActivityDTO(TrackActivityRecord record);
+    protected abstract TrackActivityDTO toTrackActivityDTO(TrackActivityRecord record, TrackEntityDTO entity);
 
 }

@@ -8,10 +8,7 @@ import me.fizzika.tankirating.record.IdRecord;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -20,7 +17,11 @@ import java.util.List;
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class TrackRecord extends IdRecord {
+public class TrackRecord extends IdRecord<Long> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "track_seq")
+    private Long id;
 
     private int gold;
 
@@ -44,6 +45,6 @@ public class TrackRecord extends IdRecord {
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "track")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ToString.Exclude
-    private List<TrackSupplyRecord> supplies;
+    private List<TrackUsageRecord> supplies;
 
 }

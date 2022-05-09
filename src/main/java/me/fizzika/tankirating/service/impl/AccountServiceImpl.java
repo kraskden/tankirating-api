@@ -5,7 +5,6 @@ import me.fizzika.tankirating.dto.AccountDTO;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.AccountMapper;
-import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.TrackTargetRepository;
 import me.fizzika.tankirating.service.AccountService;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
