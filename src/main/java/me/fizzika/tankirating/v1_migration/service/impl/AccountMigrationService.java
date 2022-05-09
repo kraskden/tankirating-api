@@ -6,6 +6,7 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
+import me.fizzika.tankirating.model.DatePeriod;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
@@ -21,6 +22,9 @@ import me.fizzika.tankirating.v1_migration.repository.AccountMongoTemplateReposi
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -93,16 +97,27 @@ public class AccountMigrationService implements V1MigrationService {
         res.setTarget(targetRec);
         res.setTrackRecord(schemaMapper.toRecord(diff));
         res.setPeriod(period);
-        // TODO: dates
+
+        DatePeriod datePeriod = period.getDatePeriod(diff.getTimestamp());
+        res.setPeriodStart(datePeriod.getStart());
+        res.setPeriodEnd(datePeriod.getEnd());
+        res.setTrackStart(datePeriod.getStart());
+        res.setTrackEnd(datePeriod.getEnd());
         return res;
     }
 
     private TrackSnapshotRecord toSnapshot(TrackingSchema snapshot, TrackTargetDTO target) {
         TrackSnapshotRecord res = new TrackSnapshotRecord();
         res.setTarget(new TrackTargetRecord(target.getId()));
-        res.setTimestamp(snapshot.getTimestamp());
+        res.setTimestamp(getCorrectTime(snapshot.getTimestamp()));
         res.setTrackRecord(schemaMapper.toRecord(snapshot));
         return res;
+    }
+
+    private LocalDateTime getCorrectTime(LocalDateTime schemaTimestamp) {
+        return schemaTimestamp
+                .minus(3, ChronoUnit.HOURS)
+                .plus(1, ChronoUnit.DAYS);
     }
 
     private void fixTrackingSchema(TrackingSchema trackingSchema) {
