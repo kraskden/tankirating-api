@@ -10,7 +10,7 @@ import me.fizzika.tankirating.model.TrackData;
 @AllArgsConstructor
 public class TrackUsageData implements TrackData<TrackUsageData> {
 
-    private long usages;
+    private int usages;
 
     public TrackUsageData(TrackUsageData model) {
         add(model);

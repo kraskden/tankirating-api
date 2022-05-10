@@ -27,14 +27,22 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
                                                                                            LocalDateTime from,
                                                                                            LocalDateTime to);
 
+    Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampBetweenOrderByTimestampDesc(Integer targetId,
+                                                                                             LocalDateTime from,
+                                                                                             LocalDateTime to);
+
     Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampGreaterThanEqualOrderByTimestampAsc(
             Integer targetId, LocalDateTime timestamp);
 
     Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampLessThanEqualOrderByTimestampDesc(
             Integer targetId, LocalDateTime timestamp);
 
-    default Optional<TrackSnapshotRecord> findClosestSnapshot(Integer targetId, LocalDateTime from, LocalDateTime to) {
+    default Optional<TrackSnapshotRecord> findFirstSnapshot(Integer targetId, LocalDateTime from, LocalDateTime to) {
         return findFirstByTargetIdAndTimestampBetweenOrderByTimestampAsc(targetId, from, to);
+    }
+
+    default Optional<TrackSnapshotRecord> findLastSnapshot(Integer targetId, LocalDateTime from, LocalDateTime to) {
+        return findFirstByTargetIdAndTimestampBetweenOrderByTimestampDesc(targetId, from, to);
     }
 
     default Optional<Pair<TrackSnapshotRecord>> findBorderSnapshots(Integer targetId, LocalDateTime from,

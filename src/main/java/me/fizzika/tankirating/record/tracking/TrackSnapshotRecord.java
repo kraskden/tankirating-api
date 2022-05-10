@@ -19,7 +19,7 @@ public class TrackSnapshotRecord extends IdRecord<Long> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "snapshot_seq")
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "track_id", referencedColumnName = "id")
     private TrackRecord trackRecord;
 

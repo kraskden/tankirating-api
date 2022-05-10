@@ -20,20 +20,26 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     private final TrackSnapshotMapper snapshotMapper;
 
     @Override
-    public void saveSnapshot(TrackSnapshot snapshot) {
+    public void save(TrackSnapshot snapshot) {
         repository.save(snapshotMapper.toRecord(snapshot));
     }
 
     @Override
-    public boolean existsSnapshot(Integer targetId, LocalDateTime timestamp) {
+    public boolean exists(Integer targetId, LocalDateTime timestamp) {
         return repository.existsByTargetIdAndTimestamp(targetId, timestamp);
     }
 
     @Override
     @Transactional
-    public Optional<TrackSnapshot> findClosestSnapshot(Integer targetId, LocalDateTime from, LocalDateTime to) {
-       return repository.findClosestSnapshot(targetId, from, to)
+    public Optional<TrackSnapshot> findFirstInRange(Integer targetId, LocalDateTime from, LocalDateTime to) {
+       return repository.findFirstSnapshot(targetId, from, to)
                .map(snapshotMapper::toSnapshot);
+    }
+
+    @Override
+    public Optional<TrackSnapshot> findLastInRange(Integer targetId, LocalDateTime from, LocalDateTime to) {
+        return repository.findLastSnapshot(targetId, from, to)
+                .map(snapshotMapper::toSnapshot);
     }
 
     @Override
@@ -43,7 +49,7 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     }
 
     @Override
-    public void deleteAllSnapshots(LocalDateTime from, LocalDateTime to) {
+    public void deleteAllInRange(LocalDateTime from, LocalDateTime to) {
         repository.deleteByTimestampBetween(from, to);
     }
 

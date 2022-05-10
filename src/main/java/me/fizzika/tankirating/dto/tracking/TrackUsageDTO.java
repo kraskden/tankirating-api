@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class TrackSupplyDTO {
+public class TrackUsageDTO {
 
     private String name;
 
-    private long usages;
+    private int usages;
 
 }

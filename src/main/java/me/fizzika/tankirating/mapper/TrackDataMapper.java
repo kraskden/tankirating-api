@@ -11,6 +11,7 @@ import me.fizzika.tankirating.model.track_data.TrackUsageData;
 import me.fizzika.tankirating.record.tracking.TrackActivityRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
 import me.fizzika.tankirating.record.tracking.TrackUsageRecord;
+import me.fizzika.tankirating.service.tracking.TrackEntityService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -27,8 +28,12 @@ public abstract class TrackDataMapper {
     @Setter(onMethod_ = {@Autowired})
     private TrackRecordMapper recordMapper;
 
+    @Setter(onMethod_ = {@Autowired})
+    private TrackEntityService entityService;
+
     public TrackingDTO toFullDTO(TrackFullData model, TrackTargetDTO target) {
-        return recordMapper.toFullDto(toTrackRecordInternal(model), target);
+        TrackRecord record = toTrackRecordInternal(model);
+        return recordMapper.toFullDto(record, target);
     }
 
     @Named("toTrackRecord")
@@ -60,16 +65,26 @@ public abstract class TrackDataMapper {
     @Named("toTrackSuppliesList")
     protected List<TrackUsageRecord> toTrackSuppliesList(Map<String, TrackUsageData> usageMap) {
         return usageMap.keySet().stream()
-                .map(k -> toTrackSupplyRecord(usageMap.get(k), k))
+                .map(k -> toTrackUsageRecord(usageMap.get(k), k))
                 .collect(Collectors.toList());
     }
 
-    @Mapping(target = ".", source = "model")
-    protected abstract TrackUsageRecord toTrackSupplyRecord(TrackUsageData model, String name);
+    protected TrackUsageRecord toTrackUsageRecord(TrackUsageData model, String name) {
+        TrackUsageRecord res = new TrackUsageRecord();
+        res.setEntityId(entityService.getId(name, TankiEntityType.SUPPLY));
+        res.setUsages(model.getUsages());
+        return res;
+    }
 
     @Mapping(target = ".", source = "playModel")
-    protected abstract TrackActivityRecord toTrackActivityRecord(TrackPlayData playModel,
-                                                                 String name, TankiEntityType type);
+    protected TrackActivityRecord toTrackActivityRecord(TrackPlayData playModel,
+                                                                 String name, TankiEntityType type) {
+        TrackActivityRecord res = new TrackActivityRecord();
+        res.setScore(playModel.getScore());
+        res.setTime(playModel.getTime());
+        res.setEntityId(entityService.getId(name, type));
+        return res;
+    }
 
 
 }

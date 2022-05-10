@@ -29,6 +29,6 @@ public class TrackingDTO {
     private TrackActivitiesDTO activities;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<TrackSupplyDTO> supplies;
+    private List<TrackUsageDTO> supplies;
 
 }

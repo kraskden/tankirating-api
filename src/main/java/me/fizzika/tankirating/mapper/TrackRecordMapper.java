@@ -2,10 +2,7 @@ package me.fizzika.tankirating.mapper;
 
 import lombok.Setter;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
-import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
-import me.fizzika.tankirating.dto.tracking.TrackActivityDTO;
-import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
-import me.fizzika.tankirating.dto.tracking.TrackingDTO;
+import me.fizzika.tankirating.dto.tracking.*;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
@@ -92,5 +89,12 @@ public abstract class TrackRecordMapper {
     }
 
     protected abstract TrackActivityDTO toTrackActivityDTO(TrackActivityRecord record, TrackEntityDTO entity);
+
+    protected TrackUsageDTO toSupplyDTO(TrackUsageRecord record) {
+        TrackUsageDTO res = new TrackUsageDTO();
+        res.setName(entityService.get(record.getEntityId()).getName());
+        res.setUsages(record.getUsages());
+        return res;
+    }
 
 }

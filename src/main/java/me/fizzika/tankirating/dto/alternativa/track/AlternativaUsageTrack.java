@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public abstract class AlternativaUsageTrack extends AlternativaTrackEntity {
 
-    private long usages;
+    private int usages;
 
 }

@@ -35,6 +35,7 @@ public abstract class TrackingSchemaMapper {
     }
 
     @Mapping(target = "premium", source = "hasPremium")
+    @Mapping(target = "gold", source = "golds")
     public abstract TrackRecord toRecordInternal(TrackingSchema schema);
 
     @Mapping(target = "entityId", source = ".")
