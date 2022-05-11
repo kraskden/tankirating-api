@@ -30,7 +30,7 @@ public class TrackTargetController {
     }
 
     @GetMapping
-    public Page<TrackTargetDTO> findAll(@RequestParam @Valid TrackTargetFilter filter, Pageable pageable) {
+    public Page<TrackTargetDTO> findAll(@Valid TrackTargetFilter filter, Pageable pageable) {
         return trackTargetService.findAll(filter, pageable);
     }
 

@@ -42,7 +42,7 @@ public class TrackTargetServiceImpl implements TrackTargetService {
 
     @Override
     public Page<TrackTargetDTO> findAll(TrackTargetFilter filter, Pageable pageable) {
-        return repository.findAll(filter.getTargetType(), filter.getQuery(), pageable)
+        return repository.findAll(filter.getTargetType(), filter.getQuery(),  pageable)
                 .map(mapper::toDto);
     }
 

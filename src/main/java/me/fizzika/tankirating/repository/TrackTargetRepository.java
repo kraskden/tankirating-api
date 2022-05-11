@@ -17,10 +17,9 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
     boolean existsByNameIgnoreCaseAndType(String name, TrackTargetType type);
 
     @Query(value = "select T from TrackTargetRecord T " +
-            "where (:targetType is null or T.type = :targetType)" +
-            "and (:query is null or lower(T.name) like concat('%', lower(:query), '%') )")
+            "where (:targetType is null or T.type = :targetType) " +
+            "and (:query is null or lower(T.name) like lower(concat('%', text(:query), '%')))")
     Page<TrackTargetRecord> findAll(@Param("targetType") TrackTargetType targetType,
                                             @Param("query") String query,
                                             Pageable pageable);
-
 }
