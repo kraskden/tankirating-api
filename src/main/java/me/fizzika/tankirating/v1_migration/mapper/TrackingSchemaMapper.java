@@ -6,7 +6,7 @@ import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.record.tracking.TrackActivityRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
 import me.fizzika.tankirating.record.tracking.TrackUsageRecord;
-import me.fizzika.tankirating.service.tracking.TrackEntityService;
+import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import me.fizzika.tankirating.v1_migration.record.tracking.TrackSupplySchema;
 import me.fizzika.tankirating.v1_migration.record.tracking.TrackingActivitySchema;
 import me.fizzika.tankirating.v1_migration.record.tracking.TrackingSchema;

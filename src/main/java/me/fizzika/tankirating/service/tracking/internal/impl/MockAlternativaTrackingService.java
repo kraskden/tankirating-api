@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.service.tracking.impl;
+package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.alternativa.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.alternativa.AlternativaTrackResponseDTO;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
-import me.fizzika.tankirating.service.tracking.AlternativaTrackingService;
+import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

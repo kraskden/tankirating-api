@@ -22,7 +22,6 @@ import me.fizzika.tankirating.v1_migration.repository.AccountMongoTemplateReposi
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -56,7 +55,7 @@ public class AccountMigrationService implements V1MigrationService {
     private void migrateAccount(AccountDocument account) {
         String login = account.getLogin();
 
-        TrackTargetDTO target = trackTargetService.getByName(login, TrackTargetType.ACCOUNT)
+        TrackTargetDTO target = trackTargetService.getOptionalByName(login, TrackTargetType.ACCOUNT)
                 .orElseGet(() -> createAccount(login));
 
         migrateSnapshots(account, target);

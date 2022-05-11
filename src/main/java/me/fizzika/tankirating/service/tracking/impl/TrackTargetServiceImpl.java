@@ -3,6 +3,7 @@ package me.fizzika.tankirating.service.tracking.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
@@ -10,6 +11,8 @@ import me.fizzika.tankirating.mapper.TrackTargetMapper;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.TrackTargetRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,8 +35,14 @@ public class TrackTargetServiceImpl implements TrackTargetService {
     }
 
     @Override
-    public Optional<TrackTargetDTO> getByName(String name, TrackTargetType type) {
+    public Optional<TrackTargetDTO> getOptionalByName(String name, TrackTargetType type) {
         return repository.findByNameIgnoreCaseAndType(name, type)
+                .map(mapper::toDto);
+    }
+
+    @Override
+    public Page<TrackTargetDTO> findAll(TrackTargetFilter filter, Pageable pageable) {
+        return repository.findAll(filter.getTargetType(), filter.getQuery(), pageable)
                 .map(mapper::toDto);
     }
 
