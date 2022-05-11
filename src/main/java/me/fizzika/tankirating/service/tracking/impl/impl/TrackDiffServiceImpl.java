@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.service.impl;
+package me.fizzika.tankirating.service.tracking.impl.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
@@ -14,8 +14,8 @@ import me.fizzika.tankirating.mapper.TrackDiffMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.repository.TrackDiffRepository;
-import me.fizzika.tankirating.service.AccountDiffService;
-import me.fizzika.tankirating.service.tracking.TrackSnapshotService;
+import me.fizzika.tankirating.service.tracking.TrackDiffService;
+import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.util.Pair;
 import org.springframework.stereotype.Service;
@@ -26,18 +26,16 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class AccountDiffServiceImpl implements AccountDiffService {
+public class TrackDiffServiceImpl implements TrackDiffService {
 
     private final TrackDiffRepository diffRepository;
     private final TrackDiffMapper diffMapper;
 
-    private final TrackTargetService trackTargetService;
     private final TrackSnapshotService trackSnapshotService;
     private final TrackDataMapper trackDataMapper;
 
     @Override
-    public List<TrackDiffDTO> getAllDiffsForPeriod(String nickname, TrackDiffPeriod period, TrackDatesFilter datesFilter) {
-        TrackTargetDTO target = getTrackTarget(nickname);
+    public List<TrackDiffDTO> getAllDiffsForPeriod(TrackTargetDTO target, TrackDiffPeriod period, TrackDatesFilter datesFilter) {
         return diffRepository.findAllDiffsForPeriod(target.getId(), period, datesFilter.getFrom().atStartOfDay(),
                 datesFilter.getTo().atStartOfDay()).stream()
                 .map(r -> diffMapper.toDTO(r, target, datesFilter.getFormat()))
@@ -45,21 +43,19 @@ public class AccountDiffServiceImpl implements AccountDiffService {
     }
 
     @Override
-    public TrackDiffDTO getAllTimeDiff(String nickname, TrackFormat format) {
-        TrackTargetDTO target = getTrackTarget(nickname);
+    public TrackDiffDTO getAllTimeDiff(TrackTargetDTO target, TrackFormat format) {
         return diffRepository.findAllTimeDiff(target.getId())
                 .map(r -> diffMapper.toDTO(r, target, format))
-                .orElseThrow(() -> accountDiffNotFound(nickname));
+                .orElseThrow(() -> accountDiffNotFound(target.getName()));
     }
 
     @Override
-    public TrackDiffDTO calculateDiffBetweenDates(String nickname, TrackDatesFilter datesFilter) {
-        TrackTargetDTO target = getTrackTarget(nickname);
+    public TrackDiffDTO calculateDiffBetweenDates(TrackTargetDTO target, TrackDatesFilter datesFilter) {
         LocalDateTime from = datesFilter.getFrom().atStartOfDay();
         LocalDateTime to = datesFilter.getTo().atStartOfDay();
 
         Pair<TrackSnapshot> borderSnapshots = trackSnapshotService.findBorderSnapshots(target.getId(), from, to)
-                .orElseThrow(() -> accountDiffNotFound(nickname));
+                .orElseThrow(() -> accountDiffNotFound(target.getName()));
         TrackSnapshot start = borderSnapshots.getFirst();
         TrackSnapshot end = borderSnapshots.getSecond();
 
@@ -76,23 +72,17 @@ public class AccountDiffServiceImpl implements AccountDiffService {
     }
 
     @Override
-    public TrackDiffDTO getDiffForPeriod(String nickname, TrackDiffPeriod period, Integer offset, TrackFormat format) {
-        TrackTargetDTO target = getTrackTarget(nickname);
+    public TrackDiffDTO getDiffForPeriod(TrackTargetDTO target, TrackDiffPeriod period, Integer offset, TrackFormat format) {
         LocalDateTime periodStart = period.getDatePeriod(LocalDateTime.now())
                 .sub(offset).getStart();
         return diffRepository.findDiffForPeriod(target.getId(), period, periodStart)
                 .map(r -> diffMapper.toDTO(r, target, format))
-                .orElseThrow(() -> accountDiffNotFound(nickname));
+                .orElseThrow(() -> accountDiffNotFound(target.getName()));
     }
 
-    private TrackTargetDTO getTrackTarget(String nickname) {
-        return trackTargetService.getByName(nickname, TrackTargetType.ACCOUNT)
-                .orElseThrow(() -> new ExternalException(ExceptionType.ACCOUNT_NOT_FOUND).arg("nickname", nickname));
-    }
-
-    private ExternalException accountDiffNotFound(String nickname) {
-        return new ExternalException(ExceptionType.ACCOUNT_DIFF_NOT_FOUND)
-                .arg("nickname", nickname);
+    private ExternalException accountDiffNotFound(String name) {
+        return new ExternalException(ExceptionType.TRACK_DIFF_NOT_FOUND)
+                .arg("name", name);
     }
 
 }

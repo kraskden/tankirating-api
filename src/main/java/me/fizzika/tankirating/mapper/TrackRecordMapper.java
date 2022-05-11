@@ -11,7 +11,7 @@ import me.fizzika.tankirating.model.track_data.TrackUsageData;
 import me.fizzika.tankirating.record.tracking.TrackActivityRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
 import me.fizzika.tankirating.record.tracking.TrackUsageRecord;
-import me.fizzika.tankirating.service.tracking.TrackEntityService;
+import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

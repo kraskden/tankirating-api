@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.service.tracking;
+package me.fizzika.tankirating.service.tracking.internal;
 
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.util.Pair;
