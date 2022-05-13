@@ -21,8 +21,6 @@ public class TrackingDTO {
 
     private int score;
 
-    private int premiumDays;
-
     private long time;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

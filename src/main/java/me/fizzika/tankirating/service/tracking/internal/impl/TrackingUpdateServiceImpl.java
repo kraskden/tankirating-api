@@ -37,8 +37,8 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     private CompletableFuture<Void> updateAccountAsync(Integer targetId, String nickname) {
         return alternativaService.getTracking(nickname)
-                .thenApply(alternativaMapper::toFullTrackModel)
-                .thenAccept(data -> trackStoreService.updateTargetData(targetId, data))
+                .thenApply(alternativaMapper::toFullTrackModelWithPremium)
+                .thenAccept(data -> trackStoreService.updateTargetData(targetId, data.getTrackData(), data.isHasPremium()))
                 .whenComplete((res, ex) -> {
                     if (ex == null) {
                         log.info("Updated {}", nickname);

@@ -7,6 +7,6 @@ import me.fizzika.tankirating.model.track_data.TrackFullData;
  */
 public interface TrackStoreService {
 
-    void updateTargetData(Integer targetId, TrackFullData currentData);
+    void updateTargetData(Integer targetId, TrackFullData currentData, boolean hasPremium);
 
 }

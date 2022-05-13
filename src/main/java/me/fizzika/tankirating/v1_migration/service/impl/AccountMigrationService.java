@@ -53,7 +53,6 @@ public class AccountMigrationService implements V1MigrationService {
     private final TrackDiffRepository diffRepository;
 
     @Override
-    @PostConstruct
     public void migrate() {
         List<String> logins = mongoTemplateRepository.getAccountLogins();
         log.info("Found {} accounts", logins.size());
@@ -110,7 +109,6 @@ public class AccountMigrationService implements V1MigrationService {
              !today.isAfter(v1Snapshots.lastKey()); today = today.plusDays(1)) {
             TrackSnapshotRecord currSnapshot = null;
 
-
             // Today snapshot is already exists in the V1
             if (v1Snapshots.containsKey(today)) {
 
@@ -126,23 +124,24 @@ public class AccountMigrationService implements V1MigrationService {
                    then don't create new track data record in the database - reuse record from prevSnapshot
                 */
                 boolean snapshotIsNotChanged = prevSnapshot != null &&
-                        v1Snapshot.getTime() == prevSnapshot.getTrackRecord().getTime() &&
-                        premiumMatches(v1Snapshot, prevSnapshot.getTrackRecord());
+                        v1Snapshot.getTime() == prevSnapshot.getTrackRecord().getTime();
 
                 currSnapshot = snapshotIsNotChanged ?
-                        new TrackSnapshotRecord(prevSnapshot.getTrackRecord(), today, prevSnapshot.getTarget())
+                        new TrackSnapshotRecord(prevSnapshot.getTrackRecord(), today, prevSnapshot.getTarget(),
+                                v1Snapshot.getHasPremium())
                         : toSnapshot(v1Snapshot, target);
 
             } else if (dailyDiffs.containsKey(today) &&  prevSnapshot != null) {
                 TrackingSchema dayDiff = dailyDiffs.get(today);
-                if (dayDiff.getTime() == null || (
-                        dayDiff.getTime() == 0 && premiumMatches(dayDiff, prevSnapshot.getTrackRecord()))) {
-                    currSnapshot = new TrackSnapshotRecord(prevSnapshot.getTrackRecord(), today, prevSnapshot.getTarget());
+                if (dayDiff.getTime() == null || dayDiff.getTime() == 0 ) {
+                    currSnapshot = new TrackSnapshotRecord(prevSnapshot.getTrackRecord(), today, prevSnapshot.getTarget(),
+                            dayDiff.getHasPremium());
                 } else {
                     TrackFullData currSnapshotData = schemaMapper.toDataModel(dayDiff);
                     currSnapshotData.add(recordMapper.toModel(prevSnapshot.getTrackRecord()));
-                    TrackRecord currTrackRecord = dataMapper.toTrackRecord(currSnapshotData, dayDiff.getHasPremium() ? 1 : 0);
-                    currSnapshot = new TrackSnapshotRecord(currTrackRecord, today, prevSnapshot.getTarget());
+                    TrackRecord currTrackRecord = dataMapper.toTrackRecord(currSnapshotData);
+                    currSnapshot = new TrackSnapshotRecord(currTrackRecord, today, prevSnapshot.getTarget(),
+                            dayDiff.getHasPremium());
                 }
             }
 
@@ -167,7 +166,6 @@ public class AccountMigrationService implements V1MigrationService {
     }
 
 
-    // TODO: Premium migration
     private void migrateDiffs(AccountDocument account, TrackTargetDTO target) {
         migrateDiffs(account.getDaily(), TrackDiffPeriod.DAY, target);
         migrateDiffs(account.getWeekly(), TrackDiffPeriod.WEEK, target);
@@ -185,10 +183,7 @@ public class AccountMigrationService implements V1MigrationService {
 
     private TrackDiffRecord toDiff(TrackingSchema diff, TrackDiffPeriod period, TrackTargetDTO target) {
         TrackDiffRecord res = new TrackDiffRecord();
-        TrackTargetRecord targetRec = new TrackTargetRecord();
-        targetRec.setId(target.getId());
-
-        res.setTarget(targetRec);
+        res.setTarget(new TrackTargetRecord(target.getId()));
         res.setTrackRecord(schemaMapper.toRecord(diff));
         res.setPeriod(period);
 
@@ -197,6 +192,12 @@ public class AccountMigrationService implements V1MigrationService {
         res.setPeriodEnd(datePeriod.getEnd());
         res.setTrackStart(datePeriod.getStart());
         res.setTrackEnd(datePeriod.getEnd());
+
+        if (period == TrackDiffPeriod.DAY) {
+            res.setPremiumDays(diff.getHasPremium() ? 1 : 0);
+        } else {
+            snapshotRepository.getPremiumDays(target.getId(), datePeriod.getStart(), datePeriod.getEnd());
+        }
         return res;
     }
 
@@ -205,11 +206,8 @@ public class AccountMigrationService implements V1MigrationService {
         res.setTarget(new TrackTargetRecord(target.getId()));
         res.setTimestamp(snapshot.getTimestamp());
         res.setTrackRecord(schemaMapper.toRecord(snapshot));
+        res.setHasPremium(snapshot.getHasPremium());
         return res;
-    }
-
-    private boolean premiumMatches(TrackingSchema schema, TrackRecord record) {
-        return schema.getHasPremium() == (record.getPremium() > 0);
     }
 
     private void fixTrackingSchema(TrackingSchema trackingSchema) {

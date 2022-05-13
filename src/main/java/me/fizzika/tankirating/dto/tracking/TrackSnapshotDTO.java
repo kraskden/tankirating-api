@@ -13,4 +13,6 @@ public class TrackSnapshotDTO {
     @JsonUnwrapped
     private TrackingDTO tracking;
 
+    private Boolean hasPremium;
+
 }

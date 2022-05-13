@@ -22,4 +22,6 @@ public class TrackDiffDTO {
 
     private LocalDateTime trackEnd;
 
+    private int premiumDays;
+
 }

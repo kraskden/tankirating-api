@@ -16,4 +16,6 @@ public class TrackSnapshot {
 
     private TrackFullData trackData;
 
+    private Boolean hasPremium;
+
 }

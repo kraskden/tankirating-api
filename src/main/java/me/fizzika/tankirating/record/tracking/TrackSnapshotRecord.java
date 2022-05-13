@@ -29,10 +29,14 @@ public class TrackSnapshotRecord extends IdRecord<Long> {
     @ToString.Exclude
     private TrackTargetRecord target;
 
-    public TrackSnapshotRecord(TrackRecord trackRecord, LocalDateTime timestamp, TrackTargetRecord target) {
+    private Boolean hasPremium;
+
+    public TrackSnapshotRecord(TrackRecord trackRecord, LocalDateTime timestamp, TrackTargetRecord target,
+                               boolean hasPremium) {
         this.trackRecord = trackRecord;
         this.timestamp = timestamp;
         this.target = target;
+        this.hasPremium = hasPremium;
     }
 
 }

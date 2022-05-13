@@ -35,15 +35,15 @@ public class TrackStoreServiceImpl implements TrackStoreService {
 
     @Override
     @Transactional
-    public void updateTargetData(Integer targetId, TrackFullData currentData) {
+    public void updateTargetData(Integer targetId, TrackFullData currentData, boolean hasPremium) {
         LocalDateTime now = LocalDateTime.now();
 
         // Save current snapshot
-        updateSnapshots(targetId, now, currentData);
+        updateSnapshots(targetId, now, currentData, hasPremium);
 
         // Update diff for each period
         for (TrackDiffPeriod diffPeriod : TrackDiffPeriod.values()) {
-            updateDiff(targetId, now, currentData, diffPeriod);
+            updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
         }
     }
 
@@ -55,24 +55,30 @@ public class TrackStoreServiceImpl implements TrackStoreService {
      * <br/>
      * DAY_START snapshot it is the first snapshot in the day
      */
-    private void updateSnapshots(Integer targetId, LocalDateTime now, TrackFullData data) {
+    private void updateSnapshots(Integer targetId, LocalDateTime now, TrackFullData data, boolean hasPremium) {
         LocalDateTime dayStart = now.truncatedTo(ChronoUnit.DAYS);
 
         if (snapshotService.exists(targetId, dayStart)) {
             Optional<TrackSnapshotRecord> optHeadSnapshot = snapshotRepository.findLastSnapshot(targetId,
                     dayStart.plusSeconds(1), now);
             if (optHeadSnapshot.isPresent()) {
-                updateHeadSnapshot(optHeadSnapshot.get(), targetId, now, data);
+                updateHeadSnapshot(optHeadSnapshot.get(), targetId, now, data, hasPremium);
             } else {
-                snapshotService.save(new TrackSnapshot(targetId, now, data));
+                snapshotService.save(new TrackSnapshot(targetId, now, data, hasPremium));
             }
         } else {
-            createDaySnapshot(targetId, dayStart, data);
+            createDaySnapshot(targetId, dayStart, data, hasPremium);
         }
     }
 
-    private void updateDiff(Integer targetId, LocalDateTime now, TrackFullData currentData, TrackDiffPeriod diffPeriod) {
+    private void updateDiff(Integer targetId, LocalDateTime now, TrackFullData currentData, TrackDiffPeriod diffPeriod,
+                            boolean hasPremium) {
+
         DatePeriod diffDates = diffPeriod.getDatePeriod(now);
+
+        int premiumDays = diffPeriod == TrackDiffPeriod.DAY ?
+                hasPremium ? 1 : 0
+                : snapshotRepository.getPremiumDays(targetId, diffDates.getStart(), diffDates.getEnd());
 
         Optional<TrackFullData> periodDiff = snapshotService.findFirstInRange(targetId, diffDates.getStart(), diffDates.getEnd())
                 .map(TrackSnapshot::getTrackData)
@@ -81,11 +87,13 @@ public class TrackStoreServiceImpl implements TrackStoreService {
 
         TrackDiffRecord diffRecord = diffRepository.findByTargetIdAndPeriodStartAndPeriodEnd(targetId,
                 diffDates.getStart(), diffDates.getEnd()).orElseGet(() -> emptyRecord(targetId, diffPeriod, diffDates));
+
         diffRecord.setTrackEnd(now);
         diffRecord.setTrackStart(diffRecord.getTrackStart() != null ? diffRecord.getTrackStart() : now);
+        diffRecord.setPremiumDays(premiumDays);
         if (diffRecord.getTrackRecord() != null) {
             if (periodDiff.isPresent() && periodDiff.get().getBase().getTime() == diffRecord.getTrackRecord().getTime()) {
-                // Don't rewrite track data if it's not changed, just update trackStart and trackEnd
+                // Don't rewrite track data if it's not changed, just update trackStart, trackEnd && premium
                 diffRepository.save(diffRecord);
                 return;
             }
@@ -96,7 +104,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         diffRepository.save(diffRecord);
     }
 
-    private void createDaySnapshot(Integer targetId, LocalDateTime dayStart, TrackFullData data) {
+    private void createDaySnapshot(Integer targetId, LocalDateTime dayStart, TrackFullData data, boolean hasPremium) {
         LocalDateTime prevDay = dayStart.minusDays(1);
         Optional<TrackSnapshotRecord> optPrevDaySnapshot = snapshotRepository.findOneByTargetIdAndTimestamp(targetId, prevDay);
         if (optPrevDaySnapshot.isPresent()) {
@@ -107,23 +115,23 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 dayRec.setTrackRecord(prevSnapshot.getTrackRecord());
                 dayRec.setTarget(prevSnapshot.getTarget());
                 dayRec.setTimestamp(dayStart);
+                dayRec.setHasPremium(hasPremium);
                 snapshotRepository.save(dayRec);
                 return;
             }
         }
-        snapshotService.save(new TrackSnapshot(targetId, dayStart, data));
+        snapshotService.save(new TrackSnapshot(targetId, dayStart, data, hasPremium));
     }
 
-    private void updateHeadSnapshot(TrackSnapshotRecord headRecord, Integer targetId, LocalDateTime now, TrackFullData data) {
+    private void updateHeadSnapshot(TrackSnapshotRecord headRecord, Integer targetId, LocalDateTime now,
+                                    TrackFullData data, boolean hasPremium) {
         if (data.getBase().getTime() == getTime(headRecord))  {
-            // User is not played, just update timestamp for HEAD snapshot, don't change data
+            // User is not played, just update timestamp and premium for HEAD snapshot, don't change data
             headRecord.setTimestamp(now);
-            if (data.getBase().getPremium() != headRecord.getTrackRecord().getPremium()) {
-                headRecord.getTrackRecord().setPremium(data.getBase().getPremium());
-            }
+            headRecord.setHasPremium(hasPremium);
             snapshotRepository.save(headRecord);
         } else {
-            snapshotService.save(new TrackSnapshot(targetId, now, data));
+            snapshotService.save(new TrackSnapshot(targetId, now, data, hasPremium));
 
             // Old HEAD snapshot is not needed anymore, delete it
             if (headRecord.getTrackRecord() != null) {

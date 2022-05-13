@@ -29,11 +29,9 @@ public abstract class TrackRecordMapper {
     @Setter(onMethod_ = {@Autowired})
     protected TrackEntityService entityService;
 
-    @Mapping(target = "premiumDays", ignore = true)
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesDTO")
     public abstract TrackingDTO toFullDto(TrackRecord record, TrackTargetDTO target);
 
-    @Mapping(target = "premiumDays", ignore = true)
     @Mapping(target = "activities", ignore = true)
     @Mapping(target = "supplies", ignore = true)
     public abstract TrackingDTO toShortDto(TrackRecord record, TrackTargetDTO target);

@@ -24,8 +24,7 @@ create table track
     deaths  int4 not null,
     cry     int4 not null,
     score   int4 not null,
-    "time"  int8 not null,
-    premium int4 not null
+    "time"  int8 not null
 );
 
 create table diff
@@ -37,7 +36,8 @@ create table diff
     "period"     text,
     track_id     int8 references track (id) on delete CASCADE,
     track_start  timestamp,
-    track_end    timestamp
+    track_end    timestamp,
+    premium_days int4
 );
 
 create table "snapshot"
@@ -45,7 +45,8 @@ create table "snapshot"
     id          int8      not null primary key,
     target_id   int4 references target (id) on delete CASCADE,
     "timestamp" timestamp null,
-    track_id    int8 references track (id) on delete CASCADE
+    track_id    int8 references track (id) on delete CASCADE,
+    has_premium boolean
 );
 
 create index idx_target_timestamp on "snapshot" (target_id, "timestamp");
