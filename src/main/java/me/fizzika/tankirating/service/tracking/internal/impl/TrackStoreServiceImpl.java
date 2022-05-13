@@ -118,6 +118,9 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         if (data.getBase().getTime() == getTime(headRecord))  {
             // User is not played, just update timestamp for HEAD snapshot, don't change data
             headRecord.setTimestamp(now);
+            if (data.getBase().getPremium() != headRecord.getTrackRecord().getPremium()) {
+                headRecord.getTrackRecord().setPremium(data.getBase().getPremium());
+            }
             snapshotRepository.save(headRecord);
         } else {
             snapshotService.save(new TrackSnapshot(targetId, now, data));

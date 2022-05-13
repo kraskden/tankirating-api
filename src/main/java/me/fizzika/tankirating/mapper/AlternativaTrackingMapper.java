@@ -35,6 +35,7 @@ public abstract class AlternativaTrackingMapper {
     @Mapping(source = "earnedCrystals", target = "cry")
     @Mapping(source = "caughtGolds", target = "gold")
     @Mapping(target = "time", source = ".", qualifiedByName = "getFullTime")
+    @Mapping(target = "premium", source = "hasPremium")
     protected abstract TrackBaseData toBaseTrackModel(AlternativaTrackDTO trackDTO);
 
     @Named("getFullTime")

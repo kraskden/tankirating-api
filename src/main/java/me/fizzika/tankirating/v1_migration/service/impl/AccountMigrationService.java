@@ -6,8 +6,12 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
+import me.fizzika.tankirating.mapper.TrackDataMapper;
+import me.fizzika.tankirating.mapper.TrackRecordMapper;
 import me.fizzika.tankirating.model.DatePeriod;
+import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
+import me.fizzika.tankirating.record.tracking.TrackRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.TrackDiffRepository;
@@ -22,9 +26,13 @@ import me.fizzika.tankirating.v1_migration.repository.AccountMongoTemplateReposi
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,12 +44,16 @@ public class AccountMigrationService implements V1MigrationService {
     private final AccountMongoTemplateRepository mongoTemplateRepository;
 
     private final TrackTargetService trackTargetService;
+
     private final TrackingSchemaMapper schemaMapper;
+    private final TrackRecordMapper recordMapper;
+    private final TrackDataMapper dataMapper;
 
     private final TrackSnapshotRepository snapshotRepository;
     private final TrackDiffRepository diffRepository;
 
     @Override
+    @PostConstruct
     public void migrate() {
         List<String> logins = mongoTemplateRepository.getAccountLogins();
         log.info("Found {} accounts", logins.size());
@@ -60,19 +72,102 @@ public class AccountMigrationService implements V1MigrationService {
 
         migrateSnapshots(account, target);
         migrateDiffs(account, target);
-
     }
 
+    /**
+     * <p> Migrate snapshots from V1. </p>
+     * <p> There are two key features: </p>
+     *
+     * <p>1. Snapshots are not stored for every day in the V1 system, only for "major" dates, such as start of the week or
+     * start of the month. But our system is store snapshot for every day for more precisely calculations.
+     * Anyway, V1 stores DAY diffs between two snapshots. So we can restore missing snapshots by getting snapshot and
+     * the diff for next day: <code>Snapshot(day) = Snapshot(day - 1) + Diff(day)</code></p>
+     *
+     * <p>2. There is no need to create TrackRecord for each snapshot: if snapshot is the same as prevDay snapshot,
+     * then we can reuse prevDay TrackRecord. Two snapshots are the same if both contains same time and premium fields.
+     *
+     * </p>
+     *
+     */
     private void migrateSnapshots(AccountDocument account, TrackTargetDTO target) {
-        List<TrackSnapshotRecord> snapshots = account.getTracking().stream()
+        TreeMap<LocalDateTime, TrackingSchema> v1Snapshots = account.getTracking().stream()
                 .peek(this::fixTrackingSchema)
-                .map(schema -> toSnapshot(schema, target))
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(TrackingSchema::getTimestamp, Function.identity(), (x, y) -> x, TreeMap::new));
+
+        if (v1Snapshots.isEmpty()) {
+            return;
+        }
+
+        TreeMap<LocalDateTime, TrackingSchema> dailyDiffs = account.getDaily().stream()
+                .peek(this::fixTrackingSchema)
+                .collect(Collectors.toMap(TrackingSchema::getTimestamp, Function.identity(), (x, y) -> x, TreeMap::new));
+
+        List<TrackSnapshotRecord> snapshots = new ArrayList<>();
+        List<TrackingSchema> brokenSnapshots = new ArrayList<>();
+
+        TrackSnapshotRecord prevSnapshot = null;
+        for (LocalDateTime today = v1Snapshots.firstKey();
+             !today.isAfter(v1Snapshots.lastKey()); today = today.plusDays(1)) {
+            TrackSnapshotRecord currSnapshot = null;
+
+
+            // Today snapshot is already exists in the V1
+            if (v1Snapshots.containsKey(today)) {
+
+                TrackingSchema v1Snapshot = v1Snapshots.get(today);
+                if (v1Snapshot.getTime() == null || v1Snapshot.getTime().equals(0)) {
+                    // Snapshot is broken (as much broken as V1 is)
+                    brokenSnapshots.add(v1Snapshot);
+                    prevSnapshot = null;
+                    continue;
+                }
+
+                /* If today snapshot is the same as snapshot for previous day,
+                   then don't create new track data record in the database - reuse record from prevSnapshot
+                */
+                boolean snapshotIsNotChanged = prevSnapshot != null &&
+                        v1Snapshot.getTime() == prevSnapshot.getTrackRecord().getTime() &&
+                        premiumMatches(v1Snapshot, prevSnapshot.getTrackRecord());
+
+                currSnapshot = snapshotIsNotChanged ?
+                        new TrackSnapshotRecord(prevSnapshot.getTrackRecord(), today, prevSnapshot.getTarget())
+                        : toSnapshot(v1Snapshot, target);
+
+            } else if (dailyDiffs.containsKey(today) &&  prevSnapshot != null) {
+                TrackingSchema dayDiff = dailyDiffs.get(today);
+                if (dayDiff.getTime() == null || (
+                        dayDiff.getTime() == 0 && premiumMatches(dayDiff, prevSnapshot.getTrackRecord()))) {
+                    currSnapshot = new TrackSnapshotRecord(prevSnapshot.getTrackRecord(), today, prevSnapshot.getTarget());
+                } else {
+                    TrackFullData currSnapshotData = schemaMapper.toDataModel(dayDiff);
+                    currSnapshotData.add(recordMapper.toModel(prevSnapshot.getTrackRecord()));
+                    TrackRecord currTrackRecord = dataMapper.toTrackRecord(currSnapshotData, dayDiff.getHasPremium() ? 1 : 0);
+                    currSnapshot = new TrackSnapshotRecord(currTrackRecord, today, prevSnapshot.getTarget());
+                }
+            }
+
+            if (currSnapshot != null) {
+                snapshots.add(currSnapshot);
+            }
+            prevSnapshot = currSnapshot;
+        }
+
+        if (!brokenSnapshots.isEmpty()) {
+            log.warn("Migration for user {}, Found {} broken snapshots: {}", account.getLogin(),
+                    brokenSnapshots.size(),
+                    brokenSnapshots.stream()
+                            .map(TrackingSchema::getTimestamp)
+                            .map(LocalDateTime::toString)
+                            .collect(Collectors.joining(","))
+            );
+        }
+
         snapshotRepository.saveAllAndFlush(snapshots);
         log.info("Successfully migrate {} snapshots", snapshots.size());
     }
 
 
+    // TODO: Premium migration
     private void migrateDiffs(AccountDocument account, TrackTargetDTO target) {
         migrateDiffs(account.getDaily(), TrackDiffPeriod.DAY, target);
         migrateDiffs(account.getWeekly(), TrackDiffPeriod.WEEK, target);
@@ -108,20 +203,22 @@ public class AccountMigrationService implements V1MigrationService {
     private TrackSnapshotRecord toSnapshot(TrackingSchema snapshot, TrackTargetDTO target) {
         TrackSnapshotRecord res = new TrackSnapshotRecord();
         res.setTarget(new TrackTargetRecord(target.getId()));
-        res.setTimestamp(getCorrectTime(snapshot.getTimestamp()));
+        res.setTimestamp(snapshot.getTimestamp());
         res.setTrackRecord(schemaMapper.toRecord(snapshot));
         return res;
     }
 
-    private LocalDateTime getCorrectTime(LocalDateTime schemaTimestamp) {
-        return schemaTimestamp
-                .minus(3, ChronoUnit.HOURS)
-                .plus(1, ChronoUnit.DAYS);
+    private boolean premiumMatches(TrackingSchema schema, TrackRecord record) {
+        return schema.getHasPremium() == (record.getPremium() > 0);
     }
 
     private void fixTrackingSchema(TrackingSchema trackingSchema) {
         trackingSchema.getSupplies().removeIf(supplySchema -> supplySchema.getName() == null);
         trackingSchema.getSupplies().add(new TrackSupplySchema(TankiSupply.NUCLEAR.name(), 0));
+        trackingSchema.setTimestamp(trackingSchema.getTimestamp()
+                .minus(3, ChronoUnit.HOURS)
+                .plusDays(1)
+        );
     }
 
     private TrackTargetDTO createAccount(String login) {

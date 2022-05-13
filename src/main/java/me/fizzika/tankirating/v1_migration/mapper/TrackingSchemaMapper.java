@@ -3,6 +3,8 @@ package me.fizzika.tankirating.v1_migration.mapper;
 import lombok.Setter;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.enums.track.TankiSupply;
+import me.fizzika.tankirating.mapper.TrackRecordMapper;
+import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackActivityRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
 import me.fizzika.tankirating.record.tracking.TrackUsageRecord;
@@ -22,6 +24,14 @@ public abstract class TrackingSchemaMapper {
 
     @Setter(onMethod_ = {@Autowired})
     private TrackEntityService entityService;
+
+    @Setter(onMethod_ = {@Autowired})
+    private TrackRecordMapper recordMapper;
+
+    public TrackFullData toDataModel(TrackingSchema schema) {
+        TrackRecord record = toRecordInternal(schema);
+        return recordMapper.toModel(record);
+    }
 
     public TrackRecord toRecord(TrackingSchema schema) {
         if (schema == null || schema.getTime() == null || schema.getTime().equals(0)) {

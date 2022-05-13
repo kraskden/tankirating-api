@@ -20,8 +20,11 @@ public class TrackBaseData implements TrackData<TrackBaseData> {
 
     private long time;
 
+    private int premium;
+
     public TrackBaseData(TrackBaseData model) {
         add(model);
+        premium = model.premium;
     }
 
     @Override

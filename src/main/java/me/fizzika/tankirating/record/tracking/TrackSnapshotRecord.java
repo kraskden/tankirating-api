@@ -1,8 +1,6 @@
 package me.fizzika.tankirating.record.tracking;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import me.fizzika.tankirating.record.IdRecord;
 
 import javax.persistence.*;
@@ -12,6 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @Table(name = "snapshot")
 public class TrackSnapshotRecord extends IdRecord<Long> {
 
@@ -19,7 +18,7 @@ public class TrackSnapshotRecord extends IdRecord<Long> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "snapshot_seq")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "track_id", referencedColumnName = "id")
     private TrackRecord trackRecord;
 
@@ -29,5 +28,11 @@ public class TrackSnapshotRecord extends IdRecord<Long> {
     @JoinColumn(name = "target_id", referencedColumnName = "id")
     @ToString.Exclude
     private TrackTargetRecord target;
+
+    public TrackSnapshotRecord(TrackRecord trackRecord, LocalDateTime timestamp, TrackTargetRecord target) {
+        this.trackRecord = trackRecord;
+        this.timestamp = timestamp;
+        this.target = target;
+    }
 
 }
