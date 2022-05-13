@@ -35,8 +35,6 @@ public class TrackRecord extends IdRecord<Long> {
 
     private long time;
 
-    private int premium;
-
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "track")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ToString.Exclude

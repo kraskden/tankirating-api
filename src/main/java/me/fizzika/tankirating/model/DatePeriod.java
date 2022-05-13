@@ -6,6 +6,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Represent time period: [start, end)
+ */
 @Data
 @AllArgsConstructor
 public class DatePeriod {

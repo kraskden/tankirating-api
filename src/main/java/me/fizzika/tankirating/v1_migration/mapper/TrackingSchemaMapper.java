@@ -44,7 +44,6 @@ public abstract class TrackingSchemaMapper {
         return res;
     }
 
-    @Mapping(target = "premium", source = "hasPremium")
     @Mapping(target = "gold", source = "golds")
     public abstract TrackRecord toRecordInternal(TrackingSchema schema);
 
@@ -54,10 +53,6 @@ public abstract class TrackingSchemaMapper {
     @Mapping(target = "usages", source = "count")
     @Mapping(target = "entityId", source = ".")
     protected abstract TrackUsageRecord toSupplyRecord(TrackSupplySchema schema);
-
-    protected int map(Boolean b) {
-        return b == null || !b ? 0 : 1;
-    }
 
     private final Map<String, TankiSupply> SCHEMA_SUPPLIES_MAP = Map.of(
             "Gold", TankiSupply.GOLDBOX

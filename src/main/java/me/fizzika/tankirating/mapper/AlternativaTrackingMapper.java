@@ -8,6 +8,7 @@ import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaModePlayTrac
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaSupplyUsageTrack;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.enums.track.TankiSupply;
+import me.fizzika.tankirating.model.PremiumWrapper;
 import me.fizzika.tankirating.model.track_data.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,23 +20,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// TODO: premium
-
 @Mapper(componentModel = "spring")
 public abstract class AlternativaTrackingMapper {
 
-    public TrackFullData toFullTrackModel(AlternativaTrackDTO trackDTO) {
+    public PremiumWrapper<TrackFullData> toFullTrackModelWithPremium(AlternativaTrackDTO trackDTO) {
         TrackFullData res = new TrackFullData();
         res.setBase(toBaseTrackModel(trackDTO));
         res.setSupplies(toSupplyUsageTrackMap(trackDTO.getSuppliesUsage()));
         res.setActivities(toActivityTrackMap(trackDTO));
-        return res;
+        return new PremiumWrapper<>(trackDTO.isHasPremium(), res);
     }
 
     @Mapping(source = "earnedCrystals", target = "cry")
     @Mapping(source = "caughtGolds", target = "gold")
     @Mapping(target = "time", source = ".", qualifiedByName = "getFullTime")
-    @Mapping(target = "premium", source = "hasPremium")
     protected abstract TrackBaseData toBaseTrackModel(AlternativaTrackDTO trackDTO);
 
     @Named("getFullTime")

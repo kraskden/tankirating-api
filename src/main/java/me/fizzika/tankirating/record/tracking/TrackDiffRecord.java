@@ -42,4 +42,6 @@ public class TrackDiffRecord extends IdRecord<Long> {
     @ToString.Exclude
     private TrackTargetRecord target;
 
+    private Integer premiumDays;
+
 }
