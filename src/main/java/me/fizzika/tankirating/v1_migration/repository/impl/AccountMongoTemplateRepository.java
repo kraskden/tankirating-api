@@ -2,7 +2,7 @@ package me.fizzika.tankirating.v1_migration.repository.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;
-import me.fizzika.tankirating.v1_migration.repository.AccountMongoTemplateRepository;
+import me.fizzika.tankirating.v1_migration.repository.AccountMongoRepository;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -12,11 +12,10 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class AccountMongoTemplateRepositoryImpl implements AccountMongoTemplateRepository {
+public class AccountMongoTemplateRepository {
 
     private final MongoTemplate mongoTemplate;
 
-    @Override
     public List<String> getAccountLogins() {
         Query q = new Query();
         q.fields().include("login");

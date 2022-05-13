@@ -1,12 +1,12 @@
 package me.fizzika.tankirating.v1_migration.repository;
 
 import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
 
+import java.util.List;
 
-@Repository
-public interface AccountMongoRepository extends MongoRepository<AccountDocument, String> {
+public interface AccountMongoRepository {
+
+    List<String> getAccountLogins();
 
     AccountDocument findAccountDocumentByLogin(String login);
 

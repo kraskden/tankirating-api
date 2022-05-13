@@ -21,12 +21,11 @@ import me.fizzika.tankirating.v1_migration.mapper.TrackingSchemaMapper;
 import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;
 import me.fizzika.tankirating.v1_migration.record.tracking.TrackSupplySchema;
 import me.fizzika.tankirating.v1_migration.record.tracking.TrackingSchema;
+import me.fizzika.tankirating.v1_migration.repository.impl.AccountSpringDataMongoRepository;
 import me.fizzika.tankirating.v1_migration.repository.AccountMongoRepository;
-import me.fizzika.tankirating.v1_migration.repository.AccountMongoTemplateRepository;
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import java.util.stream.Collectors;
 public class AccountMigrationService implements V1MigrationService {
 
     private final AccountMongoRepository mongoRepository;
-    private final AccountMongoTemplateRepository mongoTemplateRepository;
 
     private final TrackTargetService trackTargetService;
 
@@ -54,7 +52,7 @@ public class AccountMigrationService implements V1MigrationService {
 
     @Override
     public void migrate() {
-        List<String> logins = mongoTemplateRepository.getAccountLogins();
+        List<String> logins = mongoRepository.getAccountLogins();
         log.info("Found {} accounts", logins.size());
         for (String login : logins) {
             log.info("Starting migration for {}", login);
