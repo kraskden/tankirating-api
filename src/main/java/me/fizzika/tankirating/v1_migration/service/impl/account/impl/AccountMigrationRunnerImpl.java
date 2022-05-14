@@ -171,8 +171,12 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         TrackDiffRecord record = new TrackDiffRecord();
         record.setTarget(new TrackTargetRecord(target.getId()));
         record.setTrackRecord(dataMapper.toTrackRecord(diffData));
-        record.setPeriod(TrackDiffPeriod.ALL_TIME);
+        record.setPeriod(TrackDiffPeriod.ALL_TIME);;
+
         fillDiffRecordDates(record, TrackDiffPeriod.ALL_TIME.getDatePeriod(LocalDateTime.now()));
+        record.setTrackStart(initSnapshot.getTimestamp());
+        record.setTrackEnd(lastSnapshot.getTimestamp());
+
         record.setPremiumDays(snapshotRepository.getAllTimePremiumDays(target.getId()));
 
         diffRepository.save(record);
