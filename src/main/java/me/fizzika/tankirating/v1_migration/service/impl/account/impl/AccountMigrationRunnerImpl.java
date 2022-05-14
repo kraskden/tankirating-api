@@ -25,7 +25,6 @@ import me.fizzika.tankirating.v1_migration.service.impl.account.AccountMigration
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -58,8 +57,15 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         TrackTargetDTO target = trackTargetService.getOptionalByName(login, TrackTargetType.ACCOUNT)
                 .orElseGet(() -> createAccount(login));
 
-        migrateSnapshots(account, target);
-        migrateDiffs(account, target);
+        TreeMap<LocalDateTime, TrackingSchema> v1Snapshots = account.getTracking().stream()
+                .peek(this::fixTrackingSchema)
+                .collect(Collectors.toMap(TrackingSchema::getTimestamp, Function.identity(), (x, y) -> x, TreeMap::new));
+
+        if (!v1Snapshots.isEmpty()) {
+            migrateSnapshots(account, v1Snapshots, target);
+            migrateDiffs(account, target);
+            createAllTimeDiff(target, v1Snapshots.firstEntry().getValue(), v1Snapshots.lastEntry().getValue());
+        }
 
         log.info("Complete migration for {}", login);
         return CompletableFuture.completedFuture(null);
@@ -80,15 +86,9 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
      * </p>
      *
      */
-    private void migrateSnapshots(AccountDocument account, TrackTargetDTO target) {
-        TreeMap<LocalDateTime, TrackingSchema> v1Snapshots = account.getTracking().stream()
-                .peek(this::fixTrackingSchema)
-                .collect(Collectors.toMap(TrackingSchema::getTimestamp, Function.identity(), (x, y) -> x, TreeMap::new));
-
-        if (v1Snapshots.isEmpty()) {
-            return;
-        }
-
+    private void migrateSnapshots(AccountDocument account,
+                                  TreeMap<LocalDateTime, TrackingSchema> v1Snapshots,
+                                  TrackTargetDTO target) {
         TreeMap<LocalDateTime, TrackingSchema> dailyDiffs = account.getDaily().stream()
                 .peek(this::fixTrackingSchema)
                 .collect(Collectors.toMap(TrackingSchema::getTimestamp, Function.identity(), (x, y) -> x, TreeMap::new));
@@ -164,6 +164,21 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         migrateDiffs(account.getMonthly(), TrackDiffPeriod.MONTH, target);
     }
 
+    private void createAllTimeDiff(TrackTargetDTO target, TrackingSchema initSnapshot, TrackingSchema lastSnapshot) {
+        TrackFullData diffData = schemaMapper.toDataModel(lastSnapshot);
+        diffData.sub(schemaMapper.toDataModel(initSnapshot));
+
+        TrackDiffRecord record = new TrackDiffRecord();
+        record.setTarget(new TrackTargetRecord(target.getId()));
+        record.setTrackRecord(dataMapper.toTrackRecord(diffData));
+        record.setPeriod(TrackDiffPeriod.ALL_TIME);
+        fillDiffRecordDates(record, TrackDiffPeriod.ALL_TIME.getDatePeriod(LocalDateTime.now()));
+        record.setPremiumDays(snapshotRepository.getAllTimePremiumDays(target.getId()));
+
+        diffRepository.save(record);
+        log.info("Migration [{}]: Successfully created ALL_TIME diff", target.getName());
+    }
+
     private void migrateDiffs(List<TrackingSchema> schemas, TrackDiffPeriod period, TrackTargetDTO target) {
         List<TrackDiffRecord> records = schemas.stream()
                 .peek(this::fixTrackingSchema)
@@ -180,15 +195,19 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         res.setPeriod(period);
 
         DatePeriod datePeriod = period.getDatePeriod(diff.getTimestamp());
-        res.setPeriodStart(datePeriod.getStart());
-        res.setPeriodEnd(datePeriod.getEnd());
-        res.setTrackStart(datePeriod.getStart());
-        res.setTrackEnd(datePeriod.getEnd());
+        fillDiffRecordDates(res, datePeriod);
 
         res.setPremiumDays(period == TrackDiffPeriod.DAY ?
                 diff.getHasPremium() ? 1 : 0
                 : snapshotRepository.getPremiumDays(target.getId(), datePeriod.getStart(), datePeriod.getEnd()));
         return res;
+    }
+
+    private void fillDiffRecordDates(TrackDiffRecord mappingTarget, DatePeriod period) {
+        mappingTarget.setPeriodStart(period.getStart());
+        mappingTarget.setPeriodEnd(period.getEnd());
+        mappingTarget.setTrackStart(period.getStart());
+        mappingTarget.setTrackEnd(period.getEnd());
     }
 
     private TrackSnapshotRecord toSnapshot(TrackingSchema snapshot, TrackTargetDTO target) {

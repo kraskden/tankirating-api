@@ -72,16 +72,31 @@ public class TrackEntityServiceImpl implements TrackEntityService {
         } else {
             readLock.unlock();
             writeLock.lock();
+            try {
+                /*
+                Let's imagine, that threads A and B search the same name, that is not exists in the map.
+                Thread A locks writeLock, after that execution is switching to thread B. Thread B is trying to lock writeLock,
+                but thread A already owns it, so it will wait some time...
+                At the moment, execution is switching to thread A, and it creates TrackEntityRecord and releases writeLock
 
-            TrackEntityRecord rec = new TrackEntityRecord();
-            rec.setName(name);
-            rec.setType(type);
-            TrackEntityRecord saved = entityRepository.save(rec);
-            ENTITY_ID_MAP.put(saved.getId(), new TrackEntityDTO(saved.getId(), saved.getName(), saved.getType()));
-            nameMap.put(saved.getName(), saved.getId());
-            writeLock.unlock();
+                Execution is switched to the Thread B.
+                Thread B now locks writeLock. If I don't put this if-check into the code, Thread B will create duplicate record
+                (actually SqlException will be throws, thanks to db unique constraint).
+                 */
+                if (nameMap.containsKey(name)) {
+                    return nameMap.get(name);
+                }
 
-            return saved.getId();
+                TrackEntityRecord rec = new TrackEntityRecord();
+                rec.setName(name);
+                rec.setType(type);
+                TrackEntityRecord saved = entityRepository.save(rec);
+                ENTITY_ID_MAP.put(saved.getId(), new TrackEntityDTO(saved.getId(), saved.getName(), saved.getType()));
+                nameMap.put(saved.getName(), saved.getId());
+                return saved.getId();
+            } finally {
+                writeLock.unlock();
+            }
         }
     }
 
