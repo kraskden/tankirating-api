@@ -14,6 +14,7 @@ import me.fizzika.tankirating.mapper.TrackDiffMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.repository.TrackDiffRepository;
+import me.fizzika.tankirating.repository.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackDiffService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class TrackDiffServiceImpl implements TrackDiffService {
 
     private final TrackDiffRepository diffRepository;
+    private final TrackSnapshotRepository snapshotRepository;
     private final TrackDiffMapper diffMapper;
 
     private final TrackSnapshotService trackSnapshotService;
@@ -68,6 +70,7 @@ public class TrackDiffServiceImpl implements TrackDiffService {
         res.setTrackStart(start.getTimestamp());
         res.setTrackEnd(end.getTimestamp());
         res.setTracking(trackDataMapper.toFullDTO(diffData, target));
+        res.setPremiumDays(snapshotRepository.getPremiumDays(target.getId(), from, to));
         return res;
     }
 
