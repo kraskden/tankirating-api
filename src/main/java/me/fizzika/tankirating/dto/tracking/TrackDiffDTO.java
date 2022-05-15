@@ -2,7 +2,7 @@ package me.fizzika.tankirating.dto.tracking;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Data;
-import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.PeriodUnit;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +12,7 @@ public class TrackDiffDTO {
     @JsonUnwrapped
     private TrackingDTO tracking;
 
-    private TrackDiffPeriod period;
+    private PeriodUnit period;
 
     private LocalDateTime periodStart;
 

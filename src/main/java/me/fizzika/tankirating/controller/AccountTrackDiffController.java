@@ -5,7 +5,7 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackDatesFilter;
 import me.fizzika.tankirating.dto.filter.TrackFormatFilter;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
-import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.service.tracking.TrackDiffService;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
@@ -37,13 +37,13 @@ public class AccountTrackDiffController {
     }
 
     @GetMapping("/{period}")
-    public List<TrackDiffDTO> getAllDiffsForPeriod(@PathVariable String nickname, @PathVariable TrackDiffPeriod period,
+    public List<TrackDiffDTO> getAllDiffsForPeriod(@PathVariable String nickname, @PathVariable PeriodUnit period,
         @Valid TrackDatesFilter datesFilter) {
         return trackDiffService.getAllDiffsForPeriod(getTarget(nickname), period, datesFilter);
     }
 
     @GetMapping("/{period}/{offset}")
-    public TrackDiffDTO getDiffForPeriod(@PathVariable String nickname, @PathVariable TrackDiffPeriod period,
+    public TrackDiffDTO getDiffForPeriod(@PathVariable String nickname, @PathVariable PeriodUnit period,
                                                  @PathVariable Integer offset, @Valid TrackFormatFilter formatFilter) {
         return trackDiffService.getDiffForPeriod(getTarget(nickname), period, offset, formatFilter.getFormat());
     }

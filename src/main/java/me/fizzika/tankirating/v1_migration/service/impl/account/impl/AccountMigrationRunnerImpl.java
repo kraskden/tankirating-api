@@ -3,8 +3,8 @@ package me.fizzika.tankirating.v1_migration.service.impl.account.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TankiSupply;
-import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackRecordMapper;
@@ -14,8 +14,8 @@ import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
-import me.fizzika.tankirating.repository.TrackDiffRepository;
-import me.fizzika.tankirating.repository.TrackSnapshotRepository;
+import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
+import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.v1_migration.mapper.TrackingSchemaMapper;
 import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;
@@ -161,9 +161,9 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
 
 
     private void migrateDiffs(AccountDocument account, TrackTargetDTO target) {
-        migrateDiffs(account.getDaily(), TrackDiffPeriod.DAY, target);
-        migrateDiffs(account.getWeekly(), TrackDiffPeriod.WEEK, target);
-        migrateDiffs(account.getMonthly(), TrackDiffPeriod.MONTH, target);
+        migrateDiffs(account.getDaily(), PeriodUnit.DAY, target);
+        migrateDiffs(account.getWeekly(), PeriodUnit.WEEK, target);
+        migrateDiffs(account.getMonthly(), PeriodUnit.MONTH, target);
     }
 
     private void createAllTimeDiff(TrackTargetDTO target, TrackingSchema initSnapshot, TrackingSchema lastSnapshot) {
@@ -173,9 +173,9 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         TrackDiffRecord record = new TrackDiffRecord();
         record.setTarget(new TrackTargetRecord(target.getId()));
         record.setTrackRecord(dataMapper.toTrackRecord(diffData));
-        record.setPeriod(TrackDiffPeriod.ALL_TIME);;
+        record.setPeriod(PeriodUnit.ALL_TIME);;
 
-        fillDiffRecordDates(record, TrackDiffPeriod.ALL_TIME.getDatePeriod(LocalDateTime.now()));
+        fillDiffRecordDates(record, PeriodUnit.ALL_TIME.getDatePeriod(LocalDateTime.now()));
         record.setTrackStart(initSnapshot.getTimestamp());
         record.setTrackEnd(lastSnapshot.getTimestamp());
 
@@ -185,7 +185,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         log.info("Migration [{}]: Successfully created ALL_TIME diff", target.getName());
     }
 
-    private void migrateDiffs(List<TrackingSchema> schemas, TrackDiffPeriod period, TrackTargetDTO target) {
+    private void migrateDiffs(List<TrackingSchema> schemas, PeriodUnit period, TrackTargetDTO target) {
         List<TrackDiffRecord> records = schemas.stream()
                 .peek(this::fixTrackingSchema)
                 .map(schema -> toDiff(schema, period, target))
@@ -194,7 +194,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         log.info("Migration [{}]: Successfully migrate {} diffs for {} period", target.getName(), records.size(), period);
     }
 
-    private TrackDiffRecord toDiff(TrackingSchema diff, TrackDiffPeriod period, TrackTargetDTO target) {
+    private TrackDiffRecord toDiff(TrackingSchema diff, PeriodUnit period, TrackTargetDTO target) {
         TrackDiffRecord res = new TrackDiffRecord();
         res.setTarget(new TrackTargetRecord(target.getId()));
         res.setTrackRecord(schemaMapper.toRecord(diff));
@@ -203,7 +203,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         DatePeriod datePeriod = period.getDatePeriod(diff.getTimestamp());
         fillDiffRecordDates(res, datePeriod);
 
-        res.setPremiumDays(period == TrackDiffPeriod.DAY ?
+        res.setPremiumDays(period == PeriodUnit.DAY ?
                 diff.getHasPremium() ? 1 : 0
                 : snapshotRepository.getPremiumDays(target.getId(), datePeriod.getStart(), datePeriod.getEnd()));
         return res;

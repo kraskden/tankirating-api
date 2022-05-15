@@ -9,7 +9,7 @@ import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackTargetMapper;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
-import me.fizzika.tankirating.repository.TrackTargetRepository;
+import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

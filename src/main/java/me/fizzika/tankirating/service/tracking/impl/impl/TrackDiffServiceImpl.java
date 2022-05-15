@@ -6,18 +6,16 @@ import me.fizzika.tankirating.dto.filter.TrackDatesFilter;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.TrackFormat;
-import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
-import me.fizzika.tankirating.enums.track.TrackTargetType;
+import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackDiffMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
-import me.fizzika.tankirating.repository.TrackDiffRepository;
-import me.fizzika.tankirating.repository.TrackSnapshotRepository;
+import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
+import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackDiffService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
-import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.util.Pair;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +35,7 @@ public class TrackDiffServiceImpl implements TrackDiffService {
     private final TrackDataMapper trackDataMapper;
 
     @Override
-    public List<TrackDiffDTO> getAllDiffsForPeriod(TrackTargetDTO target, TrackDiffPeriod period, TrackDatesFilter datesFilter) {
+    public List<TrackDiffDTO> getAllDiffsForPeriod(TrackTargetDTO target, PeriodUnit period, TrackDatesFilter datesFilter) {
         return diffRepository.findAllDiffsForPeriod(target.getId(), period, datesFilter.getFrom().atStartOfDay(),
                 datesFilter.getTo().atStartOfDay()).stream()
                 .map(r -> diffMapper.toDTO(r, target, datesFilter.getFormat()))
@@ -75,7 +73,7 @@ public class TrackDiffServiceImpl implements TrackDiffService {
     }
 
     @Override
-    public TrackDiffDTO getDiffForPeriod(TrackTargetDTO target, TrackDiffPeriod period, Integer offset, TrackFormat format) {
+    public TrackDiffDTO getDiffForPeriod(TrackTargetDTO target, PeriodUnit period, Integer offset, TrackFormat format) {
         LocalDateTime periodStart = period.getDatePeriod(LocalDateTime.now())
                 .sub(offset).getStart();
         return diffRepository.findDiffForPeriod(target.getId(), period, periodStart)

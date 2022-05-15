@@ -1,16 +1,16 @@
 package me.fizzika.tankirating.config.converter;
 
-import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.PeriodUnit;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 
 @Component
-public class StringToTrackDiffPeriodConverter implements WebMvcConverter<String, TrackDiffPeriod> {
+public class StringToTrackDiffPeriodConverter implements WebMvcConverter<String, PeriodUnit> {
 
     @Override
-    public TrackDiffPeriod convert(@NotNull String source) {
-        return TrackDiffPeriod.valueOf(source.toUpperCase());
+    public PeriodUnit convert(@NotNull String source) {
+        return PeriodUnit.valueOf(source.toUpperCase());
     }
 
 }

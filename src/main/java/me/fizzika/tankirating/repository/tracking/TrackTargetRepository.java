@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.repository;
+package me.fizzika.tankirating.repository.tracking;
 
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
