@@ -6,12 +6,14 @@ import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.v1_migration.config.converter.StringToV1TrackTypeConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
 
 @Configuration
 @RequiredArgsConstructor
+@Profile("migration")
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Value("${spring.data.mongodb.database}")

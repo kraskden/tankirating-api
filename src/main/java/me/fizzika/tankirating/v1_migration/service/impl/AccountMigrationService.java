@@ -25,6 +25,7 @@ import me.fizzika.tankirating.v1_migration.repository.impl.AccountSpringDataMong
 import me.fizzika.tankirating.v1_migration.repository.AccountMongoRepository;
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import me.fizzika.tankirating.v1_migration.service.impl.account.AccountMigrationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Profile("migration")
 @RequiredArgsConstructor
 public class AccountMigrationService implements V1MigrationService {
 

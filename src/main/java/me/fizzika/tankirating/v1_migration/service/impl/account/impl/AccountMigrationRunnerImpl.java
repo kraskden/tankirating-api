@@ -22,6 +22,7 @@ import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;
 import me.fizzika.tankirating.v1_migration.record.tracking.TrackSupplySchema;
 import me.fizzika.tankirating.v1_migration.record.tracking.TrackingSchema;
 import me.fizzika.tankirating.v1_migration.service.impl.account.AccountMigrationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@Profile("migration")
 @Slf4j
 @RequiredArgsConstructor
 public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
