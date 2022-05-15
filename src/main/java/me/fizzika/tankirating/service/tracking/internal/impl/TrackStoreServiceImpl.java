@@ -1,7 +1,7 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import lombok.RequiredArgsConstructor;
-import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
+import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.model.DatePeriod;
 import me.fizzika.tankirating.model.TrackData;
@@ -10,9 +10,9 @@ import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
-import me.fizzika.tankirating.repository.TrackDiffRepository;
-import me.fizzika.tankirating.repository.TrackRepository;
-import me.fizzika.tankirating.repository.TrackSnapshotRepository;
+import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
+import me.fizzika.tankirating.repository.tracking.TrackRepository;
+import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         updateSnapshots(targetId, now, currentData, hasPremium);
 
         // Update diff for each period
-        for (TrackDiffPeriod diffPeriod : TrackDiffPeriod.values()) {
+        for (PeriodUnit diffPeriod : PeriodUnit.values()) {
             updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
         }
     }
@@ -71,12 +71,12 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
     }
 
-    private void updateDiff(Integer targetId, LocalDateTime now, TrackFullData currentData, TrackDiffPeriod diffPeriod,
+    private void updateDiff(Integer targetId, LocalDateTime now, TrackFullData currentData, PeriodUnit diffPeriod,
                             boolean hasPremium) {
 
         DatePeriod diffDates = diffPeriod.getDatePeriod(now);
 
-        int premiumDays = diffPeriod == TrackDiffPeriod.DAY ?
+        int premiumDays = diffPeriod == PeriodUnit.DAY ?
                 hasPremium ? 1 : 0
                 : snapshotRepository.getPremiumDays(targetId, diffDates.getStart(), diffDates.getEnd());
 
@@ -141,7 +141,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
     }
 
-    private TrackDiffRecord emptyRecord(Integer targetId, TrackDiffPeriod period, DatePeriod periodDates) {
+    private TrackDiffRecord emptyRecord(Integer targetId, PeriodUnit period, DatePeriod periodDates) {
         var rec = new TrackDiffRecord();
         var target = new TrackTargetRecord();
         target.setId(targetId);

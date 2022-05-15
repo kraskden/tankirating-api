@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.record.tracking.TrackEntityRecord;
-import me.fizzika.tankirating.repository.TrackEntityRepository;
+import me.fizzika.tankirating.repository.tracking.TrackEntityRepository;
 import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import org.springframework.stereotype.Service;
 

@@ -5,7 +5,6 @@ import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;
 import me.fizzika.tankirating.v1_migration.repository.AccountMongoRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

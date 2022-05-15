@@ -1,6 +1,6 @@
 package me.fizzika.tankirating.service.tracking.internal;
 
-import me.fizzika.tankirating.dto.alternativa.AlternativaTrackDTO;
+import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
 
 import java.util.concurrent.CompletableFuture;
 

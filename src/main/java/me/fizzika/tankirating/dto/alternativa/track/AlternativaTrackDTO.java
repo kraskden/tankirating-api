@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.dto.alternativa;
+package me.fizzika.tankirating.dto.alternativa.track;
 
 import lombok.Data;
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaEntityPlayTrack;

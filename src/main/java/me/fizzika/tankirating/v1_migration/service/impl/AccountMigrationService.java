@@ -2,26 +2,6 @@ package me.fizzika.tankirating.v1_migration.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
-import me.fizzika.tankirating.enums.track.TankiSupply;
-import me.fizzika.tankirating.enums.track.TrackDiffPeriod;
-import me.fizzika.tankirating.enums.track.TrackTargetType;
-import me.fizzika.tankirating.mapper.TrackDataMapper;
-import me.fizzika.tankirating.mapper.TrackRecordMapper;
-import me.fizzika.tankirating.model.DatePeriod;
-import me.fizzika.tankirating.model.track_data.TrackFullData;
-import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
-import me.fizzika.tankirating.record.tracking.TrackRecord;
-import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
-import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
-import me.fizzika.tankirating.repository.TrackDiffRepository;
-import me.fizzika.tankirating.repository.TrackSnapshotRepository;
-import me.fizzika.tankirating.service.tracking.TrackTargetService;
-import me.fizzika.tankirating.v1_migration.mapper.TrackingSchemaMapper;
-import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;
-import me.fizzika.tankirating.v1_migration.record.tracking.TrackSupplySchema;
-import me.fizzika.tankirating.v1_migration.record.tracking.TrackingSchema;
-import me.fizzika.tankirating.v1_migration.repository.impl.AccountSpringDataMongoRepository;
 import me.fizzika.tankirating.v1_migration.repository.AccountMongoRepository;
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import me.fizzika.tankirating.v1_migration.service.impl.account.AccountMigrationRunner;
@@ -30,13 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service

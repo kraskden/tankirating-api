@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.enums.track;
+package me.fizzika.tankirating.enums;
 
 import lombok.AllArgsConstructor;
 import me.fizzika.tankirating.model.DatePeriod;
@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.function.Function;
 
 @AllArgsConstructor
-public enum TrackDiffPeriod {
+public enum PeriodUnit {
 
     DAY(stamp -> new DatePeriod(stamp, getPeriodEndDate(stamp, ChronoUnit.DAYS, 1), ChronoUnit.DAYS)),
     WEEK(stamp -> getDiffPeriod(stamp, ChronoField.DAY_OF_WEEK, ChronoUnit.WEEKS)),
