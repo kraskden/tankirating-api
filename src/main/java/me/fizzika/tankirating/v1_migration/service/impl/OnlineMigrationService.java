@@ -13,6 +13,7 @@ import me.fizzika.tankirating.v1_migration.record.online.OnlineDaySchema;
 import me.fizzika.tankirating.v1_migration.record.online.OnlineDocument;
 import me.fizzika.tankirating.v1_migration.repository.OnlineMongoRepository;
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Profile("migration")
 @Slf4j
 @RequiredArgsConstructor
 public class OnlineMigrationService implements V1MigrationService {

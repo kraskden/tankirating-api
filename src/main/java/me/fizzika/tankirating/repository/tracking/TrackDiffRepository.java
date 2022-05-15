@@ -2,6 +2,7 @@ package me.fizzika.tankirating.repository.tracking;
 
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -22,7 +23,7 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
             "and D.period = :period " +
             "and D.periodStart between :from and :to")
     List<TrackDiffRecord> findAllDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
-                                                LocalDateTime to);
+                                                LocalDateTime to, Sort sort);
 
 
 

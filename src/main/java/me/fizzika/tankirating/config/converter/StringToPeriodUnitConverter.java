@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 
 @Component
-public class StringToTrackDiffPeriodConverter implements WebMvcConverter<String, PeriodUnit> {
+public class StringToPeriodUnitConverter implements WebMvcConverter<String, PeriodUnit> {
 
     @Override
     public PeriodUnit convert(@NotNull String source) {

@@ -14,8 +14,8 @@ public enum ExceptionType {
     TRACK_DIFF_NOT_FOUND("Track diff not found", HttpStatus.NOT_FOUND),
     TRACK_TARGET_NOT_FOUND("Track target not exists in the system", HttpStatus.NOT_FOUND),
 
-    ALTERNATIVA_ACCOUNT_NOT_FOUND("Account not exists in the ratings.tankionline.com", HttpStatus.NOT_FOUND)
-    ;
+    ALTERNATIVA_ACCOUNT_NOT_FOUND("Account not exists in the ratings.tankionline.com", HttpStatus.NOT_FOUND),
+    PCU_RECORD_NOT_FOUND("Pcu record not found", HttpStatus.NOT_FOUND);
 
     private final String message;
     private final HttpStatus status;

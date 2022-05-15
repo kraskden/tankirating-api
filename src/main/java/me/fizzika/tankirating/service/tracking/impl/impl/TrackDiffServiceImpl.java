@@ -17,6 +17,7 @@ import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackDiffService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.util.Pair;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,7 +38,7 @@ public class TrackDiffServiceImpl implements TrackDiffService {
     @Override
     public List<TrackDiffDTO> getAllDiffsForPeriod(TrackTargetDTO target, PeriodUnit period, TrackDatesFilter datesFilter) {
         return diffRepository.findAllDiffsForPeriod(target.getId(), period, datesFilter.getFrom().atStartOfDay(),
-                datesFilter.getTo().atStartOfDay()).stream()
+                datesFilter.getTo().atStartOfDay(), Sort.by("periodStart")).stream()
                 .map(r -> diffMapper.toDTO(r, target, datesFilter.getFormat()))
                 .collect(Collectors.toList());
     }

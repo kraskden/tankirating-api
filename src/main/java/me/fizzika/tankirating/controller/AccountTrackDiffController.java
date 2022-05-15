@@ -31,11 +31,6 @@ public class AccountTrackDiffController {
                 datesFilter);
     }
 
-    @GetMapping("/allTime")
-    public TrackDiffDTO getAllTimeDiff(@PathVariable String nickname, @Valid TrackFormatFilter formatFilter) {
-        return trackDiffService.getAllTimeDiff(getTarget(nickname), formatFilter.getFormat());
-    }
-
     @GetMapping("/{period}")
     public List<TrackDiffDTO> getAllDiffsForPeriod(@PathVariable String nickname, @PathVariable PeriodUnit period,
         @Valid TrackDatesFilter datesFilter) {
@@ -44,12 +39,11 @@ public class AccountTrackDiffController {
 
     @GetMapping("/{period}/{offset}")
     public TrackDiffDTO getDiffForPeriod(@PathVariable String nickname, @PathVariable PeriodUnit period,
-                                                 @PathVariable Integer offset, @Valid TrackFormatFilter formatFilter) {
+                                         @PathVariable Integer offset, @Valid TrackFormatFilter formatFilter) {
         return trackDiffService.getDiffForPeriod(getTarget(nickname), period, offset, formatFilter.getFormat());
     }
 
     private TrackTargetDTO getTarget(String nickname) {
         return trackTargetService.getByName(nickname, TrackTargetType.ACCOUNT);
     }
-
 }
