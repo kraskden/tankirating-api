@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/account/{nickname}/snapshot")
-public class AccountSnapshotController {
+public class TrackSnapshotController {
     
     private final TrackTargetSnapshotService trackTargetSnapshotService;
     private final TrackTargetService trackTargetService;

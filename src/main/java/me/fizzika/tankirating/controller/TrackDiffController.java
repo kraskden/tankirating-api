@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/account/{nickname}/diff")
-public class AccountTrackDiffController {
+public class TrackDiffController {
 
     private final TrackDiffService trackDiffService;
     private final TrackTargetService trackTargetService;
