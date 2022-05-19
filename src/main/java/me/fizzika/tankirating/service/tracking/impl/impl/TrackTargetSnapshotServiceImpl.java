@@ -1,7 +1,6 @@
 package me.fizzika.tankirating.service.tracking.impl.impl;
 
 import lombok.RequiredArgsConstructor;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.tracking.TrackSnapshotDTO;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.TrackFormat;
@@ -16,27 +15,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TrackTargetSnapshotServiceImpl implements TrackTargetSnapshotService {
 
-    private final TrackTargetService trackTargetService;
     private final TrackSnapshotRepository snapshotRepository;
     private final TrackSnapshotMapper snapshotMapper;
 
     @Override
-    public TrackSnapshotDTO getLatestSnapshot(TrackTargetDTO target, TrackFormat format) {
-        return snapshotRepository.getLatest(target.getId())
-                .map(r -> snapshotMapper.toDTO(r, target, format))
-                .orElseThrow(() -> snapshotNotFound(target.getName()));
+    public TrackSnapshotDTO getLatestSnapshot(Integer targetId, TrackFormat format) {
+        return snapshotRepository.getLatest(targetId)
+                .map(r -> snapshotMapper.toDTO(r, targetId, format))
+                .orElseThrow(() -> snapshotNotFound(targetId));
     }
 
     @Override
-    public TrackSnapshotDTO getInitSnapshot(TrackTargetDTO target, TrackFormat format) {
-        return snapshotRepository.getInit(target.getId())
-                .map(r -> snapshotMapper.toDTO(r, target, format))
-                .orElseThrow(() -> snapshotNotFound(target.getName()));
+    public TrackSnapshotDTO getInitSnapshot(Integer targetId, TrackFormat format) {
+        return snapshotRepository.getInit(targetId)
+                .map(r -> snapshotMapper.toDTO(r, targetId, format))
+                .orElseThrow(() -> snapshotNotFound(targetId));
     }
 
-    private ExternalException snapshotNotFound(String name) {
+    private ExternalException snapshotNotFound(Integer targetId) {
         return new ExternalException(ExceptionType.TRACK_SNAPSHOT_NOT_FOUND)
-                .arg("name", name);
+                .arg("targetId", targetId);
     }
 
 }

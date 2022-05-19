@@ -11,24 +11,19 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/account/{nickname}/snapshot")
+@RequestMapping("/target/{targetId}/snapshot")
 public class TrackSnapshotController {
     
     private final TrackTargetSnapshotService trackTargetSnapshotService;
-    private final TrackTargetService trackTargetService;
 
     @GetMapping("/latest")
-    public TrackSnapshotDTO getLatestSnapshot(@PathVariable String nickname, @RequestParam TrackFormat format) {
-        return trackTargetSnapshotService.getLatestSnapshot(getTarget(nickname), format);
+    public TrackSnapshotDTO getLatestSnapshot(@PathVariable Integer targetId, @RequestParam TrackFormat format) {
+        return trackTargetSnapshotService.getLatestSnapshot(targetId, format);
     }
 
     @GetMapping("/init")
-    public TrackSnapshotDTO getInitSnapshot(@PathVariable String nickname, @RequestParam TrackFormat format) {
-        return trackTargetSnapshotService.getInitSnapshot(getTarget(nickname), format);
-    }
-
-    public TrackTargetDTO getTarget(String name) {
-        return trackTargetService.getByName(name, TrackTargetType.ACCOUNT);
+    public TrackSnapshotDTO getInitSnapshot(@PathVariable Integer targetId, @RequestParam TrackFormat format) {
+        return trackTargetSnapshotService.getInitSnapshot(targetId, format);
     }
 
 }

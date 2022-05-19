@@ -30,11 +30,11 @@ public abstract class TrackRecordMapper {
     protected TrackEntityService entityService;
 
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesDTO")
-    public abstract TrackingDTO toFullDto(TrackRecord record, TrackTargetDTO target);
+    public abstract TrackingDTO toFullDto(TrackRecord record, Integer targetId);
 
     @Mapping(target = "activities", ignore = true)
     @Mapping(target = "supplies", ignore = true)
-    public abstract TrackingDTO toShortDto(TrackRecord record, TrackTargetDTO target);
+    public abstract TrackingDTO toShortDto(TrackRecord record, Integer targetId);
 
     @Mapping(target = "base", source = ".")
     @Mapping(target = "activities", qualifiedByName = "toTrackActivitiesModelMap")

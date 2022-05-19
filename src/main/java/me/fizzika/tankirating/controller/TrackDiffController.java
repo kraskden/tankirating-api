@@ -19,31 +19,26 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/account/{nickname}/diff")
+@RequestMapping("/target/{targetId}/diff")
 public class TrackDiffController {
 
     private final TrackDiffService trackDiffService;
-    private final TrackTargetService trackTargetService;
 
     @GetMapping("/custom")
-    public TrackDiffDTO getDiffForDates(@PathVariable String nickname, @Valid TrackDatesFilter datesFilter) {
-        return trackDiffService.calculateDiffBetweenDates(getTarget(nickname),
-                datesFilter);
+    public TrackDiffDTO getDiffForDates(@PathVariable Integer targetId, @Valid TrackDatesFilter datesFilter) {
+        return trackDiffService.calculateDiffBetweenDates(targetId, datesFilter);
     }
 
     @GetMapping("/{period}")
-    public List<TrackDiffDTO> getAllDiffsForPeriod(@PathVariable String nickname, @PathVariable PeriodUnit period,
+    public List<TrackDiffDTO> getAllDiffsForPeriod(@PathVariable Integer targetId, @PathVariable PeriodUnit period,
         @Valid TrackDatesFilter datesFilter) {
-        return trackDiffService.getAllDiffsForPeriod(getTarget(nickname), period, datesFilter);
+        return trackDiffService.getAllDiffsForPeriod(targetId, period, datesFilter);
     }
 
     @GetMapping("/{period}/{offset}")
-    public TrackDiffDTO getDiffForPeriod(@PathVariable String nickname, @PathVariable PeriodUnit period,
+    public TrackDiffDTO getDiffForPeriod(@PathVariable Integer targetId, @PathVariable PeriodUnit period,
                                          @PathVariable Integer offset, @Valid TrackFormatFilter formatFilter) {
-        return trackDiffService.getDiffForPeriod(getTarget(nickname), period, offset, formatFilter.getFormat());
+        return trackDiffService.getDiffForPeriod(targetId, period, offset, formatFilter.getFormat());
     }
 
-    private TrackTargetDTO getTarget(String nickname) {
-        return trackTargetService.getByName(nickname, TrackTargetType.ACCOUNT);
-    }
 }

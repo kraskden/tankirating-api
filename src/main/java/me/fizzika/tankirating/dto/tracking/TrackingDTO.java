@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 public class TrackingDTO {
 
-    private TrackTargetDTO target;
+    private int targetId;
 
     private int gold;
 

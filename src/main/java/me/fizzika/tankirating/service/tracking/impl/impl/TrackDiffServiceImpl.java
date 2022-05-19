@@ -1,7 +1,6 @@
 package me.fizzika.tankirating.service.tracking.impl.impl;
 
 import lombok.RequiredArgsConstructor;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackDatesFilter;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
 import me.fizzika.tankirating.enums.ExceptionType;
@@ -36,27 +35,27 @@ public class TrackDiffServiceImpl implements TrackDiffService {
     private final TrackDataMapper trackDataMapper;
 
     @Override
-    public List<TrackDiffDTO> getAllDiffsForPeriod(TrackTargetDTO target, PeriodUnit period, TrackDatesFilter datesFilter) {
-        return diffRepository.findAllDiffsForPeriod(target.getId(), period, datesFilter.getFrom().atStartOfDay(),
+    public List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, PeriodUnit period, TrackDatesFilter datesFilter) {
+        return diffRepository.findAllDiffsForPeriod(targetId, period, datesFilter.getFrom().atStartOfDay(),
                 datesFilter.getTo().atStartOfDay(), Sort.by("periodStart")).stream()
-                .map(r -> diffMapper.toDTO(r, target, datesFilter.getFormat()))
+                .map(r -> diffMapper.toDTO(r, targetId, datesFilter.getFormat()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public TrackDiffDTO getAllTimeDiff(TrackTargetDTO target, TrackFormat format) {
-        return diffRepository.findAllTimeDiff(target.getId())
-                .map(r -> diffMapper.toDTO(r, target, format))
-                .orElseThrow(() -> accountDiffNotFound(target.getName()));
+    public TrackDiffDTO getAllTimeDiff(Integer targetId, TrackFormat format) {
+        return diffRepository.findAllTimeDiff(targetId)
+                .map(r -> diffMapper.toDTO(r, targetId, format))
+                .orElseThrow(() -> trackDiffNotFound(targetId));
     }
 
     @Override
-    public TrackDiffDTO calculateDiffBetweenDates(TrackTargetDTO target, TrackDatesFilter datesFilter) {
+    public TrackDiffDTO calculateDiffBetweenDates(Integer targetId, TrackDatesFilter datesFilter) {
         LocalDateTime from = datesFilter.getFrom().atStartOfDay();
         LocalDateTime to = datesFilter.getTo().atStartOfDay();
 
-        Pair<TrackSnapshot> borderSnapshots = trackSnapshotService.findBorderSnapshots(target.getId(), from, to)
-                .orElseThrow(() -> accountDiffNotFound(target.getName()));
+        Pair<TrackSnapshot> borderSnapshots = trackSnapshotService.findBorderSnapshots(targetId, from, to)
+                .orElseThrow(() -> trackDiffNotFound(targetId));
         TrackSnapshot start = borderSnapshots.getFirst();
         TrackSnapshot end = borderSnapshots.getSecond();
 
@@ -68,23 +67,23 @@ public class TrackDiffServiceImpl implements TrackDiffService {
         res.setPeriodEnd(to);
         res.setTrackStart(start.getTimestamp());
         res.setTrackEnd(end.getTimestamp());
-        res.setTracking(trackDataMapper.toFullDTO(diffData, target));
-        res.setPremiumDays(snapshotRepository.getPremiumDays(target.getId(), from, to));
+        res.setTracking(trackDataMapper.toFullDTO(diffData, targetId));
+        res.setPremiumDays(snapshotRepository.getPremiumDays(targetId, from, to));
         return res;
     }
 
     @Override
-    public TrackDiffDTO getDiffForPeriod(TrackTargetDTO target, PeriodUnit period, Integer offset, TrackFormat format) {
+    public TrackDiffDTO getDiffForPeriod(Integer targetId, PeriodUnit period, Integer offset, TrackFormat format) {
         LocalDateTime periodStart = period.getDatePeriod(LocalDateTime.now())
                 .sub(offset).getStart();
-        return diffRepository.findDiffForPeriod(target.getId(), period, periodStart)
-                .map(r -> diffMapper.toDTO(r, target, format))
-                .orElseThrow(() -> accountDiffNotFound(target.getName()));
+        return diffRepository.findDiffForPeriod(targetId, period, periodStart)
+                .map(r -> diffMapper.toDTO(r, targetId, format))
+                .orElseThrow(() -> trackDiffNotFound(targetId));
     }
 
-    private ExternalException accountDiffNotFound(String name) {
+    private ExternalException trackDiffNotFound(Integer targetId) {
         return new ExternalException(ExceptionType.TRACK_DIFF_NOT_FOUND)
-                .arg("name", name);
+                .arg("targetId", targetId);
     }
 
 }

@@ -24,22 +24,22 @@ public abstract class TrackDiffMapper extends TrackFormatMapper<TrackDiffRecord,
 
     @Override
     @Mapping(target = "tracking", source = "record", qualifiedByName = "toShortTrackingDTO")
-    protected abstract TrackDiffDTO toShortDTO(TrackDiffRecord record, @Context TrackTargetDTO target);
+    protected abstract TrackDiffDTO toShortDTO(TrackDiffRecord record, @Context Integer targetId);
 
     @Override
     @Mapping(target = "tracking", source = "record", qualifiedByName = "toFullTrackingDTO")
-    protected abstract TrackDiffDTO toFullDTO(TrackDiffRecord record, @Context TrackTargetDTO target);
+    protected abstract TrackDiffDTO toFullDTO(TrackDiffRecord record, @Context Integer targetId);
 
 
     @Named("toShortTrackingDTO")
-    protected TrackingDTO toShortTrackingDTO(TrackDiffRecord record, @Context TrackTargetDTO target) {
-        return trackRecordMapper.toShortDto(record.getTrackRecord(), target);
+    protected TrackingDTO toShortTrackingDTO(TrackDiffRecord record, @Context Integer targetId) {
+        return trackRecordMapper.toShortDto(record.getTrackRecord(), targetId);
     }
 
     @Named("toFullTrackingDTO")
-    protected TrackingDTO toFullTrackingDTO(TrackDiffRecord record, @Context TrackTargetDTO target) {
+    protected TrackingDTO toFullTrackingDTO(TrackDiffRecord record, @Context Integer targetId) {
         TrackRecord trackRecord = record.getTrackRecord();
-        TrackingDTO res =  trackRecordMapper.toFullDto(trackRecord, target);
+        TrackingDTO res =  trackRecordMapper.toFullDto(trackRecord, targetId);
 
         // trackRecord is null if there is no activity in the period
         // Set empty activities and supplies

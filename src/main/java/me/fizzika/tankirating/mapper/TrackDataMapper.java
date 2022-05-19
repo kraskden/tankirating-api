@@ -31,9 +31,9 @@ public abstract class TrackDataMapper {
     @Setter(onMethod_ = {@Autowired})
     private TrackEntityService entityService;
 
-    public TrackingDTO toFullDTO(TrackFullData model, TrackTargetDTO target) {
+    public TrackingDTO toFullDTO(TrackFullData model, Integer targetId) {
         TrackRecord record = toTrackRecordInternal(model);
-        return recordMapper.toFullDto(record, target);
+        return recordMapper.toFullDto(record, targetId);
     }
 
     @Named("toTrackRecord")

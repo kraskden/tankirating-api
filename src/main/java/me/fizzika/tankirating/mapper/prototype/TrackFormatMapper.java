@@ -6,19 +6,19 @@ import me.fizzika.tankirating.exceptions.ServerException;
 
 public abstract class TrackFormatMapper<R, D> {
 
-    public D toDTO(R record, TrackTargetDTO target, TrackFormat format) {
+    public D toDTO(R record, Integer targetId, TrackFormat format) {
         switch (format) {
             case BASE:
-                return toShortDTO(record, target);
+                return toShortDTO(record, targetId);
             case FULL:
-                return toFullDTO(record, target);
+                return toFullDTO(record, targetId);
             default:
                 throw new ServerException("Unknown snapshot format").arg("format", format);
         }
     }
 
-    protected abstract D toFullDTO(R record, TrackTargetDTO target);
+    protected abstract D toFullDTO(R record, Integer targetId);
 
-    protected abstract D toShortDTO(R record, TrackTargetDTO target);
+    protected abstract D toShortDTO(R record, Integer targetId);
 
 }

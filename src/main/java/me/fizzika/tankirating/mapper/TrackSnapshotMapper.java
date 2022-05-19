@@ -27,20 +27,20 @@ public abstract class TrackSnapshotMapper extends TrackFormatMapper<TrackSnapsho
 
     @Override
     @Mapping(target = "tracking", source = "record", qualifiedByName = "toShortTrackingDTO")
-    protected abstract TrackSnapshotDTO toShortDTO(TrackSnapshotRecord record, @Context TrackTargetDTO target);
+    protected abstract TrackSnapshotDTO toShortDTO(TrackSnapshotRecord record, @Context Integer targetId);
 
     @Override
     @Mapping(target = "tracking", source = "record", qualifiedByName = "toFullTrackingDTO")
-    protected abstract TrackSnapshotDTO toFullDTO(TrackSnapshotRecord record, @Context TrackTargetDTO target);
+    protected abstract TrackSnapshotDTO toFullDTO(TrackSnapshotRecord record, @Context Integer targetId);
 
     @Named("toShortTrackingDTO")
-    protected TrackingDTO toShortTrackingDTO(TrackSnapshotRecord record, @Context TrackTargetDTO target) {
-        return trackRecordMapper.toShortDto(record.getTrackRecord(), target);
+    protected TrackingDTO toShortTrackingDTO(TrackSnapshotRecord record, @Context Integer targetId) {
+        return trackRecordMapper.toShortDto(record.getTrackRecord(), targetId);
     }
 
     @Named("toFullTrackingDTO")
-    protected TrackingDTO toFullTrackingDTO(TrackSnapshotRecord record, @Context TrackTargetDTO target) {
-        return trackRecordMapper.toFullDto(record.getTrackRecord(), target);
+    protected TrackingDTO toFullTrackingDTO(TrackSnapshotRecord record, @Context Integer targetId) {
+        return trackRecordMapper.toFullDto(record.getTrackRecord(), targetId);
     }
 
 
