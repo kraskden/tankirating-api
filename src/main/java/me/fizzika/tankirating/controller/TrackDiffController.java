@@ -3,6 +3,7 @@ package me.fizzika.tankirating.controller;
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackDatesFilter;
+import me.fizzika.tankirating.dto.filter.TrackDiffFilter;
 import me.fizzika.tankirating.dto.filter.TrackFormatFilter;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
@@ -31,8 +32,8 @@ public class TrackDiffController {
 
     @GetMapping("/{period}")
     public List<TrackDiffDTO> getAllDiffsForPeriod(@PathVariable Integer targetId, @PathVariable PeriodUnit period,
-        @Valid TrackDatesFilter datesFilter) {
-        return trackDiffService.getAllDiffsForPeriod(targetId, period, datesFilter);
+                                                   @Valid TrackDiffFilter diffFilter) {
+        return trackDiffService.getAllDiffsForPeriod(targetId, period, diffFilter);
     }
 
     @GetMapping("/{period}/{offset}")
