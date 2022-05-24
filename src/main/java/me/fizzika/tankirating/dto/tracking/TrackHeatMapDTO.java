@@ -13,6 +13,10 @@ public class TrackHeatMapDTO {
 
     private LocalDateTime timestamp;
 
-    private Long value;
+    private Long time;
+
+    private Integer golds;
+
+    private Integer premiumDays;
 
 }

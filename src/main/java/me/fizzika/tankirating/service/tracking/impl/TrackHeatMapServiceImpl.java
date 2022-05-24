@@ -17,7 +17,7 @@ public class TrackHeatMapServiceImpl implements TrackHeatMapService {
 
     @Override
     public List<TrackHeatMapDTO> getHeatMap(Integer targetId, DatesFilter datesFilter) {
-        return diffRepository.getHeatTimeMap(targetId, datesFilter.getFrom().atStartOfDay(),
+        return diffRepository.getHeatMap(targetId, datesFilter.getFrom().atStartOfDay(),
                 datesFilter.getTo().atStartOfDay());
     }
 

@@ -40,12 +40,12 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
     Optional<TrackDiffRecord> findAllTimeDiff(Integer targetId);
 
 
-    @Query("select new me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO(D.periodStart, T.time) from TrackDiffRecord D " +
+    @Query("select new me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO(D.periodStart, T.time, T.gold, D.premiumDays) from TrackDiffRecord D " +
             " left join fetch TrackRecord T on D.trackRecord = T " +
             " where D.target.id = :targetId and D.period = 'DAY' and " +
             " D.periodStart between :from and :to")
-    List<TrackHeatMapDTO> getHeatTimeMap(@Param("targetId") Integer targetId,
-                                         @Param("from") LocalDateTime from,
-                                         @Param("to") LocalDateTime to);
+    List<TrackHeatMapDTO> getHeatMap(@Param("targetId") Integer targetId,
+                                     @Param("from") LocalDateTime from,
+                                     @Param("to") LocalDateTime to);
 
 }

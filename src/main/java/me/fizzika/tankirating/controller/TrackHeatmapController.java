@@ -19,7 +19,7 @@ public class TrackHeatmapController {
 
     private final TrackHeatMapService trackHeatMapService;
 
-    @GetMapping("/time")
+    @GetMapping
     public List<TrackHeatMapDTO> getHeatMap(@PathVariable Integer targetId, @Valid DatesFilter datesFilter) {
         return trackHeatMapService.getHeatMap(targetId, datesFilter);
     }
