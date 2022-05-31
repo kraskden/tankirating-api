@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -100,11 +101,15 @@ public class TrackDiffServiceImpl implements TrackDiffService {
 
     @Override
     public TrackDiffDTO getDiffForPeriod(Integer targetId, PeriodUnit period, Integer offset, TrackFormat format) {
-        LocalDateTime periodStart = period.getDatePeriod(LocalDateTime.now())
-                .sub(offset).getStart();
-        return diffRepository.findDiffForPeriod(targetId, period, periodStart)
+        DatePeriod periodDates = period.getDatePeriod(LocalDateTime.now())
+                .sub(offset);
+
+        return diffRepository.findDiffForPeriod(targetId, period, periodDates.getStart())
                 .map(r -> diffMapper.toDTO(r, targetId, format))
-                .orElseThrow(() -> trackDiffNotFound(targetId));
+                .orElseThrow(() -> trackDiffNotFound(targetId)
+                        .arg("periodStart", periodDates.getStart())
+                        .arg("periodEnd", periodDates.getEnd())
+                );
     }
 
     private ExternalException trackDiffNotFound(Integer targetId) {
