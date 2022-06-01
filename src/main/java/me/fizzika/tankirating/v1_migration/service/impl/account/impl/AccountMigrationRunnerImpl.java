@@ -26,7 +26,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +68,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         if (!v1Snapshots.isEmpty()) {
             migrateSnapshots(account, v1Snapshots, target);
             migrateDiffs(account, target);
+            createYearlyDiffs(target, v1Snapshots);
             createAllTimeDiff(target, v1Snapshots.firstEntry().getValue(), v1Snapshots.lastEntry().getValue());
         }
 
@@ -166,23 +169,50 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         migrateDiffs(account.getMonthly(), PeriodUnit.MONTH, target);
     }
 
+    private void createYearlyDiffs(TrackTargetDTO target, TreeMap<LocalDateTime, TrackingSchema> v1Snapshots) {
+        int firstYear = v1Snapshots.firstKey().getYear();
+        int lastYear = v1Snapshots.lastKey().getYear();
+        for (int year = firstYear; year <= lastYear; year++) {
+            LocalDateTime yearStart = LocalDate.ofYearDay(year, 1).atStartOfDay();
+            LocalDateTime yearEnd = LocalDate.ofYearDay(year + 1, 1).atStartOfDay();
+
+            var firstTrackingEntry = v1Snapshots.ceilingEntry(yearStart);
+            var lastTrackingEntry = v1Snapshots.floorEntry(yearEnd);
+            if (firstTrackingEntry != null && lastTrackingEntry != null) {
+                createDiff(target, firstTrackingEntry.getValue(), lastTrackingEntry.getValue(),
+                        PeriodUnit.YEAR, new DatePeriod(yearStart, yearEnd, ChronoUnit.YEARS));
+            } else {
+                log.warn("Migration [{}]: Cannot create diff for year {}", target.getName(), year);
+            }
+        }
+        log.info("Migration [{}]: Successfully created YEAR diffs", target.getName());
+    }
+
     private void createAllTimeDiff(TrackTargetDTO target, TrackingSchema initSnapshot, TrackingSchema lastSnapshot) {
+        createDiff(target, initSnapshot, lastSnapshot, PeriodUnit.ALL_TIME,
+                PeriodUnit.ALL_TIME.getDatePeriod(LocalDateTime.now()));
+        log.info("Migration [{}]: Successfully created ALL_TIME diff", target.getName());
+    }
+
+    private void createDiff(TrackTargetDTO target, TrackingSchema initSnapshot, TrackingSchema lastSnapshot,
+        PeriodUnit period, DatePeriod periodDates) {
+
         TrackFullData diffData = schemaMapper.toDataModel(lastSnapshot);
         diffData.sub(schemaMapper.toDataModel(initSnapshot));
 
         TrackDiffRecord record = new TrackDiffRecord();
         record.setTarget(new TrackTargetRecord(target.getId()));
         record.setTrackRecord(dataMapper.toTrackRecord(diffData));
-        record.setPeriod(PeriodUnit.ALL_TIME);;
+        record.setPeriod(period);
 
-        fillDiffRecordDates(record, PeriodUnit.ALL_TIME.getDatePeriod(LocalDateTime.now()));
+        fillDiffRecordDates(record, periodDates);
         record.setTrackStart(initSnapshot.getTimestamp());
         record.setTrackEnd(lastSnapshot.getTimestamp());
 
-        record.setPremiumDays(snapshotRepository.getAllTimePremiumDays(target.getId()));
+        record.setPremiumDays(snapshotRepository.getPremiumDays(target.getId(),
+                periodDates.getStart(), periodDates.getEnd()));
 
         diffRepository.save(record);
-        log.info("Migration [{}]: Successfully created ALL_TIME diff", target.getName());
     }
 
     private void migrateDiffs(List<TrackingSchema> schemas, PeriodUnit period, TrackTargetDTO target) {

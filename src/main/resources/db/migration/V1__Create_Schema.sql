@@ -95,4 +95,4 @@ create sequence if not exists snapshot_seq increment 50;
 create sequence if not exists track_usage_seq increment 50;
 create sequence if not exists track_activity_seq increment 50;
 
-create  sequence if not exists online_pcu_seq increment 1;
+create sequence if not exists online_pcu_seq increment 1;
