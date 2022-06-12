@@ -1,5 +1,9 @@
 # Tanki Rating API V2.0
 
+## FIXME
+
+* Migration - broken accounts (Nickname has been changed). Negative time in the diff.
+
 ## Roadmap: 
 
 * Tracking API (fetch, store and process tracking data for accounts)

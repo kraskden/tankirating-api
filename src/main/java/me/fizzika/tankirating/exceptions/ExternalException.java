@@ -17,14 +17,18 @@ public class ExternalException extends RuntimeException {
 
     private final Map<String, Object> args = new HashMap<>();
 
+    private final ExceptionType type;
+
     public ExternalException(String msg, HttpStatus status) {
         super(msg);
         this.name = null;
         this.httpStatus = status;
+        this.type = null;
     }
 
     public ExternalException(ExceptionType exType) {
         super(exType.getMessage());
+        this.type = exType;
         this.name = exType.name();
         this.httpStatus = exType.getStatus();
     }

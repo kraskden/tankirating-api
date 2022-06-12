@@ -13,5 +13,8 @@ public interface OnlineService {
 
     List<OnlinePcuDTO> getPcuPeriodData(PeriodUnit period, OnlinePeriodFilter periodFilter);
 
+    List<OnlinePcuDTO> getCurrentPcuForAllPeriods();
+
     OnlinePcuDTO getPcuForPeriod(PeriodUnit period, Integer offset);
+
 }

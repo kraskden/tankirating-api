@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.repository.online;
 
 import me.fizzika.tankirating.record.online.OnlineSnapshotRecord;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +18,6 @@ public interface OnlineSnapshotRepository extends JpaRepository<OnlineSnapshotRe
             "(cast(:from as timestamp) is null or R.timestamp >= :from) " +
             "and (cast(:to as timestamp) is null or R.timestamp <= :to)")
     List<OnlineSnapshotRecord> findAllInRange(@Nullable @Param("from") LocalDateTime from,
-                                              @Nullable @Param("to") LocalDateTime to);
+                                              @Nullable @Param("to") LocalDateTime to, Sort sort);
 
 }

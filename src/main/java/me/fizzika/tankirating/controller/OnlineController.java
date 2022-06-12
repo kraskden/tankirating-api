@@ -30,6 +30,11 @@ public class OnlineController {
         return onlineService.getPcuPeriodData(period, periodFilter);
     }
 
+    @GetMapping("/pcu/current")
+    public List<OnlinePcuDTO> getCurrentPcu() {
+        return onlineService.getCurrentPcuForAllPeriods();
+    }
+
     @GetMapping("/pcu/{period}/{offset}")
     public OnlinePcuDTO getPcuForPeriod(@PathVariable PeriodUnit period, @PathVariable Integer offset) {
         return onlineService.getPcuForPeriod(period, offset);

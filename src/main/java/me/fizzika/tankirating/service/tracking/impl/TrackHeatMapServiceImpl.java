@@ -5,6 +5,7 @@ import me.fizzika.tankirating.dto.filter.DatesFilter;
 import me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.service.tracking.TrackHeatMapService;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class TrackHeatMapServiceImpl implements TrackHeatMapService {
     @Override
     public List<TrackHeatMapDTO> getHeatMap(Integer targetId, DatesFilter datesFilter) {
         return diffRepository.getHeatMap(targetId, datesFilter.getFrom().atStartOfDay(),
-                datesFilter.getTo().atStartOfDay());
+                datesFilter.getTo().atStartOfDay(), Sort.by("periodStart"));
     }
 
 }

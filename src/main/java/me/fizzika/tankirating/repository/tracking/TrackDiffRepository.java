@@ -46,6 +46,7 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
             " D.periodStart between :from and :to")
     List<TrackHeatMapDTO> getHeatMap(@Param("targetId") Integer targetId,
                                      @Param("from") LocalDateTime from,
-                                     @Param("to") LocalDateTime to);
+                                     @Param("to") LocalDateTime to,
+                                     Sort sort);
 
 }

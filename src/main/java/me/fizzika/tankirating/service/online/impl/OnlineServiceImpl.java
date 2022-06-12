@@ -12,9 +12,11 @@ import me.fizzika.tankirating.record.online.OnlinePcuRecord;
 import me.fizzika.tankirating.repository.online.OnlinePcuRepository;
 import me.fizzika.tankirating.repository.online.OnlineSnapshotRepository;
 import me.fizzika.tankirating.service.online.OnlineService;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,14 +30,15 @@ public class OnlineServiceImpl implements OnlineService {
 
     @Override
     public List<OnlineSnapshotDTO> getSnapshots(OnlinePeriodFilter filter) {
-        return snapshotRepository.findAllInRange(filter.getFrom(), filter.getTo()).stream()
+        return snapshotRepository.findAllInRange(filter.getFrom(), filter.getTo(), Sort.by("timestamp")).stream()
                 .map(onlineMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<OnlinePcuDTO> getPcuPeriodData(PeriodUnit period, OnlinePeriodFilter periodFilter) {
-        return pcuRepository.findAllForPeriodAndRange(period, periodFilter.getFrom(), periodFilter.getTo()).stream()
+        return pcuRepository.findAllForPeriodAndRange(period, periodFilter.getFrom(),
+                        periodFilter.getTo()).stream()
                 .map(onlineMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -49,6 +52,21 @@ public class OnlineServiceImpl implements OnlineService {
                         .arg("period", period)
                         .arg("offset", offset)
                 );
+    }
+
+    @Override
+    public List<OnlinePcuDTO> getCurrentPcuForAllPeriods() {
+        var res = new ArrayList<OnlinePcuDTO>();
+        for (PeriodUnit period : PeriodUnit.values()) {
+            try {
+                res.add(getPcuForPeriod(period, 0));
+            } catch (ExternalException ex) {
+                if (ExceptionType.PCU_RECORD_NOT_FOUND != ex.getType()) {
+                    throw ex;
+                }
+            }
+        }
+        return res;
     }
 
 }

@@ -82,7 +82,11 @@ public class TrackDiffServiceImpl implements TrackDiffService {
         LocalDateTime to = datesFilter.getTo().atStartOfDay();
 
         Pair<TrackSnapshot> borderSnapshots = trackSnapshotService.findBorderSnapshots(targetId, from, to)
-                .orElseThrow(() -> trackDiffNotFound(targetId));
+                .orElseThrow(() -> trackDiffNotFound(targetId)
+                        .arg("periodStart", datesFilter.getFrom())
+                        .arg("periodEnd", datesFilter.getTo())
+                );
+
         TrackSnapshot start = borderSnapshots.getFirst();
         TrackSnapshot end = borderSnapshots.getSecond();
 
