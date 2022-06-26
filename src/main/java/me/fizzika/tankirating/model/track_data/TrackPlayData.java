@@ -10,7 +10,7 @@ import me.fizzika.tankirating.model.TrackData;
 @AllArgsConstructor
 public class TrackPlayData implements TrackData<TrackPlayData> {
 
-    private int score;
+    private long score;
     private long time;
 
     public TrackPlayData(TrackPlayData model) {

@@ -41,7 +41,7 @@ public class TrackDiffServiceImpl implements TrackDiffService {
 
     private List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, PeriodUnit period, TrackDatesFilter datesFilter) {
         return diffRepository.findAllDiffsForPeriod(targetId, period, datesFilter.getFrom().atStartOfDay(),
-                datesFilter.getTo().atStartOfDay(), Sort.by("periodStart")).stream()
+                datesFilter.getTo().atStartOfDay(), Sort.by("periodStart"), datesFilter.getFormat()).stream()
                 .map(r -> diffMapper.toDTO(r, targetId, datesFilter.getFormat()))
                 .collect(Collectors.toList());
     }

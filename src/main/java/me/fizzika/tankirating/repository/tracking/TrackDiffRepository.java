@@ -2,8 +2,10 @@ package me.fizzika.tankirating.repository.tracking;
 
 import me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.TrackFormat;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,27 +18,45 @@ import java.util.Optional;
 @Repository
 public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long> {
 
+    String GET_ALL_DIFFS_FOR_PERIOD = "select D from TrackDiffRecord D " +
+            "left join fetch D.trackRecord " +
+            "where D.target.id = :targetId " +
+            "and D.period = :period " +
+            "and D.periodStart between :from and :to";
+
     Optional<TrackDiffRecord> findByTargetIdAndPeriodStartAndPeriodEnd(Integer targetId,
                                                                        LocalDateTime periodStart,
                                                                        LocalDateTime periodEnd);
 
-    @Query("select D from TrackDiffRecord D " +
-            "where D.target.id = :targetId " +
-            "and D.period = :period " +
-            "and D.periodStart between :from and :to")
-    List<TrackDiffRecord> findAllDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
+    @Query(GET_ALL_DIFFS_FOR_PERIOD)
+    @EntityGraph(attributePaths = {"trackRecord.supplies"})
+    List<TrackDiffRecord> findAllBaseDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
                                                 LocalDateTime to, Sort sort);
 
 
+    @Query(GET_ALL_DIFFS_FOR_PERIOD)
+    @EntityGraph(attributePaths = {"trackRecord.supplies"}, type = EntityGraph.EntityGraphType.LOAD)
+    List<TrackDiffRecord> findAllFullDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
+                                                LocalDateTime to, Sort sort);
+
+    default List<TrackDiffRecord> findAllDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
+                                                        LocalDateTime to, Sort sort, TrackFormat format) {
+        // Static typing is a sh~
+        return format == TrackFormat.FULL ?
+                findAllFullDiffsForPeriod(targetId, period, from, to, sort) :
+                findAllBaseDiffsForPeriod(targetId, period, from, to, sort);
+    }
 
     @Query(value = "select D from TrackDiffRecord D " +
+            "left join fetch D.trackRecord " +
             "where D.target.id = :targetId " +
             "and D.period = :period " +
             "and D.periodStart = :periodStart")
     Optional<TrackDiffRecord> findDiffForPeriod(Integer targetId, PeriodUnit period,
                                                 LocalDateTime periodStart);
 
-    @Query("select D from TrackDiffRecord D where D.target.id = :targetId and D.period = 'ALL_TIME'")
+    @Query("select D from TrackDiffRecord D left join fetch D.trackRecord " +
+            "where D.target.id = :targetId and D.period = 'ALL_TIME'")
     Optional<TrackDiffRecord> findAllTimeDiff(Integer targetId);
 
 

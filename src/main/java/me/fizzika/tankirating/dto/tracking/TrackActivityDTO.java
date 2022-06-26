@@ -11,7 +11,7 @@ public class TrackActivityDTO {
 
     private String name;
 
-    private int score;
+    private long score;
 
     private long time;
 

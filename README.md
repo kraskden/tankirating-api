@@ -3,6 +3,8 @@
 ## FIXME
 
 * Migration - broken accounts (Nickname has been changed). Negative time in the diff.
+* N+1 && open-in-view
+* Formula field lazy loading
 
 ## Roadmap: 
 

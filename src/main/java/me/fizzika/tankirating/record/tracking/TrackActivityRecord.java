@@ -26,7 +26,7 @@ public class TrackActivityRecord extends IdRecord<Long> {
     @Column(name = "entity_id")
     private Short entityId;
 
-    private int score;
+    private long score;
 
     private long time;
 

@@ -1,14 +1,13 @@
 package me.fizzika.tankirating.record.tracking;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import me.fizzika.tankirating.record.IdRecord;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.List;
 
 @Entity
@@ -35,11 +34,21 @@ public class TrackRecord extends IdRecord<Long> {
 
     private long time;
 
+    @Column(insertable = false, updatable = false)
+    @Setter(AccessLevel.NONE)
+    private Float kd;
+
+    @Column(insertable = false, updatable = false)
+    @Setter(AccessLevel.NONE)
+    private Float kt;
+
+    @Fetch(FetchMode.SUBSELECT)
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "track")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ToString.Exclude
     private List<TrackActivityRecord> activities;
 
+    @Fetch(FetchMode.SUBSELECT)
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "track")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ToString.Exclude
