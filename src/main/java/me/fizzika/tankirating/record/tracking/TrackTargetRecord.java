@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import me.fizzika.tankirating.enums.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.IdRecord;
 
@@ -26,6 +27,9 @@ public class TrackTargetRecord extends IdRecord<Integer> {
 
     @Enumerated(EnumType.STRING)
     private TrackTargetType type;
+
+    @Enumerated(EnumType.STRING)
+    private TrackTargetStatus status = TrackTargetStatus.ACTIVE;
 
     public TrackTargetRecord(String name, TrackTargetType type) {
         this.name = name;

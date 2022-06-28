@@ -31,7 +31,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     @Override
     public void updateAll() {
         targetService.getAllTargets().stream()
-                .filter(t -> t.getType() == TrackTargetType.ACCOUNT)
+                .filter(t -> t.getType() == TrackTargetType.ACCOUNT && t.getStatus().isUpdatable())
                 .forEach(t -> updateAccount(t.getId(), t.getName()));
     }
 

@@ -34,4 +34,6 @@ public class TrackDiffRecord extends PeriodRecord<Long> {
 
     private Integer premiumDays;
 
+    private Integer maxScore;
+
 }

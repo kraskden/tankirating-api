@@ -31,4 +31,6 @@ public interface TrackTargetService {
 
     TrackTargetDTO create(String name, TrackTargetType type);
 
+    TrackTargetDTO update(Integer id, TrackTargetDTO updated);
+
 }

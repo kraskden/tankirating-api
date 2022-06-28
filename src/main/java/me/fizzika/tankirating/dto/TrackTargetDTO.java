@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.dto;
 
 import lombok.Data;
+import me.fizzika.tankirating.enums.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 
 import javax.validation.constraints.NotBlank;
@@ -17,6 +18,8 @@ public class TrackTargetDTO {
 
     @Null
     private TrackTargetType type;
+
+    private TrackTargetStatus status = TrackTargetStatus.ACTIVE;
 
     public TrackTargetDTO(Integer id, String name, TrackTargetType type) {
         this.name = name;

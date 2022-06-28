@@ -61,5 +61,13 @@ public class TrackTargetServiceImpl implements TrackTargetService {
         return mapper.toDto(repository.save(rec));
     }
 
+    @Override
+    public TrackTargetDTO update(Integer id, TrackTargetDTO updated) {
+        TrackTargetRecord rec = repository.findById(id)
+                .orElseThrow(() -> new ExternalException(ExceptionType.TRACK_TARGET_NOT_FOUND)
+                        .arg("id", id));
+        mapper.update(updated, rec);
+        return mapper.toDto(repository.save(rec));
+    }
 
 }

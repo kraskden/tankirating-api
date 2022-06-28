@@ -1,11 +1,5 @@
 # Tanki Rating API V2.0
 
-## FIXME
-
-* Migration - broken accounts (Nickname has been changed). Negative time in the diff.
-* N+1 && open-in-view
-* Formula field lazy loading
-
 ## Roadmap: 
 
 * Tracking API (fetch, store and process tracking data for accounts)
@@ -34,11 +28,8 @@
 ## TODO:
 
 ### Tracking: 
-* Groups update. Store percents for ITEMS_PLAYED and SUPPLIES_USAGE, don't store any
-absolute values, cuz the overflow error may be occups.
-Think about synchronized for group values calculations. 
-* Track API (snapshots, diffs). Dynamic diff calculations for 2 snapshots
-* Snapshot&Diff sanitization. I think DaySnapshotTrackSanitizer is a good first point to start with it
+* Group (global) rating (only track_activities and track_usages are tracks)
+* Think about Snapshot&Diff sanitization. I think DaySnapshotTrackSanitizer is a good first point to start with it
 
 ## Dev docs:
 

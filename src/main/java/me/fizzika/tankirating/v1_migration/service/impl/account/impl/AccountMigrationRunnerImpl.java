@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
@@ -200,6 +201,17 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         TrackFullData diffData = schemaMapper.toDataModel(lastSnapshot);
         diffData.sub(schemaMapper.toDataModel(initSnapshot));
 
+        if (diffData.getBase().getTime() < 0) {
+            // Account is broken, likely the nickname has been changed and new account with this nickname has been registered
+            if (target.getStatus() != TrackTargetStatus.DISABLED) {
+                log.warn("Found broken account (diffTime < 0): {}. Consider disabling it", target.getName());
+                target.setStatus(TrackTargetStatus.DISABLED);
+                trackTargetService.update(target.getId(), target);
+            }
+            log.warn("Skip broken {} diff for account {}", period, target.getName());
+            return;
+        }
+
         TrackDiffRecord record = new TrackDiffRecord();
         record.setTarget(new TrackTargetRecord(target.getId()));
         record.setTrackRecord(dataMapper.toTrackRecord(diffData));
@@ -209,6 +221,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         record.setTrackStart(initSnapshot.getTimestamp());
         record.setTrackEnd(lastSnapshot.getTimestamp());
 
+        record.setMaxScore(lastSnapshot.getScore());
         record.setPremiumDays(snapshotRepository.getPremiumDays(target.getId(),
                 periodDates.getStart(), periodDates.getEnd()));
 
@@ -232,6 +245,10 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
 
         DatePeriod datePeriod = period.getDatePeriod(diff.getTimestamp());
         fillDiffRecordDates(res, datePeriod);
+
+        res.setMaxScore(snapshotRepository.findLastSnapshot(target.getId(), datePeriod.getStart(), datePeriod.getEnd())
+                .map(s -> s.getTrackRecord().getScore())
+                .orElse(null));
 
         res.setPremiumDays(period == PeriodUnit.DAY ?
                 diff.getHasPremium() ? 1 : 0

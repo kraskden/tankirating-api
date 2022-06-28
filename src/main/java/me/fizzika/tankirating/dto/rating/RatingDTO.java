@@ -17,6 +17,6 @@ public class RatingDTO {
 
     private LocalDateTime periodEnd;
 
-    private Page<UserRatingDTO> userRatings;
+    private Page<UserRatingDTO> ratingData;
 
 }

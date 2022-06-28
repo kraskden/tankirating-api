@@ -17,4 +17,6 @@ public class TrackDiffDTO extends PeriodTrackDTO {
 
     private int premiumDays;
 
+    private Integer maxScore;
+
 }

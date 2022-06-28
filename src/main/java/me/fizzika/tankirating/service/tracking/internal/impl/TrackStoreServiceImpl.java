@@ -74,6 +74,8 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     private void updateDiff(Integer targetId, LocalDateTime now, TrackFullData currentData, PeriodUnit diffPeriod,
                             boolean hasPremium) {
 
+        Integer maxScore = currentData.getBase().getScore();
+
         DatePeriod diffDates = diffPeriod.getDatePeriod(now);
 
         int premiumDays = diffPeriod == PeriodUnit.DAY ?
@@ -91,6 +93,8 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         diffRecord.setTrackEnd(now);
         diffRecord.setTrackStart(diffRecord.getTrackStart() != null ? diffRecord.getTrackStart() : now);
         diffRecord.setPremiumDays(premiumDays);
+        diffRecord.setMaxScore(maxScore);
+
         if (diffRecord.getTrackRecord() != null) {
             if (periodDiff.isPresent() && periodDiff.get().getBase().getTime() == diffRecord.getTrackRecord().getTime()) {
                 // Don't rewrite track data if it's not changed, just update trackStart, trackEnd && premium
