@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.service.tracking.impl.impl;
+package me.fizzika.tankirating.service.tracking.impl;
 
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.filter.TrackDatesFilter;

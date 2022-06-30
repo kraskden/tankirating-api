@@ -9,6 +9,7 @@ public class UserRatingDTO {
 
     private Integer id;
     private String name;
+    private Integer maxScore;
 
     private Long time;
     private Integer kills;

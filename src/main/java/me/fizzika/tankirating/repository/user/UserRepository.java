@@ -15,11 +15,14 @@ import java.time.LocalDateTime;
 public interface UserRepository extends JpaRepository<TrackTargetRecord, Integer> {
 
     @Query("select new me.fizzika.tankirating.dto.rating.UserRatingDTO( " +
-            "T.id, T.name, TR.time, TR.kills, TR.deaths, TR.score, TR.kills) " +
+            "T.id, T.name, D.maxScore, TR.time, TR.kills, TR.deaths, TR.score, TR.cry) " +
             "from TrackDiffRecord D " +
             "left join D.trackRecord TR " +
             "left join D.target T " +
-            "where D.period = :period and D.periodStart = :periodStart")
-    Page<UserRatingDTO> getRating(PeriodUnit period, LocalDateTime periodStart, Pageable pageable);
+            "where T.status <> 'DISABLED' and D.period = :period and D.periodStart = :periodStart " +
+            "and (:minScore is null or D.maxScore >= :minScore)")
+    Page<UserRatingDTO> getRating(PeriodUnit period, LocalDateTime periodStart,
+                                  Integer minScore,
+                                  Pageable pageable);
 
 }
