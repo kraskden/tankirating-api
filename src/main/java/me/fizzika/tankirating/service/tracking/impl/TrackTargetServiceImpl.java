@@ -15,8 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -28,10 +28,26 @@ public class TrackTargetServiceImpl implements TrackTargetService {
     private final TrackTargetMapper mapper;
 
     @Override
-    public List<TrackTargetDTO> getAllTargets() {
+    public List<TrackTargetDTO> getAll() {
         return repository.findAll().stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TrackTargetDTO> getAll(TrackTargetType type) {
+        return repository.findAllByType(type).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<TrackTargetType, List<TrackTargetDTO>> getAllTargetsMap() {
+        Map<TrackTargetType, List<TrackTargetDTO>> res = Arrays.stream(TrackTargetType.values())
+                .collect(Collectors.toMap(Function.identity(), (ignored) -> new ArrayList<>(), (fst, snd) -> fst,
+                        () -> new EnumMap<>(TrackTargetType.class)));
+        getAll().forEach(t -> res.get(t.getType()).add(t));
+        return res;
     }
 
     @Override

@@ -1,18 +1,24 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import lombok.RequiredArgsConstructor;
+import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.track.TankiEntityType;
+import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.model.DatePeriod;
 import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.model.TrackSnapshot;
+import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
+import me.fizzika.tankirating.model.track_data.TrackPlayData;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
+import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import org.springframework.stereotype.Service;
@@ -20,6 +26,8 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -31,6 +39,8 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     private final TrackRepository trackRepository;
 
     private final TrackSnapshotService snapshotService;
+    private final TrackEntityService entityService;
+
     private final TrackDataMapper dataMapper;
 
     @Override
@@ -44,6 +54,17 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         // Update diff for each period
         for (PeriodUnit diffPeriod : PeriodUnit.values()) {
             updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
+        }
+    }
+
+    @Override
+    public void updateGroupData(Integer groupId, GroupMeta groupMeta) {
+        LocalDateTime now = LocalDateTime.now();
+        for (PeriodUnit diffPeriod : PeriodUnit.values()) {
+            if (diffPeriod == PeriodUnit.DAY) {
+                continue;
+            }
+            updateGroupDiff(groupId, groupMeta, now, diffPeriod);
         }
     }
 
@@ -87,9 +108,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 .map(snap -> TrackData.diff(currentData, snap))
                 .filter(TrackFullData::notEmpty);
 
-        TrackDiffRecord diffRecord = diffRepository.findByTargetIdAndPeriodStartAndPeriodEnd(targetId,
-                diffDates.getStart(), diffDates.getEnd()).orElseGet(() -> emptyRecord(targetId, diffPeriod, diffDates));
-
+        TrackDiffRecord diffRecord = getOrCreateDiffRecord(targetId, diffPeriod, diffDates);
         diffRecord.setTrackEnd(now);
         diffRecord.setTrackStart(diffRecord.getTrackStart() != null ? diffRecord.getTrackStart() : now);
         diffRecord.setPremiumDays(premiumDays);
@@ -106,6 +125,25 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
         diffRecord.setTrackRecord(periodDiff.map(dataMapper::toTrackRecord).orElse(null));
         diffRepository.save(diffRecord);
+    }
+
+    private void updateGroupDiff(Integer targetId, GroupMeta groupMeta, LocalDateTime now, PeriodUnit diffPeriod) {
+        DatePeriod diffDates = diffPeriod.getDatePeriod(now);
+        TrackDiffRecord diffRecord = getOrCreateDiffRecord(targetId, diffPeriod, diffDates);
+
+        diffRecord.setTrackEnd(now);
+        diffRecord.setTrackStart(diffRecord.getTrackStart() != null ? diffRecord.getTrackStart() : now);
+        if (diffRecord.getTrackRecord() != null) {
+            trackRepository.delete(diffRecord.getTrackRecord());
+        }
+        TrackFullData diffData = getActivityGroupData(diffDates, diffPeriod, groupMeta);
+        diffRecord.setTrackRecord(dataMapper.toTrackRecord(diffData));
+        diffRepository.save(diffRecord);
+    }
+
+    private TrackDiffRecord getOrCreateDiffRecord(Integer targetId, PeriodUnit diffPeriod, DatePeriod diffDates) {
+        return diffRepository.findByTargetIdAndPeriodStartAndPeriodEnd(targetId,
+                diffDates.getStart(), diffDates.getEnd()).orElseGet(() -> emptyRecord(targetId, diffPeriod, diffDates));
     }
 
     private void createDaySnapshot(Integer targetId, LocalDateTime dayStart, TrackFullData data, boolean hasPremium) {
@@ -143,6 +181,24 @@ public class TrackStoreServiceImpl implements TrackStoreService {
             }
             snapshotRepository.delete(headRecord);
         }
+    }
+
+    private TrackFullData getActivityGroupData(DatePeriod diffDates, PeriodUnit diffPeriod, GroupMeta group) {
+        Map<TankiEntityType, TrackActivityData> activityMap = new EnumMap<>(TankiEntityType.class);
+        for (TankiEntityType e : TankiEntityType.values()) {
+            activityMap.put(e, new TrackActivityData());
+        }
+
+        diffRepository.getActivityStat(diffPeriod, diffDates.getStart(), group.getMinScore(), group.getMaxScore())
+                .forEach(tr -> {
+                    TrackEntityDTO trackEntity = entityService.get(tr.getEntityId());
+                    activityMap.get(trackEntity.getType()).set(trackEntity.getName(),
+                            new TrackPlayData(tr.getScore(), tr.getTime()));
+                });
+
+        var res = new TrackFullData();
+        res.setActivities(activityMap);
+        return res;
     }
 
     private TrackDiffRecord emptyRecord(Integer targetId, PeriodUnit period, DatePeriod periodDates) {

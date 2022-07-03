@@ -5,10 +5,12 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PremiumWrapper<T extends TrackData<T>> {
+public class EntityActivityTrack {
 
-    private boolean hasPremium;
+    private Short entityId;
 
-    private T trackData;
+    private Long time;
+
+    private Long score;
 
 }

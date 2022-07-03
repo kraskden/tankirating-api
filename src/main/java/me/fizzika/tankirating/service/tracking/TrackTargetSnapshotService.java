@@ -1,7 +1,7 @@
 package me.fizzika.tankirating.service.tracking;
 
 import me.fizzika.tankirating.dto.tracking.TrackSnapshotDTO;
-import me.fizzika.tankirating.enums.TrackFormat;
+import me.fizzika.tankirating.enums.track.TrackFormat;
 
 public interface TrackTargetSnapshotService {
 

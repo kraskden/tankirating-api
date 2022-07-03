@@ -2,7 +2,8 @@ package me.fizzika.tankirating.repository.tracking;
 
 import me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
-import me.fizzika.tankirating.enums.TrackFormat;
+import me.fizzika.tankirating.enums.track.TrackFormat;
+import me.fizzika.tankirating.model.EntityActivityTrack;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -68,5 +69,19 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
                                      @Param("from") LocalDateTime from,
                                      @Param("to") LocalDateTime to,
                                      Sort sort);
+
+
+    @Query("select new me.fizzika.tankirating.model.EntityGroupTrack(A.entityId, sum(A.time), sum(A.score)) " +
+            "from TrackDiffRecord D " +
+            "left join fetch TrackRecord T on D.trackRecord = T " +
+            "left join fetch TrackActivityRecord A on A.track = T " +
+            "where D.periodStart = :periodStart and D.period = :period " +
+            "and (:minScore is null or D.maxScore >= :minScore) " +
+            "and (:maxScore is null or D.maxScore <= :maxScore) " +
+            "group by A.entityId")
+    List<EntityActivityTrack> getActivityStat(@Param("period") PeriodUnit period,
+                                              @Param("periodStart") LocalDateTime periodStart,
+                                              @Param("minScore") Integer minScore,
+                                              @Param("maxScore") Integer maxScore);
 
 }

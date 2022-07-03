@@ -6,7 +6,7 @@ import me.fizzika.tankirating.dto.filter.TrackDiffFilter;
 import me.fizzika.tankirating.dto.filter.TrackOffsetFilter;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
 import me.fizzika.tankirating.enums.ExceptionType;
-import me.fizzika.tankirating.enums.TrackFormat;
+import me.fizzika.tankirating.enums.track.TrackFormat;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
@@ -23,7 +23,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;

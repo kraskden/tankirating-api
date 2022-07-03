@@ -9,11 +9,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface TrackTargetService {
 
-    List<TrackTargetDTO> getAllTargets();
+    List<TrackTargetDTO> getAll();
+
+    List<TrackTargetDTO> getAll(TrackTargetType type);
+
+    Map<TrackTargetType, List<TrackTargetDTO>> getAllTargetsMap();
 
     Optional<TrackTargetDTO> getOptionalByName(String name, TrackTargetType type);
 

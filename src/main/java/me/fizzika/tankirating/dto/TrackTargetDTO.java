@@ -1,7 +1,7 @@
 package me.fizzika.tankirating.dto;
 
 import lombok.Data;
-import me.fizzika.tankirating.enums.TrackTargetStatus;
+import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 
 import javax.validation.constraints.NotBlank;

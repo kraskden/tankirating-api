@@ -35,4 +35,8 @@ public class TrackActivityData implements TrackData<TrackActivityData> {
         return new TrackActivityData(this);
     }
 
+    public void set(String name, TrackPlayData data) {
+        playTracks.put(name, data);
+    }
+
 }

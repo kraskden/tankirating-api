@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.enums;
+package me.fizzika.tankirating.enums.track;
 
 public enum TrackFormat {
 

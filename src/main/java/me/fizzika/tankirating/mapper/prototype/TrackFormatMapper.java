@@ -1,7 +1,6 @@
 package me.fizzika.tankirating.mapper.prototype;
 
-import me.fizzika.tankirating.dto.TrackTargetDTO;
-import me.fizzika.tankirating.enums.TrackFormat;
+import me.fizzika.tankirating.enums.track.TrackFormat;
 import me.fizzika.tankirating.exceptions.ServerException;
 
 public abstract class TrackFormatMapper<R, D> {
