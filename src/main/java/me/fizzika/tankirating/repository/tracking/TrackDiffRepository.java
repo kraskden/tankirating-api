@@ -3,7 +3,9 @@ package me.fizzika.tankirating.repository.tracking;
 import me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackFormat;
+import me.fizzika.tankirating.model.date.DateRange;
 import me.fizzika.tankirating.model.EntityActivityTrack;
+import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -71,9 +73,9 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
                                      Sort sort);
 
 
-    @Query("select new me.fizzika.tankirating.model.EntityGroupTrack(A.entityId, sum(A.time), sum(A.score)) " +
+    @Query("select new me.fizzika.tankirating.model.EntityActivityTrack(A.entityId, sum(A.time), sum(A.score)) " +
             "from TrackDiffRecord D " +
-            "left join fetch TrackRecord T on D.trackRecord = T " +
+            "inner join fetch TrackRecord T on D.trackRecord = T " +
             "left join fetch TrackActivityRecord A on A.track = T " +
             "where D.periodStart = :periodStart and D.period = :period " +
             "and (:minScore is null or D.maxScore >= :minScore) " +
@@ -83,5 +85,13 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
                                               @Param("periodStart") LocalDateTime periodStart,
                                               @Param("minScore") Integer minScore,
                                               @Param("maxScore") Integer maxScore);
+
+
+    @Query("select new me.fizzika.tankirating.model.date.PeriodDiffDates(D.periodStart, D.periodEnd, min(D.trackStart), max(D.trackEnd)) " +
+            "from TrackDiffRecord D " +
+            "where D.period = :period " +
+            "group by D.periodStart, D.periodEnd " +
+            "order by D.periodStart asc")
+    List<PeriodDiffDates> getAllPeriodDates(PeriodUnit period);
 
 }

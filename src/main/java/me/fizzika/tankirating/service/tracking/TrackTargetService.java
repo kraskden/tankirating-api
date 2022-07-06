@@ -5,6 +5,7 @@ import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
+import me.fizzika.tankirating.model.TrackGroup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,6 +18,8 @@ public interface TrackTargetService {
     List<TrackTargetDTO> getAll();
 
     List<TrackTargetDTO> getAll(TrackTargetType type);
+
+    List<TrackGroup> getAllGroups();
 
     Map<TrackTargetType, List<TrackTargetDTO>> getAllTargetsMap();
 

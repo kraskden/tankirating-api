@@ -6,6 +6,7 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
+import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.model.UserData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.service.tracking.*;
@@ -67,18 +68,9 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                         }).join();
 
         log.info("Groups update has been started");
-        List<TrackTargetDTO> groups = targetService.getAll(TrackTargetType.GROUP);
+        List<TrackGroup> groups = targetService.getAllGroups();
         log.info("Found {} groups: {}", groups.size(), groups);
-
-        for (TrackTargetDTO group : groups) {
-            Optional<GroupMeta> meta = GroupMeta.fromName(group.getName());
-            if (meta.isEmpty()) {
-                log.warn("Don't found meta for {} group", group.getName());
-                continue;
-            }
-            trackStoreService.updateGroupData(group.getId(), meta.get());
-            log.info("Group {} has been updated", meta.get().name());
-        }
+        groups.forEach(trackStoreService::updateCurrentGroupData);
     }
 
     private CompletableFuture<Void> updateAccountAsync(Integer targetId, String nickname) {

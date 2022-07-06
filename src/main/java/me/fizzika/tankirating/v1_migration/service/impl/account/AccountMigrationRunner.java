@@ -6,6 +6,6 @@ import java.util.concurrent.CompletableFuture;
 
 public interface AccountMigrationRunner {
 
-    CompletableFuture<Void> migrateAccount(AccountDocument account);
+    CompletableFuture<Void> migrateAccountAsync(AccountDocument account);
 
 }

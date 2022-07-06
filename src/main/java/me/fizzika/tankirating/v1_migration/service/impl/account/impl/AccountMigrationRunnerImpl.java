@@ -9,7 +9,9 @@ import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackRecordMapper;
-import me.fizzika.tankirating.model.DatePeriod;
+import me.fizzika.tankirating.model.date.DatePeriod;
+import me.fizzika.tankirating.model.TrackGroup;
+import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
@@ -18,6 +20,7 @@ import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
+import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.v1_migration.mapper.TrackingSchemaMapper;
 import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;
 import me.fizzika.tankirating.v1_migration.record.tracking.TrackSupplySchema;
@@ -27,6 +30,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -44,6 +48,7 @@ import java.util.stream.Collectors;
 public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
 
     private final TrackTargetService trackTargetService;
+    private final TrackStoreService trackStoreService;
 
     private final TrackingSchemaMapper schemaMapper;
     private final TrackRecordMapper recordMapper;
@@ -54,7 +59,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
 
     @Override
     @Async
-    public CompletableFuture<Void> migrateAccount(AccountDocument account) {
+    public CompletableFuture<Void> migrateAccountAsync(AccountDocument account) {
         String login = account.getLogin();
         log.info("Starting migration for {}", login);
 
@@ -254,6 +259,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
                 : snapshotRepository.getPremiumDays(target.getId(), datePeriod.getStart(), datePeriod.getEnd()));
         return res;
     }
+
 
     private void fillDiffRecordDates(TrackDiffRecord mappingTarget, DatePeriod period) {
         mappingTarget.setPeriodStart(period.getStart());

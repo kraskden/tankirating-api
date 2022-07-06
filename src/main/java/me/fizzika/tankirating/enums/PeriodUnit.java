@@ -1,13 +1,16 @@
 package me.fizzika.tankirating.enums;
 
 import lombok.AllArgsConstructor;
-import me.fizzika.tankirating.model.DatePeriod;
+import me.fizzika.tankirating.model.date.DatePeriod;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public enum PeriodUnit {
@@ -23,6 +26,10 @@ public enum PeriodUnit {
             LocalDate.of(3000, 1, 1).atStartOfDay(),
             ChronoUnit.FOREVER
     ));
+
+    public static final List<PeriodUnit> GROUP_PERIODS = Arrays.stream(PeriodUnit.values())
+            .filter(p -> p != DAY)
+            .collect(Collectors.toList());
 
     private final Function<LocalDateTime, DatePeriod> periodGenerator;
 

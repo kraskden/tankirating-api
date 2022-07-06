@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import me.fizzika.tankirating.enums.PeriodUnit;
-import me.fizzika.tankirating.model.DatePeriod;
+import me.fizzika.tankirating.model.date.DatePeriod;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;

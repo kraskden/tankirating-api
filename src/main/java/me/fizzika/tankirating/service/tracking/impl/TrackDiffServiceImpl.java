@@ -11,7 +11,7 @@ import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackDiffMapper;
-import me.fizzika.tankirating.model.DatePeriod;
+import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;

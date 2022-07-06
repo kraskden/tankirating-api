@@ -5,9 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.ExceptionType;
+import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackTargetMapper;
+import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
@@ -38,6 +40,14 @@ public class TrackTargetServiceImpl implements TrackTargetService {
     public List<TrackTargetDTO> getAll(TrackTargetType type) {
         return repository.findAllByType(type).stream()
                 .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TrackGroup> getAllGroups() {
+        return getAll(TrackTargetType.GROUP).stream()
+                .map(this::toTrackGroup)
+                .flatMap(Optional::stream)
                 .collect(Collectors.toList());
     }
 
@@ -84,6 +94,15 @@ public class TrackTargetServiceImpl implements TrackTargetService {
                         .arg("id", id));
         mapper.update(updated, rec);
         return mapper.toDto(repository.save(rec));
+    }
+
+    private Optional<TrackGroup> toTrackGroup(TrackTargetDTO target) {
+        var res = GroupMeta.fromName(target.getName())
+                .map(meta -> new TrackGroup(target.getId(), meta));
+        if (res.isEmpty()) {
+            log.warn("Cannot find meta for group {}", target.getName());
+        }
+        return res;
     }
 
 }

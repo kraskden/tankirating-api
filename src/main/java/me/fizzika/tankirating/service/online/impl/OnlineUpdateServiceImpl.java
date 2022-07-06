@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.mapper.OnlineMapper;
-import me.fizzika.tankirating.model.DatePeriod;
+import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.model.OnlineData;
 import me.fizzika.tankirating.record.online.OnlinePcuRecord;
 import me.fizzika.tankirating.record.online.OnlineSnapshotRecord;

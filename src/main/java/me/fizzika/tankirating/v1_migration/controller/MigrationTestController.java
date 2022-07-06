@@ -2,6 +2,7 @@ package me.fizzika.tankirating.v1_migration.controller;
 
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.v1_migration.service.impl.AccountMigrationService;
+import me.fizzika.tankirating.v1_migration.service.impl.GroupMigrationService;
 import me.fizzika.tankirating.v1_migration.service.impl.OnlineMigrationService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,9 +18,10 @@ public class MigrationTestController {
 
     private final AccountMigrationService accountMigrationService;
     private final OnlineMigrationService onlineMigrationService;
+    private final GroupMigrationService groupMigrationService;
 
-    @PostMapping
-    public void migrateAll() {
+    @PostMapping("/account")
+    public void migrateAllAccounts() {
         accountMigrationService.migrate();
     }
 
@@ -28,9 +30,14 @@ public class MigrationTestController {
         onlineMigrationService.migrate();
     }
 
-    @PostMapping("/{name}")
-    public void migrateOne(@PathVariable String name) {
+    @PostMapping("/account/{name}")
+    public void migrateOneAccount(@PathVariable String name) {
         accountMigrationService.migrateAccount(name);
+    }
+
+    @PostMapping("/group")
+    public void migrateGroups() {
+        groupMigrationService.migrate();
     }
 
 }

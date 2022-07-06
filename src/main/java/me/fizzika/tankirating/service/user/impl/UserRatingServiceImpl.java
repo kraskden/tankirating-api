@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.rating.RatingDTO;
 import me.fizzika.tankirating.dto.rating.RatingFilter;
 import me.fizzika.tankirating.enums.PeriodUnit;
-import me.fizzika.tankirating.model.DatePeriod;
+import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.repository.user.UserRepository;
 import me.fizzika.tankirating.service.user.UserRatingService;
 import org.springframework.data.domain.Pageable;

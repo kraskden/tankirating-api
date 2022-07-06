@@ -1,7 +1,7 @@
-package me.fizzika.tankirating.model;
+package me.fizzika.tankirating.model.date;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -10,14 +10,15 @@ import java.time.temporal.ChronoUnit;
  * Represent time period: [start, end)
  */
 @Data
-@AllArgsConstructor
-public class DatePeriod {
-
-    private LocalDateTime start;
-
-    private LocalDateTime end;
+@EqualsAndHashCode(callSuper = true)
+public class DatePeriod extends DateRange {
 
     private ChronoUnit unit;
+
+    public DatePeriod(LocalDateTime start, LocalDateTime end, ChronoUnit unit) {
+        super(start, end);
+        this.unit = unit;
+    }
 
     public DatePeriod sub(int offset) {
         if (unit == ChronoUnit.FOREVER) {

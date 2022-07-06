@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.exceptions.ServerException;
-import me.fizzika.tankirating.model.DatePeriod;
+import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.record.online.OnlinePcuRecord;
 import me.fizzika.tankirating.record.online.OnlineSnapshotRecord;
 import me.fizzika.tankirating.repository.online.OnlinePcuRepository;
@@ -14,6 +14,7 @@ import me.fizzika.tankirating.v1_migration.record.online.OnlineDocument;
 import me.fizzika.tankirating.v1_migration.repository.OnlineMongoRepository;
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @Profile("migration")
 @Slf4j
+@Order(2)
 @RequiredArgsConstructor
 public class OnlineMigrationService implements V1MigrationService {
 

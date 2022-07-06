@@ -6,9 +6,10 @@ import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
-import me.fizzika.tankirating.model.DatePeriod;
-import me.fizzika.tankirating.model.TrackData;
-import me.fizzika.tankirating.model.TrackSnapshot;
+import me.fizzika.tankirating.model.*;
+import me.fizzika.tankirating.model.date.DatePeriod;
+import me.fizzika.tankirating.model.date.DateRange;
+import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.model.track_data.TrackPlayData;
@@ -27,6 +28,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -58,13 +60,10 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     }
 
     @Override
-    public void updateGroupData(Integer groupId, GroupMeta groupMeta) {
+    public void updateCurrentGroupData(TrackGroup group) {
         LocalDateTime now = LocalDateTime.now();
-        for (PeriodUnit diffPeriod : PeriodUnit.values()) {
-            if (diffPeriod == PeriodUnit.DAY) {
-                continue;
-            }
-            updateGroupDiff(groupId, groupMeta, now, diffPeriod);
+        for (PeriodUnit diffPeriod : PeriodUnit.GROUP_PERIODS) {
+            updateGroupDiff(group, now, diffPeriod);
         }
     }
 
@@ -127,21 +126,27 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         diffRepository.save(diffRecord);
     }
 
-    private void updateGroupDiff(Integer targetId, GroupMeta groupMeta, LocalDateTime now, PeriodUnit diffPeriod) {
-        DatePeriod diffDates = diffPeriod.getDatePeriod(now);
-        TrackDiffRecord diffRecord = getOrCreateDiffRecord(targetId, diffPeriod, diffDates);
+    private void updateGroupDiff(TrackGroup group, LocalDateTime now, PeriodUnit diffPeriod) {
+        PeriodDiffDates diffDates = new PeriodDiffDates(diffPeriod.getDatePeriod(now), new DateRange(now, now));
+        updateGroupDiff(group, diffPeriod, diffDates);
+    }
 
-        diffRecord.setTrackEnd(now);
-        diffRecord.setTrackStart(diffRecord.getTrackStart() != null ? diffRecord.getTrackStart() : now);
+    @Override
+    public void updateGroupDiff(TrackGroup group, PeriodUnit diffPeriod, PeriodDiffDates diffDates) {
+        TrackDiffRecord diffRecord = getOrCreateDiffRecord(group.getId(), diffPeriod, diffDates.toPeriodRange());
+
+        diffRecord.setTrackEnd(diffDates.getTrackEnd());
+        diffRecord.setTrackStart(diffRecord.getTrackStart() != null ? diffRecord.getTrackStart() :
+                diffDates.getTrackStart());
         if (diffRecord.getTrackRecord() != null) {
             trackRepository.delete(diffRecord.getTrackRecord());
         }
-        TrackFullData diffData = getActivityGroupData(diffDates, diffPeriod, groupMeta);
+        TrackFullData diffData = getActivityGroupData(diffDates.toPeriodRange(), diffPeriod, group.getMeta());
         diffRecord.setTrackRecord(dataMapper.toTrackRecord(diffData));
         diffRepository.save(diffRecord);
     }
 
-    private TrackDiffRecord getOrCreateDiffRecord(Integer targetId, PeriodUnit diffPeriod, DatePeriod diffDates) {
+    private TrackDiffRecord getOrCreateDiffRecord(Integer targetId, PeriodUnit diffPeriod, DateRange diffDates) {
         return diffRepository.findByTargetIdAndPeriodStartAndPeriodEnd(targetId,
                 diffDates.getStart(), diffDates.getEnd()).orElseGet(() -> emptyRecord(targetId, diffPeriod, diffDates));
     }
@@ -183,13 +188,16 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
     }
 
-    private TrackFullData getActivityGroupData(DatePeriod diffDates, PeriodUnit diffPeriod, GroupMeta group) {
+    private TrackFullData getActivityGroupData(DateRange diffDates, PeriodUnit diffPeriod, GroupMeta group) {
         Map<TankiEntityType, TrackActivityData> activityMap = new EnumMap<>(TankiEntityType.class);
         for (TankiEntityType e : TankiEntityType.values()) {
             activityMap.put(e, new TrackActivityData());
         }
 
-        diffRepository.getActivityStat(diffPeriod, diffDates.getStart(), group.getMinScore(), group.getMaxScore())
+        List<EntityActivityTrack> activityStat = diffRepository.getActivityStat(diffPeriod, diffDates.getStart(),
+                        group.getMinScore(), group.getMaxScore());
+
+        activityStat
                 .forEach(tr -> {
                     TrackEntityDTO trackEntity = entityService.get(tr.getEntityId());
                     activityMap.get(trackEntity.getType()).set(trackEntity.getName(),
@@ -201,7 +209,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         return res;
     }
 
-    private TrackDiffRecord emptyRecord(Integer targetId, PeriodUnit period, DatePeriod periodDates) {
+    private TrackDiffRecord emptyRecord(Integer targetId, PeriodUnit period, DateRange periodDates) {
         var rec = new TrackDiffRecord();
         var target = new TrackTargetRecord();
         target.setId(targetId);

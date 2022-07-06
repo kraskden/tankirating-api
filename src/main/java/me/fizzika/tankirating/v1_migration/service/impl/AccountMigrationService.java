@@ -6,6 +6,7 @@ import me.fizzika.tankirating.v1_migration.repository.AccountMongoRepository;
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import me.fizzika.tankirating.v1_migration.service.impl.account.AccountMigrationRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
+@Order(0)
 @Slf4j
 @Profile("migration")
 @RequiredArgsConstructor
@@ -40,20 +42,20 @@ public class AccountMigrationService implements V1MigrationService {
             One disadvantage: we can't use standard (SERIALIZABLE) transactional with multi-thread migration, thanks to EntityService and
             it's caching policy. We need transaction with dirty read support to handle this issue.
          */
-        var migrationTask = CompletableFuture.allOf(logins.stream()
+        var accountMigrationTask = CompletableFuture.allOf(logins.stream()
                 .map(mongoRepository::findAccountDocumentByLogin)
-                .map(migrationRunner::migrateAccount)
+                .map(migrationRunner::migrateAccountAsync)
                 .collect(Collectors.toUnmodifiableList()).toArray(new CompletableFuture[]{}));
 
-        migrationTask
+        accountMigrationTask
                 .thenApply((ignored) -> Duration.between(start, LocalDateTime.now()))
-                .thenAccept((duration) -> log.info("Migration is completed in {} minutes and {} seconds",
-                       duration.toMinutes(), duration.toSecondsPart()));
-
+                .thenAccept((duration) -> log.info("Account migration is completed in {} minutes and {} seconds",
+                        duration.toMinutes(), duration.toSecondsPart()))
+                .join();
     }
 
     public void migrateAccount(String name) {
-        migrationRunner.migrateAccount(mongoRepository.findAccountDocumentByLogin(name));
+        migrationRunner.migrateAccountAsync(mongoRepository.findAccountDocumentByLogin(name)).join();
     }
 
 
