@@ -235,6 +235,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
     private void migrateDiffs(List<TrackingSchema> schemas, PeriodUnit period, TrackTargetDTO target) {
         List<TrackDiffRecord> records = schemas.stream()
                 .peek(this::fixTrackingSchema)
+                .filter(this::isValidDiffSchema)
                 .map(schema -> toDiff(schema, period, target))
                 .collect(Collectors.toList());
         diffRepository.saveAllAndFlush(records);
@@ -284,6 +285,20 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
                 .minus(3, ChronoUnit.HOURS)
                 .plusDays(1)
         );
+    }
+
+    // Some diffs in the V1 system is broken
+    // Oh sh, here we go again
+    private boolean isValidDiffSchema(TrackingSchema schema) {
+        if (schema.getTime() == null || schema.getActivities() == null || schema.getTime() < 0) {
+            return false;
+        }
+        for (var activity : schema.getActivities()) {
+            if (activity.getTime() == null || activity.getTime() < 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private TrackTargetDTO createAccount(String login) {
