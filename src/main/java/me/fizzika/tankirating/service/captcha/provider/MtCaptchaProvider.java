@@ -1,17 +1,15 @@
-package me.fizzika.tankirating.service.impl;
+package me.fizzika.tankirating.service.captcha.provider;
 
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.MtCaptchaResponseDTO;
-import me.fizzika.tankirating.exceptions.ExternalException;
-import me.fizzika.tankirating.service.CaptchaService;
+import me.fizzika.tankirating.service.captcha.CaptchaProvider;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class MtCaptchaService implements CaptchaService {
+public class MtCaptchaProvider implements CaptchaProvider {
 
     private static final String URL_TEMPLATE =
             "https://service.mtcaptcha.com/mtcv1/api/checktoken?privatekey={privateKey}&token={captcha}";

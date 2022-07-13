@@ -94,7 +94,6 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
      * then we can reuse prevDay TrackRecord. Two snapshots are the same if both contains same time and premium fields.
      *
      * </p>
-     *
      */
     private void migrateSnapshots(AccountDocument account,
                                   TreeMap<LocalDateTime, TrackingSchema> v1Snapshots,
@@ -133,9 +132,9 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
                                 v1Snapshot.getHasPremium())
                         : toSnapshot(v1Snapshot, target);
 
-            } else if (dailyDiffs.containsKey(today) &&  prevSnapshot != null) {
+            } else if (dailyDiffs.containsKey(today) && prevSnapshot != null) {
                 TrackingSchema dayDiff = dailyDiffs.get(today);
-                if (dayDiff.getTime() == null || dayDiff.getTime() == 0 ) {
+                if (dayDiff.getTime() == null || dayDiff.getTime() == 0) {
                     currSnapshot = new TrackSnapshotRecord(prevSnapshot.getTrackRecord(), today, prevSnapshot.getTarget(),
                             dayDiff.getHasPremium());
                 } else {
@@ -200,8 +199,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
     }
 
     private void createDiff(TrackTargetDTO target, TrackingSchema initSnapshot, TrackingSchema lastSnapshot,
-        PeriodUnit period, DatePeriod periodDates) {
-
+                            PeriodUnit period, DatePeriod periodDates) {
         TrackFullData diffData = schemaMapper.toDataModel(lastSnapshot);
         diffData.sub(schemaMapper.toDataModel(initSnapshot));
 
@@ -293,6 +291,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         if (schema.getTime() == null || schema.getActivities() == null || schema.getTime() < 0) {
             return false;
         }
+
         for (var activity : schema.getActivities()) {
             if (activity.getTime() == null || activity.getTime() < 0) {
                 return false;

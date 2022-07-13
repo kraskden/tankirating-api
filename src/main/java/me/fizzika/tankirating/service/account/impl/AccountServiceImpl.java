@@ -18,8 +18,8 @@ import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.account.AccountRepository;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
-import me.fizzika.tankirating.service.CaptchaService;
 import me.fizzika.tankirating.service.account.AccountService;
+import me.fizzika.tankirating.service.captcha.CaptchaService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import org.springframework.data.domain.Pageable;
@@ -55,7 +55,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountAddResultDTO> addAccounts(AccountAddDTO addDTO) {
-        if (!captchaService.validate(addDTO.getCaptcha())) {
+        if (!captchaService.getProvider().validate(addDTO.getCaptcha())) {
             throw new ExternalException("Captcha is not valid", HttpStatus.BAD_REQUEST);
         }
 
