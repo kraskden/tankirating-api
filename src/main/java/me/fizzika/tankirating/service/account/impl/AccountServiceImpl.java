@@ -59,14 +59,17 @@ public class AccountServiceImpl implements AccountService {
             throw new ExternalException("Captcha is not valid", HttpStatus.BAD_REQUEST);
         }
 
-        Set<String> existing = accountRepository.existingNicknames(addDTO.getNicknames());
+        Set<String> existing = accountRepository.existingNicknamesInLowerCase(addDTO.getNicknames().stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toList()));
+
         return addDTO.getNicknames().stream().parallel()
                 .map(nickname -> new AccountAddResultDTO(nickname, addAccount(nickname, existing)))
                 .collect(Collectors.toList());
     }
 
     private AccountAddStatus addAccount(String nickname, Set<String> existing) {
-        if (existing.contains(nickname)) {
+        if (existing.contains(nickname.toLowerCase())) {
             return AccountAddStatus.ALREADY_EXISTS;
         }
         AlternativaTrackDTO track = null;

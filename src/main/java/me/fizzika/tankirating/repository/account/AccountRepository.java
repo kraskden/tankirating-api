@@ -28,8 +28,8 @@ public interface AccountRepository extends JpaRepository<TrackTargetRecord, Inte
                                      Pageable pageable);
 
 
-    @Query("select T.name from TrackTargetRecord T where T.type = 'ACCOUNT' " +
-            "and T.name in :queriedNicknames ")
-    Set<String> existingNicknames(Collection<String> queriedNicknames);
+    @Query("select lower(T.name) from TrackTargetRecord T where T.type = 'ACCOUNT' " +
+            "and lower(T.name) in :queriedNicknames ")
+    Set<String> existingNicknamesInLowerCase(Collection<String> queriedNicknames);
 
 }
