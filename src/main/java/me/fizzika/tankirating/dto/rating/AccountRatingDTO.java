@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserRatingDTO {
+public class AccountRatingDTO {
 
     private Integer id;
     private String name;

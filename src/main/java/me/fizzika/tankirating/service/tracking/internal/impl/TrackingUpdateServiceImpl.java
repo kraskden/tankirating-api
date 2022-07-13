@@ -7,7 +7,7 @@ import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
 import me.fizzika.tankirating.model.TrackGroup;
-import me.fizzika.tankirating.model.UserData;
+import me.fizzika.tankirating.model.AccountData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.service.tracking.*;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
@@ -77,12 +77,12 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         return updateAccountAsync(fetchData(nickname), nickname, targetId);
     }
 
-    private CompletableFuture<UserData<TrackFullData>> fetchData(String nickname) {
+    private CompletableFuture<AccountData<TrackFullData>> fetchData(String nickname) {
         return alternativaService.getTracking(nickname)
-                .thenApply(alternativaMapper::toFullUserData);
+                .thenApply(alternativaMapper::toFullAccountData);
     }
 
-    private CompletableFuture<Void> updateAccountAsync(CompletableFuture<UserData<TrackFullData>> userDataFetcher,
+    private CompletableFuture<Void> updateAccountAsync(CompletableFuture<AccountData<TrackFullData>> userDataFetcher,
                                                        String nickname,
                                                        Integer targetId) {
         return userDataFetcher

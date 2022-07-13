@@ -8,7 +8,7 @@ import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaModePlayTrac
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaSupplyUsageTrack;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.enums.track.TankiSupply;
-import me.fizzika.tankirating.model.UserData;
+import me.fizzika.tankirating.model.AccountData;
 import me.fizzika.tankirating.model.track_data.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public abstract class AlternativaTrackingMapper {
 
-    public UserData<TrackFullData> toFullUserData(AlternativaTrackDTO trackDTO) {
+    public AccountData<TrackFullData> toFullAccountData(AlternativaTrackDTO trackDTO) {
         TrackFullData res = new TrackFullData();
         res.setBase(toBaseTrackModel(trackDTO));
         res.setSupplies(toSupplyUsageTrackMap(trackDTO.getSuppliesUsage()));
         res.setActivities(toActivityTrackMap(trackDTO));
-        return new UserData<>(trackDTO.isHasPremium(), res);
+        return new AccountData<>(trackDTO.isHasPremium(), res);
     }
 
     @Mapping(source = "earnedCrystals", target = "cry")

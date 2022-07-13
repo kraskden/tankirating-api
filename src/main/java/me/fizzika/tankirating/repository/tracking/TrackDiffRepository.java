@@ -21,6 +21,7 @@ import java.util.Optional;
 @Repository
 public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long> {
 
+    //language=SQL
     String GET_ALL_DIFFS_FOR_PERIOD = "select D from TrackDiffRecord D " +
             "left join fetch D.trackRecord " +
             "where D.target.id = :targetId " +
