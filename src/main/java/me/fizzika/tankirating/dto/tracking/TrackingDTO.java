@@ -2,7 +2,6 @@ package me.fizzika.tankirating.dto.tracking;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
 
 import java.util.List;
 

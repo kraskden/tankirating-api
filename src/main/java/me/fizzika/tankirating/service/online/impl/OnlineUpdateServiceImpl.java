@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.mapper.OnlineMapper;
-import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.model.OnlineData;
+import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.record.online.OnlinePcuRecord;
 import me.fizzika.tankirating.record.online.OnlineSnapshotRecord;
 import me.fizzika.tankirating.repository.online.OnlinePcuRepository;
@@ -29,10 +29,15 @@ public class OnlineUpdateServiceImpl implements OnlineUpdateService {
 
     @Override
     public void updateOnline() {
-        OnlineData onlineData = alternativaMapper.toOnlineData(alternativaService.getOnlineData());
-        createSnapshot(onlineData);
-        updatePcuStats(onlineData);
-        log.info("Online has been updated: [{}, {}]", onlineData.getOnline(), onlineData.getInbattles());
+        OnlineData data = alternativaService.getOnlineData()
+                .map(alternativaMapper::toOnlineData)
+                .orElse(null);
+        if (data == null) {
+            return;
+        }
+        createSnapshot(data);
+        updatePcuStats(data);
+        log.info("Online has been updated: [{}, {}]", data.getOnline(), data.getInbattles());
     }
 
     private void createSnapshot(OnlineData data) {

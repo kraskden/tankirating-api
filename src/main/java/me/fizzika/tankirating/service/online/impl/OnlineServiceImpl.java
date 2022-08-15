@@ -8,7 +8,6 @@ import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.OnlineMapper;
-import me.fizzika.tankirating.record.online.OnlinePcuRecord;
 import me.fizzika.tankirating.repository.online.OnlinePcuRepository;
 import me.fizzika.tankirating.repository.online.OnlineSnapshotRepository;
 import me.fizzika.tankirating.service.online.OnlineService;

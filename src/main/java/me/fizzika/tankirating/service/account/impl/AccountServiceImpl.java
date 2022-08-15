@@ -3,19 +3,15 @@ package me.fizzika.tankirating.service.account.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.account.AccountAddDTO;
+import me.fizzika.tankirating.dto.account.AccountAddResultDTO;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.rating.RatingDTO;
 import me.fizzika.tankirating.dto.rating.RatingFilter;
-import me.fizzika.tankirating.dto.account.AccountAddResultDTO;
-import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.AccountAddStatus;
-import me.fizzika.tankirating.enums.track.TrackTargetType;
+import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
-import me.fizzika.tankirating.model.AccountData;
 import me.fizzika.tankirating.model.date.DatePeriod;
-import me.fizzika.tankirating.model.track_data.TrackFullData;
-import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.account.AccountRepository;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
 import me.fizzika.tankirating.service.account.AccountService;
@@ -84,13 +80,14 @@ public class AccountServiceImpl implements AccountService {
             log.error("Unknown error during account {} adding: {}", nickname, ex.getCause());
             return AccountAddStatus.UNKNOWN_ERROR;
         }
-        TrackTargetRecord rec = new TrackTargetRecord(nickname, TrackTargetType.ACCOUNT);
-        rec = trackTargetRepository.save(rec);
-
-        AccountData<TrackFullData> accountData = trackingMapper.toFullAccountData(track);
-        trackStoreService.updateTargetData(rec.getId(), accountData.getTrackData(), accountData.isHasPremium());
-        log.info("Registered account {}", rec.getName());
         return AccountAddStatus.OK;
+//        TrackTargetRecord rec = new TrackTargetRecord(nickname, TrackTargetType.ACCOUNT);
+//        rec = trackTargetRepository.save(rec);
+//
+//        AccountData<TrackFullData> accountData = trackingMapper.toFullAccountData(track);
+//        trackStoreService.updateTargetData(rec.getId(), accountData.getTrackData(), accountData.isHasPremium());
+//        log.info("Registered account {}", rec.getName());
+//        return AccountAddStatus.OK;
     }
 
 }

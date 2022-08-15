@@ -5,7 +5,6 @@ import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

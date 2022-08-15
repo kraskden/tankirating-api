@@ -1,8 +1,8 @@
 package me.fizzika.tankirating.service.tracking.internal;
 
 import me.fizzika.tankirating.enums.PeriodUnit;
-import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.model.TrackGroup;
+import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 
 /**

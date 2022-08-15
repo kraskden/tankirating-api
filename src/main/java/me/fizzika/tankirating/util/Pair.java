@@ -27,7 +27,7 @@ public class Pair<T> {
         return new Pair<>(fst, snd);
     }
 
-    public <U> Pair<U> map(Function<T, U> mapFn) {
+    public <U> Pair<U> map(Function<? super T, U> mapFn) {
         return new Pair<>(mapFn.apply(first), mapFn.apply(second));
     }
 

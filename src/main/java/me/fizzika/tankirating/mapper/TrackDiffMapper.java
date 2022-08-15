@@ -1,7 +1,6 @@
 package me.fizzika.tankirating.mapper;
 
 import lombok.Setter;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
 import me.fizzika.tankirating.dto.tracking.TrackingDTO;

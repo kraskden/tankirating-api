@@ -3,7 +3,6 @@ package me.fizzika.tankirating.repository.tracking;
 import me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackFormat;
-import me.fizzika.tankirating.model.date.DateRange;
 import me.fizzika.tankirating.model.EntityActivityTrack;
 import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;

@@ -2,9 +2,9 @@ package me.fizzika.tankirating.controller;
 
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.account.AccountAddDTO;
+import me.fizzika.tankirating.dto.account.AccountAddResultDTO;
 import me.fizzika.tankirating.dto.rating.RatingDTO;
 import me.fizzika.tankirating.dto.rating.RatingFilter;
-import me.fizzika.tankirating.dto.account.AccountAddResultDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.service.account.AccountService;
 import org.springframework.data.domain.Pageable;

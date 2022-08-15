@@ -1,7 +1,7 @@
 package me.fizzika.tankirating.mapper;
 
-import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaPlayTrack;
+import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackEntity;
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaEntityPlayTrack;
 import me.fizzika.tankirating.dto.alternativa.track.impl.AlternativaModePlayTrack;

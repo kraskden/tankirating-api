@@ -4,12 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import me.fizzika.tankirating.enums.PeriodUnit;
-import me.fizzika.tankirating.record.IdRecord;
 import me.fizzika.tankirating.record.PeriodRecord;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "diff")

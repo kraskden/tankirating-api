@@ -2,12 +2,12 @@ package me.fizzika.tankirating.record.tracking;
 
 import lombok.*;
 import me.fizzika.tankirating.record.IdRecord;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.List;
 
 @Entity
