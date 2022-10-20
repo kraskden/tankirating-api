@@ -63,47 +63,22 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
         CompletableFuture.allOf(updaters)
                         .whenComplete((ignored, ex) -> {
-                            if (ex == null) {
-                                log.info("All account has been successfully updated");
-                            } else {
-                                log.warn("There are some problem during account updating, check logs");
-                            }
+                            log.info("Accounts update finished");
                         }).join();
 
         log.info("Groups update has been started");
         List<TrackGroup> groups = targetService.getAllGroups();
         log.info("Found {} groups: {}", groups.size(), groups);
         groups.forEach(trackStoreService::updateCurrentGroupData);
+        log.info("Groups update finished");
     }
 
     private CompletableFuture<Void> updateAccountAsync(Integer targetId, String nickname) {
-        return updateAccountAsync(fetchData(nickname), nickname, targetId);
-    }
-
-    private CompletableFuture<AccountData<TrackFullData>> fetchData(String nickname) {
         return alternativaService.getTracking(nickname)
-                .thenApply(alternativaMapper::toFullAccountData);
-    }
-
-    private CompletableFuture<Void> updateAccountAsync(CompletableFuture<AccountData<TrackFullData>> userDataFetcher,
-                                                       String nickname,
-                                                       Integer targetId) {
-        return userDataFetcher
+                .thenApply(alternativaMapper::toFullAccountData)
                 .thenAccept(data -> trackStoreService.updateTargetData(targetId, data.getTrackData(), data.isHasPremium()))
-                .whenComplete((res, ex) -> {
-                    if (ex == null) {
-                        log.info("Updated {}", nickname);
-                    } else {
-                        log.error("Error due updating {}", nickname, ex);
-                    }
-                });
+                .thenRun(() -> log.info("Updated {}", nickname))
+                .whenComplete((ignored, ex) -> log.error("Error in updating {}", nickname, ex));
     }
-
-    private static Map<GroupMeta, TrackFullData> getTrackGroupDataMap() {
-        return Arrays.stream(GroupMeta.values())
-                .collect(Collectors.toMap(Function.identity(), (ignored) -> new TrackFullData(), (fst, snd) -> fst,
-                        () -> new EnumMap<>(GroupMeta.class)));
-    }
-
 
 }

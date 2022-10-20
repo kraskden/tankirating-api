@@ -32,7 +32,6 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
                                                                        LocalDateTime periodEnd);
 
     @Query(GET_ALL_DIFFS_FOR_PERIOD)
-    @EntityGraph(attributePaths = {"trackRecord.supplies"})
     List<TrackDiffRecord> findAllBaseDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
                                                 LocalDateTime to, Sort sort);
 

@@ -63,6 +63,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     }
 
     @Override
+    @Transactional
     public void updateCurrentGroupData(TrackGroup group) {
         LocalDateTime now = LocalDateTime.now();
         for (PeriodUnit diffPeriod : PeriodUnit.GROUP_PERIODS) {
