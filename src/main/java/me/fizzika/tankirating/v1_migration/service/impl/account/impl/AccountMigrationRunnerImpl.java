@@ -166,7 +166,15 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
 
     private void migrateDiffs(AccountDocument account, TrackTargetDTO target) {
         migrateDiffs(account.getDaily(), PeriodUnit.DAY, target);
+
+        if (account.getCurrWeek() != null) {
+            account.getWeekly().add(account.getCurrWeek());
+        }
         migrateDiffs(account.getWeekly(), PeriodUnit.WEEK, target);
+
+        if (account.getCurrMonth() != null) {
+            account.getMonthly().add(account.getCurrMonth());
+        }
         migrateDiffs(account.getMonthly(), PeriodUnit.MONTH, target);
     }
 

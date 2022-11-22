@@ -22,6 +22,7 @@ public interface AccountRepository extends JpaRepository<TrackTargetRecord, Inte
             "left join D.trackRecord TR " +
             "left join D.target T " +
             "where T.status <> 'DISABLED' and D.period = :period and D.periodStart = :periodStart " +
+            "and T.type = 'ACCOUNT' " +
             "and (:minScore is null or D.maxScore >= :minScore)")
     Page<AccountRatingDTO> getRating(PeriodUnit period, LocalDateTime periodStart,
                                      Integer minScore,

@@ -21,7 +21,7 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
 
     @Query(value = "select T from TrackTargetRecord T " +
             "where (:targetType is null or T.type = :targetType) " +
-            "and (T.status in :statuses) " +
+            "and (:statuses is null or (T.status in :statuses)) " +
             "and (:query is null or lower(T.name) like lower(concat('%', text(:query), '%')))")
     Page<TrackTargetRecord> findAll(@Param("targetType") TrackTargetType targetType,
                                     @Param("statuses") Collection<TrackTargetStatus> statuses,
