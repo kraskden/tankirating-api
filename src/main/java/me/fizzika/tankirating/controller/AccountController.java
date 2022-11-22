@@ -33,5 +33,4 @@ public class AccountController {
         return accountService.addAccounts(addDTO);
     }
 
-
 }

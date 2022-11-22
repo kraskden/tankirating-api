@@ -6,6 +6,7 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.track.GroupMeta;
+import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackTargetMapper;
@@ -68,7 +69,7 @@ public class TrackTargetServiceImpl implements TrackTargetService {
 
     @Override
     public Page<TrackTargetDTO> findAll(TrackTargetFilter filter, Pageable pageable) {
-        return repository.findAll(filter.getTargetType(), filter.getQuery(),  pageable)
+        return repository.findAll(filter.getTargetType(), filter.getStatuses(), filter.getQuery(), pageable)
                 .map(mapper::toDto);
     }
 
@@ -84,6 +85,7 @@ public class TrackTargetServiceImpl implements TrackTargetService {
                     .arg("name", name);
         }
         TrackTargetRecord rec = new TrackTargetRecord(name, type);
+        rec.setStatus(TrackTargetStatus.ACTIVE);
         return mapper.toDto(repository.save(rec));
     }
 

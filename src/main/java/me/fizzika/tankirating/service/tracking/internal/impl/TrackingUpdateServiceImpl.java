@@ -1,70 +1,67 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
-import me.fizzika.tankirating.enums.track.GroupMeta;
+import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
+import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
-import me.fizzika.tankirating.model.AccountData;
 import me.fizzika.tankirating.model.TrackGroup;
-import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static me.fizzika.tankirating.enums.track.TrackTargetStatus.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
+    private static final int ACCOUNT_UPDATE_BUFFER = 100;
+
     private final AlternativaTrackingService alternativaService;
     private final AlternativaTrackingMapper alternativaMapper;
-    
+
     private final TrackTargetService targetService;
     private final TrackStoreService trackStoreService;
 
     @Override
-    public void updateAccount(Integer targetId, String nickname) {
-        updateAccountAsync(targetId, nickname);
-    }
-
-    /**
-     * Naive realisation
-     *
-     * The production-ready solution contains following steps:
-     * 1) Split accounts into small groups (e.g. 30 account per group)
-     * 2) Update accounts in the group
-     * 3) Sleeping for a short period (e.g. minute)
-     * 4) Fetch next group, go to the 2nd step
-     * 5) When all groups are updated, update global stats
-     */
-    @Override
     public void updateAll() {
-        log.info("Accounts update has been started");
-        List<TrackTargetDTO> accounts = targetService.getAll(TrackTargetType.ACCOUNT).stream()
-                .filter(t -> t.getStatus().isUpdatable())
-                .collect(Collectors.toList());
-        log.info("Found {} accounts", accounts.size());
+        log.info("Starting accounts updating");
+        log.info("Updating parameters: buffer={}, timeout=5s", ACCOUNT_UPDATE_BUFFER);
+        Page<TrackTargetDTO> buff = getAccountsPage(1);
 
-        CompletableFuture<?>[] updaters = accounts.stream()
-                .map(acc -> updateAccountAsync(acc.getId(), acc.getName()))
-                .toArray(CompletableFuture<?>[]::new);
+        long total = buff.getTotalElements();
+        long processed = 0;
 
-        CompletableFuture.allOf(updaters)
-                        .whenComplete((ignored, ex) -> {
-                            log.info("Accounts update finished");
-                        }).join();
+        log.info("Found {} accounts", total);
+
+        while (!buff.getContent().isEmpty()) {
+            updateAccounts(buff.getContent()).join();
+            processed += buff.getNumberOfElements();
+
+            log.info("[{}/{}] Processed", processed, total);
+
+            if (buff.hasNext()) {
+                sleep(Duration.ofSeconds(5));
+            }
+            buff = buff.hasNext() ? getAccountsPage(buff.getNumber() + 1)
+                    : Page.empty();
+        }
+        log.info("All accounts has been processed");
 
         log.info("Groups update has been started");
         List<TrackGroup> groups = targetService.getAllGroups();
@@ -73,12 +70,43 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         log.info("Groups update finished");
     }
 
-    private CompletableFuture<Void> updateAccountAsync(Integer targetId, String nickname) {
-        return alternativaService.getTracking(nickname)
+    private CompletableFuture<Void> updateAccounts(Collection<TrackTargetDTO> accounts) {
+        CompletableFuture<?>[] updaters = accounts.stream()
+                .map(this::updateAccountAsync)
+                .toArray(CompletableFuture<?>[]::new);
+        return CompletableFuture.allOf(updaters);
+    }
+
+    private CompletableFuture<Void> updateAccountAsync(TrackTargetDTO account) {
+        return alternativaService.getTracking(account.getName())
                 .thenApply(alternativaMapper::toFullAccountData)
-                .thenAccept(data -> trackStoreService.updateTargetData(targetId, data.getTrackData(), data.isHasPremium()))
-                .thenRun(() -> log.info("Updated {}", nickname))
-                .whenComplete((ignored, ex) -> log.error("Error in updating {}", nickname, ex));
+                .thenAccept(data -> trackStoreService.updateTargetData(account.getId(), data.getTrackData(), data.isHasPremium()))
+                .whenComplete((ignored, ex) -> {
+                    if (ex != null) {
+                        log.error("Error in updating {}", account.getName(), ex);
+                    } else {
+                        log.info("Updated {}", account.getName());
+                    }
+                    TrackTargetStatus newStatus = ex != null ? ACTIVE : FROZEN;
+                    if (account.getStatus() != newStatus) {
+                        account.setStatus(newStatus);
+                        targetService.update(account.getId(), account);
+                    }
+                });
+    }
+
+    private Page<TrackTargetDTO> getAccountsPage(int page) {
+        TrackTargetFilter filter = new TrackTargetFilter();
+        filter.setTargetType(TrackTargetType.ACCOUNT);
+        filter.setStatuses(List.of(ACTIVE, FROZEN));
+        Sort sort = Sort.by("id");
+
+        return targetService.findAll(filter, PageRequest.of(page, ACCOUNT_UPDATE_BUFFER, sort));
+    }
+
+    @SneakyThrows
+    private void sleep(Duration duration) {
+        Thread.sleep(duration);
     }
 
 }
