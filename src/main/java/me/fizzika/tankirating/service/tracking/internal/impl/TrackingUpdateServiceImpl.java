@@ -106,7 +106,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     @SneakyThrows
     private void sleep(Duration duration) {
-        Thread.sleep(duration);
+        Thread.sleep(duration.toMillis());
     }
 
 }

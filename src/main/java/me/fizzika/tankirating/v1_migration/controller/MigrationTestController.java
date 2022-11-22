@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.v1_migration.controller;
 
 import lombok.RequiredArgsConstructor;
+import me.fizzika.tankirating.v1_migration.MigrationRunner;
 import me.fizzika.tankirating.v1_migration.service.impl.AccountMigrationService;
 import me.fizzika.tankirating.v1_migration.service.impl.GroupMigrationService;
 import me.fizzika.tankirating.v1_migration.service.impl.OnlineMigrationService;
@@ -20,6 +21,8 @@ public class MigrationTestController {
     private final OnlineMigrationService onlineMigrationService;
     private final GroupMigrationService groupMigrationService;
 
+    private final MigrationRunner migrationRunner;
+
     @PostMapping("/account")
     public void migrateAllAccounts() {
         accountMigrationService.migrate();
@@ -38,6 +41,11 @@ public class MigrationTestController {
     @PostMapping("/group")
     public void migrateGroups() {
         groupMigrationService.migrate();
+    }
+
+    @PostMapping("/all")
+    public void migrateAll() {
+        migrationRunner.migrate();
     }
 
 }
