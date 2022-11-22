@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface TrackSnapshotService {
 
-    void save(TrackSnapshot snapshot);
+    long save(TrackSnapshot snapshot);
 
     boolean exists(Integer targetId, LocalDateTime timestamp);
 

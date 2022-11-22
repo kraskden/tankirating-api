@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.record.tracking.TrackEntityRecord;
@@ -17,6 +18,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class TrackEntityServiceImpl implements TrackEntityService {
 

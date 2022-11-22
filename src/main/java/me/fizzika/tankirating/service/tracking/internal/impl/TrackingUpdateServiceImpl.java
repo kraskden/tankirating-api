@@ -13,15 +13,18 @@ import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionException;
 
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.*;
 
@@ -30,7 +33,11 @@ import static me.fizzika.tankirating.enums.track.TrackTargetStatus.*;
 @RequiredArgsConstructor
 public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
-    private static final int ACCOUNT_UPDATE_BUFFER = 100;
+    @Value("${app.tracking.update-buffer-size}")
+    private int accountBufferSize;
+
+    @Value("${app.tracking.update-buffer-timeout}")
+    private Duration accountBufferTimeout;
 
     private final AlternativaTrackingService alternativaService;
     private final AlternativaTrackingMapper alternativaMapper;
@@ -39,9 +46,25 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     private final TrackStoreService trackStoreService;
 
     @Override
+    public void updateOne(TrackTargetDTO account) {
+        updateAccountAsync(account).join();
+    }
+
+//    @Scheduled(fixedRateString = "${app.tracking.update-frequency}")
+    @Override
     public void updateAll() {
         log.info("Starting accounts updating");
-        log.info("Updating parameters: buffer={}, timeout=5s", ACCOUNT_UPDATE_BUFFER);
+        log.info("Updating parameters: buffer={}, timeout={}s", accountBufferSize,
+                accountBufferTimeout.toSeconds());
+
+        try {
+            alternativaService.healthCheck().join();
+        } catch (CompletionException ex) {
+            log.error("Alternativa service is unavailable ", ex.getCause());
+            log.error("Skipping accounts updating");
+            return;
+        }
+
         Page<TrackTargetDTO> buff = getAccountsPage(1);
 
         long total = buff.getTotalElements();
@@ -56,7 +79,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
             log.info("[{}/{}] Processed", processed, total);
 
             if (buff.hasNext()) {
-                sleep(Duration.ofSeconds(5));
+                sleep(accountBufferTimeout);
             }
             buff = buff.hasNext() ? getAccountsPage(buff.getNumber() + 1)
                     : Page.empty();
@@ -81,17 +104,18 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         return alternativaService.getTracking(account.getName())
                 .thenApply(alternativaMapper::toFullAccountData)
                 .thenAccept(data -> trackStoreService.updateTargetData(account.getId(), data.getTrackData(), data.isHasPremium()))
-                .whenComplete((ignored, ex) -> {
+                .handle((ignored, ex) -> {
                     if (ex != null) {
-                        log.error("Error in updating {}", account.getName(), ex);
+                        log.error("Error in updating {} [id={}]", account.getName(), account.getId(), ex);
                     } else {
-                        log.info("Updated {}", account.getName());
+                        log.info("Updated {} [id={}]", account.getName(), account.getId());
                     }
-                    TrackTargetStatus newStatus = ex != null ? ACTIVE : FROZEN;
+                    TrackTargetStatus newStatus = ex != null ? FROZEN : ACTIVE;
                     if (account.getStatus() != newStatus) {
                         account.setStatus(newStatus);
                         targetService.update(account.getId(), account);
                     }
+                    return null;
                 });
     }
 
@@ -101,7 +125,10 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         filter.setStatuses(List.of(ACTIVE, FROZEN));
         Sort sort = Sort.by("id");
 
-        return targetService.findAll(filter, PageRequest.of(page, ACCOUNT_UPDATE_BUFFER, sort));
+        Pageable pageable = accountBufferSize > 0 ? PageRequest.of(page, accountBufferSize, sort) :
+                Pageable.unpaged();
+
+        return targetService.findAll(filter, pageable);
     }
 
     @SneakyThrows

@@ -31,4 +31,9 @@ public class TrackUsageData implements TrackData<TrackUsageData> {
         return new TrackUsageData(this);
     }
 
+    @Override
+    public String toString() {
+        return String.format("(%d)", usages);
+    }
+
 }

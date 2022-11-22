@@ -34,4 +34,9 @@ public class TrackPlayData implements TrackData<TrackPlayData> {
         return new TrackPlayData(this);
     }
 
+    @Override
+    public String toString() {
+        return String.format("(s: %d, t: %d)", score, time);
+    }
+
 }

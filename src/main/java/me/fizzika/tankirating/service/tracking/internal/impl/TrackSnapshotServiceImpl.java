@@ -20,8 +20,9 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     private final TrackSnapshotMapper snapshotMapper;
 
     @Override
-    public void save(TrackSnapshot snapshot) {
-        repository.save(snapshotMapper.toRecord(snapshot));
+    public long save(TrackSnapshot snapshot) {
+        var rec = repository.save(snapshotMapper.toRecord(snapshot));
+        return rec.getId();
     }
 
     @Override

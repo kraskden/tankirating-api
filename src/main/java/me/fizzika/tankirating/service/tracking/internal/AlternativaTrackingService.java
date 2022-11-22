@@ -7,5 +7,7 @@ import java.util.concurrent.CompletableFuture;
 public interface AlternativaTrackingService {
     
     CompletableFuture<AlternativaTrackDTO> getTracking(String username);
+
+    CompletableFuture<Void> healthCheck();
     
 }
