@@ -50,7 +50,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         updateAccountAsync(account).join();
     }
 
-//    @Scheduled(fixedRateString = "${app.tracking.update-frequency}")
+    @Scheduled(cron = "${app.cron.update-all}")
     @Override
     public void updateAll() {
         log.info("Starting accounts updating");
@@ -122,6 +122,8 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     private Page<TrackTargetDTO> getAccountsPage(int page) {
         TrackTargetFilter filter = new TrackTargetFilter();
         filter.setTargetType(TrackTargetType.ACCOUNT);
+
+        // Don't try to update BLOCKED accounts
         filter.setStatuses(List.of(ACTIVE, FROZEN));
         Sort sort = Sort.by("id");
 

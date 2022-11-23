@@ -12,6 +12,9 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Delete previous day HEAD snapshot for all accounts
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -21,7 +24,7 @@ public class HeadSnapshotSanitizer implements TrackSanitizer {
 
     @Override
     @Transactional
-//    @Scheduled(cron = "0 0 3 * * *") // ON 3:00 AM every day
+    @Scheduled(cron = "${app.cron.head-snapshot-sanitizer}")
     public void sanitize() {
         log.info("Start {} sanitizer", this.getClass().getSimpleName());
 
