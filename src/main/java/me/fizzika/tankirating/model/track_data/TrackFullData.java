@@ -51,12 +51,12 @@ public class TrackFullData implements TrackData<TrackFullData> {
         return new TrackFullData(this);
     }
 
-    public boolean valid() {
+    public boolean isValid() {
         return base.getTime() >= 0;
     }
 
     public boolean notEmpty() {
-        return base.getTime() > 0;
+        return base.getTime() != 0;
     }
 
 }

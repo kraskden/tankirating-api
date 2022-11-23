@@ -6,6 +6,7 @@ import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
+import me.fizzika.tankirating.exceptions.tracking.InvalidDiffException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.model.EntityActivityTrack;
 import me.fizzika.tankirating.model.TrackData;
@@ -23,6 +24,8 @@ import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
+import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
+import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
@@ -44,6 +47,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     private final TrackSnapshotRepository snapshotRepository;
     private final TrackDiffRepository diffRepository;
     private final TrackRepository trackRepository;
+    private final TrackTargetRepository targetRepository;
 
     private final TrackSnapshotService snapshotService;
     private final TrackEntityService entityService;
@@ -63,7 +67,14 @@ public class TrackStoreServiceImpl implements TrackStoreService {
 
         // Update diff for each period
         for (PeriodUnit diffPeriod : PeriodUnit.values()) {
-            updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
+            try {
+                updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
+            } catch (InvalidDiffException ex) {
+                log.error("[{}] Invalid diff exception, consider disabling account: {}", targetId, ex.getMessage());
+                targetRepository.disableAccount(targetId);
+                log.warn("[{}] Account has been disabled", targetId);
+                return;
+            }
         }
     }
 
@@ -103,7 +114,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     }
 
     private void updateDiff(Integer targetId, LocalDateTime now, TrackFullData currentData, PeriodUnit diffPeriod,
-                            boolean hasPremium) {
+                            boolean hasPremium) throws InvalidDiffException {
 
         log.debug("[{}] Updating diff {}", targetId, diffPeriod);
         Integer maxScore = currentData.getBase().getScore();
@@ -120,6 +131,10 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 .map(TrackSnapshot::getTrackData)
                 .map(snap -> TrackData.diff(currentData, snap))
                 .filter(TrackFullData::notEmpty);
+
+        // Fail fast, if diff data is invalid
+        periodDiff.ifPresent(d -> validateDiffData(diffPeriod, d));
+
         log.debug("[{}] DiffTime: {}", targetId, periodDiff.map(d -> d.getBase().getTime()).orElse(0L));
 
         TrackDiffRecord diffRecord = getOrCreateDiffRecord(targetId, diffPeriod, diffDates);
@@ -142,6 +157,18 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         diffRecord.setTrackRecord(periodDiff.map(dataMapper::toTrackRecord).orElse(null));
         diffRepository.save(diffRecord);
         log.debug("[{}] Diff has been saved (id={})", targetId, diffRecord.getId());
+    }
+
+    private void validateDiffData(PeriodUnit diffPeriod, TrackFullData data) {
+        long seconds = data.getBase().getTime();
+        if (seconds < 0) {
+            throw new InvalidDiffException(String.format("Diff seconds cannot be negative: %d", seconds));
+        }
+        long periodSeconds = diffPeriod.getChronoUnit().getDuration().toSeconds();
+        if (seconds > periodSeconds) {
+            throw new InvalidDiffException(String.format("Diff seconds cannot be greater that" +
+                    "period %s duration: %d > %d", diffPeriod.name(), seconds, periodSeconds));
+        }
     }
 
     private void updateGroupDiff(TrackGroup group, LocalDateTime now, PeriodUnit diffPeriod) {

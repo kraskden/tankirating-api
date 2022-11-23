@@ -40,4 +40,8 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
             "(select 1 from \"snapshot\" s where s.target_id = t.id and s.\"timestamp\" > :updateDate);", nativeQuery = true)
     int markFrozenAccountsAsBlocked(@Param("updateDate") LocalDateTime minLastUpdateDate);
 
+    @Modifying
+    @Query(value = "update TrackTargetRecord T set T.status = 'DISABLED' where T.id = :id")
+    void disableAccount(@Param("id") Integer id);
+
 }
