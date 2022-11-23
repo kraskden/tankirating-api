@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.service.tracking.internal;
 
 import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.exceptions.tracking.InvalidTrackDataException;
 import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
@@ -10,7 +11,8 @@ import me.fizzika.tankirating.model.track_data.TrackFullData;
  */
 public interface TrackStoreService {
 
-    void updateTargetData(Integer targetId, TrackFullData currentData, boolean hasPremium);
+    void updateTargetData(Integer targetId, TrackFullData currentData, boolean hasPremium)
+        throws InvalidTrackDataException;
 
     void updateCurrentGroupData(TrackGroup group);
 

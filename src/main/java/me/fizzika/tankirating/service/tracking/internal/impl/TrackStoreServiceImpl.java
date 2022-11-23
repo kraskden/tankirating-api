@@ -7,6 +7,7 @@ import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.exceptions.tracking.InvalidDiffException;
+import me.fizzika.tankirating.exceptions.tracking.InvalidTrackDataException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.model.EntityActivityTrack;
 import me.fizzika.tankirating.model.TrackData;
@@ -56,7 +57,8 @@ public class TrackStoreServiceImpl implements TrackStoreService {
 
     @Override
     @Transactional
-    public void updateTargetData(Integer targetId, TrackFullData currentData, boolean hasPremium) {
+    public void updateTargetData(Integer targetId, TrackFullData currentData, boolean hasPremium)
+            throws InvalidTrackDataException {
         log.debug("[{}] Updating target", targetId);
         log.trace("Target: {}, Prem: {}, Data: {}", targetId, hasPremium, currentData);
 
@@ -67,14 +69,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
 
         // Update diff for each period
         for (PeriodUnit diffPeriod : PeriodUnit.values()) {
-            try {
-                updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
-            } catch (InvalidDiffException ex) {
-                log.error("[{}] Invalid diff exception, consider disabling account: {}", targetId, ex.getMessage());
-                targetRepository.disableAccount(targetId);
-                log.warn("[{}] Account has been disabled", targetId);
-                return;
-            }
+            updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
         }
     }
 

@@ -7,6 +7,7 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
+import me.fizzika.tankirating.exceptions.tracking.InvalidTrackDataException;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
 import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
@@ -106,17 +107,25 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                 .thenAccept(data -> trackStoreService.updateTargetData(account.getId(), data.getTrackData(), data.isHasPremium()))
                 .handle((ignored, ex) -> {
                     if (ex != null) {
-                        log.error("Error in updating {} [id={}]", account.getName(), account.getId(), ex);
+                        log.error("[{}] Error in updating {}", account.getId(), account.getName(), ex);
                     } else {
-                        log.info("Updated {} [id={}]", account.getName(), account.getId());
+                        log.info("[{}] Updated {}",  account.getId(), account.getName());
                     }
-                    TrackTargetStatus newStatus = ex != null ? FROZEN : ACTIVE;
-                    if (account.getStatus() != newStatus) {
-                        account.setStatus(newStatus);
-                        targetService.update(account.getId(), account);
-                    }
+
+                    TrackTargetStatus newStatus = ex != null ?
+                            ex instanceof InvalidTrackDataException ? DISABLED : FROZEN
+                            : ACTIVE;
+                    updateAccountStatus(account, newStatus);
                     return null;
                 });
+    }
+
+    private void updateAccountStatus(TrackTargetDTO account, TrackTargetStatus newStatus) {
+        if (account.getStatus() != newStatus) {
+            account.setStatus(newStatus);
+            targetService.update(account.getId(), account);
+            log.warn("[{}] Changed account status to {}", account.getId(), account.getStatus());
+        }
     }
 
     private Page<TrackTargetDTO> getAccountsPage(int page) {

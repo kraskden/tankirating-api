@@ -6,6 +6,9 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import me.fizzika.tankirating.service.tracking.sanitizer.impl.FrozenAccountsSanitizer;
+import me.fizzika.tankirating.service.tracking.sanitizer.impl.HeadSnapshotSanitizer;
+import net.bytebuddy.dynamic.scaffold.InstrumentedType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +24,8 @@ public class DebugController {
 
     private final TrackingUpdateService updateService;
     private final TrackTargetService targetService;
+    private final HeadSnapshotSanitizer headSnapshotSanitizer;
+    private final FrozenAccountsSanitizer frozenAccountsSanitizer;
 
     @PostMapping("/update/{account}")
     public void updateOne(@PathVariable String account) {
@@ -31,6 +36,16 @@ public class DebugController {
     @PostMapping("/update/all")
     public void updateAll() {
         updateService.updateAll();
+    }
+
+    @PostMapping("/sanitizer/head")
+    public void headSanitizer() {
+        headSnapshotSanitizer.sanitize();
+    }
+
+    @PostMapping("/sanitizer/frozen")
+    public void frozenSanitizer() {
+        frozenAccountsSanitizer.sanitize();
     }
 
 }
