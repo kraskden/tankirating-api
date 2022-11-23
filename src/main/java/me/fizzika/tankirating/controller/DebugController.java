@@ -8,7 +8,6 @@ import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.FrozenAccountsSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.HeadSnapshotSanitizer;
-import net.bytebuddy.dynamic.scaffold.InstrumentedType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
