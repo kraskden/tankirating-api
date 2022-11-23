@@ -38,6 +38,6 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
             "and exists (select 1 from \"snapshot\" s where s.\"timestamp\" > :updateDate) " +
             "and not exists " +
             "(select 1 from \"snapshot\" s where s.target_id = t.id and s.\"timestamp\" > :updateDate);", nativeQuery = true)
-    int markFrozenAccountsAsBlocked(@Param("updateDate") LocalDateTime minLastUpdateDate);
+    void markFrozenAccountsAsBlocked(@Param("updateDate") LocalDateTime minLastUpdateDate);
 
 }

@@ -18,6 +18,6 @@ public interface TrackSnapshotService {
 
     Optional<Pair<TrackSnapshot>> findBorderSnapshots(Integer targetId, LocalDateTime from, LocalDateTime to);
 
-    void deleteAllInRange(LocalDateTime from, LocalDateTime to);
+    int deleteAllInRange(LocalDateTime from, LocalDateTime to);
 
 }

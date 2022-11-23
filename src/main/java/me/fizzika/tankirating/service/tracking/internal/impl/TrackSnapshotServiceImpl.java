@@ -50,8 +50,8 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     }
 
     @Override
-    public void deleteAllInRange(LocalDateTime from, LocalDateTime to) {
-        repository.deleteByTimestampBetween(from, to);
+    public int deleteAllInRange(LocalDateTime from, LocalDateTime to) {
+        return repository.deleteByTimestampBetween(from, to);
     }
 
 }

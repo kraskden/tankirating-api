@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -26,13 +27,13 @@ public class FrozenAccountsSanitizer implements TrackSanitizer {
 
     @Override
     @Scheduled(cron = "${app.cron.frozen-account-sanitizer}")
+    @Transactional
     public void sanitize() {
         log.info("Start {} sanitizer (period={}d)", this.getClass().getSimpleName(),
                 frozenToDisabledDuration.toDays());
         LocalDateTime minUpdateDate = LocalDateTime.now().minus(frozenToDisabledDuration);
 
-        int updated = repository.markFrozenAccountsAsBlocked(minUpdateDate);
-        log.info("Mark {} frozen accounts as disabled", updated);
+        repository.markFrozenAccountsAsBlocked(minUpdateDate);
         log.info("Finish {} sanitizer", this.getClass().getSimpleName());
     }
 

@@ -31,9 +31,10 @@ public class HeadSnapshotSanitizer implements TrackSanitizer {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime headStart = now.minusDays(1).truncatedTo(ChronoUnit.DAYS).plusSeconds(1);
         LocalDateTime headEnd = now.truncatedTo(ChronoUnit.DAYS).minusSeconds(1);
-        snapshotService.deleteAllInRange(headStart, headEnd);
+        int deleted = snapshotService.deleteAllInRange(headStart, headEnd);
 
-        log.info("Finish {} sanitizer", this.getClass().getSimpleName());
+        log.info("Finish {} sanitizer, deleted {} snapshot", this.getClass().getSimpleName(),
+                deleted);
     }
 
 }
