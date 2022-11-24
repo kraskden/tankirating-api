@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
+import me.fizzika.tankirating.service.online.OnlineUpdateService;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.FrozenAccountsSanitizer;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DebugController {
 
     private final TrackingUpdateService updateService;
+    private final OnlineUpdateService onlineUpdateService;
     private final TrackTargetService targetService;
     private final HeadSnapshotSanitizer headSnapshotSanitizer;
     private final FrozenAccountsSanitizer frozenAccountsSanitizer;
@@ -35,6 +37,11 @@ public class DebugController {
     @PostMapping("/update/all")
     public void updateAll() {
         updateService.updateAll();
+    }
+
+    @PostMapping("/update/online")
+    public void updateOnline() {
+        onlineUpdateService.updateOnline();
     }
 
     @PostMapping("/sanitizer/head")

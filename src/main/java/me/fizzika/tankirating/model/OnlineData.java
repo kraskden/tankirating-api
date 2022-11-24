@@ -15,7 +15,7 @@ public class OnlineData {
     }
 
     public boolean valid() {
-        return inbattles >= 0 && online>= 0;
+        return inbattles > 0 && online > 0;
     }
 
 }
