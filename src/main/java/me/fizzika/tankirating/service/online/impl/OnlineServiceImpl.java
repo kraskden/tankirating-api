@@ -12,6 +12,7 @@ import me.fizzika.tankirating.repository.online.OnlinePcuRepository;
 import me.fizzika.tankirating.repository.online.OnlineSnapshotRepository;
 import me.fizzika.tankirating.service.online.OnlineService;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,13 @@ public class OnlineServiceImpl implements OnlineService {
         return snapshotRepository.findAllInRange(filter.getFrom(), filter.getTo(), Sort.by("timestamp")).stream()
                 .map(onlineMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public OnlineSnapshotDTO getLatestSnapshot() {
+        return snapshotRepository.getLatest()
+                .map(onlineMapper::toDto)
+                .orElseThrow(() -> new ExternalException("Online snapshot is not exists", HttpStatus.NOT_FOUND));
     }
 
     @Override

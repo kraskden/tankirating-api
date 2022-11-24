@@ -17,4 +17,6 @@ public interface OnlineService {
 
     OnlinePcuDTO getPcuForPeriod(PeriodUnit period, Integer offset);
 
+    OnlineSnapshotDTO getLatestSnapshot();
+
 }

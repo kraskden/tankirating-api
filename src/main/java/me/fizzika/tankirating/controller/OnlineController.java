@@ -25,6 +25,11 @@ public class OnlineController {
         return onlineService.getSnapshots(filter);
     }
 
+    @GetMapping("/snapshot/latest")
+    public OnlineSnapshotDTO getLatest() {
+        return onlineService.getLatestSnapshot();
+    }
+
     @GetMapping("/pcu/{period}")
     public List<OnlinePcuDTO> getPcuPeriodData(@PathVariable PeriodUnit period, OnlinePeriodFilter periodFilter) {
         return onlineService.getPcuPeriodData(period, periodFilter);

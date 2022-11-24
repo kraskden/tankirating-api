@@ -15,7 +15,7 @@ import java.util.Optional;
 @Slf4j
 public class AlternativaOnlineServiceImpl implements AlternativaOnlineService {
 
-    private static final String URL = "https://tankionline.com/s/status.js";
+    private static final String URL = "https://tankionline.com/s/status.js/";
 
     private final RestTemplate restTemplate;
 

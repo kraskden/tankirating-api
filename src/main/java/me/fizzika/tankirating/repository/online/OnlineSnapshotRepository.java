@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OnlineSnapshotRepository extends JpaRepository<OnlineSnapshotRecord, LocalDateTime> {
@@ -19,5 +20,9 @@ public interface OnlineSnapshotRepository extends JpaRepository<OnlineSnapshotRe
             "and (cast(:to as timestamp) is null or R.timestamp <= :to)")
     List<OnlineSnapshotRecord> findAllInRange(@Nullable @Param("from") LocalDateTime from,
                                               @Nullable @Param("to") LocalDateTime to, Sort sort);
+
+    @Query("from OnlineSnapshotRecord R where " +
+            "R.timestamp = (select max(R2.timestamp) from OnlineSnapshotRecord R2)")
+    Optional<OnlineSnapshotRecord> getLatest();
 
 }
