@@ -12,6 +12,7 @@ import me.fizzika.tankirating.repository.online.OnlinePcuRepository;
 import me.fizzika.tankirating.repository.online.OnlineSnapshotRepository;
 import me.fizzika.tankirating.service.online.AlternativaOnlineService;
 import me.fizzika.tankirating.service.online.OnlineUpdateService;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,13 +29,17 @@ public class OnlineUpdateServiceImpl implements OnlineUpdateService {
     private final OnlinePcuRepository pcuRepository;
 
     @Override
+    @Scheduled(cron = "${app.cron.online-updating}")
     public void updateOnline() {
         OnlineData data = alternativaService.getOnlineData()
                 .map(alternativaMapper::toOnlineData)
+                .filter(OnlineData::valid)
                 .orElse(null);
         if (data == null) {
+            log.error("Cannot update online data, check alternativa API");
             return;
         }
+
         createSnapshot(data);
         updatePcuStats(data);
         log.info("Online has been updated: [{}, {}]", data.getOnline(), data.getInbattles());

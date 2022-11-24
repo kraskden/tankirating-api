@@ -14,4 +14,8 @@ public class OnlineData {
         return this;
     }
 
+    public boolean valid() {
+        return inbattles >= 0 && online>= 0;
+    }
+
 }
