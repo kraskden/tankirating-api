@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
+import me.fizzika.tankirating.record.AuditRecord;
 import me.fizzika.tankirating.record.IdRecord;
 
 import javax.persistence.*;
@@ -16,7 +17,7 @@ import javax.persistence.*;
 @ToString
 @Table(name = "target")
 @NoArgsConstructor
-public class TrackTargetRecord extends IdRecord<Integer> {
+public class TrackTargetRecord extends AuditRecord<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "target_seq_generator")

@@ -14,6 +14,7 @@ import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
+import me.fizzika.tankirating.v1_migration.repository.specification_builder.impl.TrackTargetSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class TrackTargetServiceImpl implements TrackTargetService {
 
     private final TrackTargetRepository repository;
     private final TrackTargetMapper mapper;
+    private final TrackTargetSpecificationBuilder specificationBuilder;
 
     @Override
     public List<TrackTargetDTO> getAll() {
@@ -69,7 +71,7 @@ public class TrackTargetServiceImpl implements TrackTargetService {
 
     @Override
     public Page<TrackTargetDTO> findAll(TrackTargetFilter filter, Pageable pageable) {
-        return repository.findAll(filter.getTargetType(), filter.getStatuses(), filter.getQuery(), pageable)
+        return repository.findAll(specificationBuilder.filterToSpec(filter), pageable)
                 .map(mapper::toDto);
     }
 

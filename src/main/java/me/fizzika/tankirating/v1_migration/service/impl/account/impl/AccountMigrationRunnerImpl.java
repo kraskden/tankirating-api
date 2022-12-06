@@ -302,6 +302,13 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
                 return false;
             }
         }
+
+        for (var supply : schema.getSupplies()) {
+            if (supply.getCount() == null || supply.getCount() < 0) {
+                return false;
+            }
+        }
+
         return true;
     }
 

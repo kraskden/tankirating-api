@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.mapper;
 
+import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaPlayTrack;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackEntity;
@@ -14,13 +15,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
+@Slf4j
 public abstract class AlternativaTrackingMapper {
 
     public AccountData<TrackFullData> toFullAccountData(AlternativaTrackDTO trackDTO) {
@@ -38,9 +37,16 @@ public abstract class AlternativaTrackingMapper {
 
     @Named("getFullTime")
     protected long getFullTime(AlternativaTrackDTO track) {
-        return track.getHullsPlayed().stream()
-                .map(AlternativaPlayTrack::getTimePlayed)
-                .reduce(0L, Long::sum) / 1000;
+        long hullsTime = getTimePlayed(track.getHullsPlayed());
+        long turretsTime = getTimePlayed(track.getTurretsPlayed());
+        long modesTime = getTimePlayed(track.getModesPlayed());
+        return Math.max(modesTime, Math.max(hullsTime, turretsTime));
+    }
+
+    protected long getTimePlayed(Collection<? extends AlternativaPlayTrack> playTracks) {
+        return playTracks.stream()
+                .mapToLong(AlternativaPlayTrack::getTimePlayed)
+                .reduce(0, Long::sum) / 1000;
     }
 
     private Map<String, TrackUsageData> toSupplyUsageTrackMap(List<AlternativaSupplyUsageTrack> tracks) {

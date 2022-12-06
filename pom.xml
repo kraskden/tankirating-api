@@ -128,6 +128,11 @@
 							<artifactId>mapstruct-processor</artifactId>
 							<version>${org.mapstruct.version}</version>
 						</path>
+						<path>
+							<groupId>org.hibernate</groupId>
+							<artifactId>hibernate-jpamodelgen</artifactId>
+							<version>5.6.7.Final</version>
+						</path>
 						<!-- other annotation processors -->
 					</annotationProcessorPaths>
 				</configuration>

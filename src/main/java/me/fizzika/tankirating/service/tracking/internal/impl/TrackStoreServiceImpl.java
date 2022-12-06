@@ -122,8 +122,13 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 : snapshotRepository.getPremiumDays(targetId, diffDates.getStart(), diffDates.getEnd());
         log.debug("[{}] Premium days: {}", targetId, premiumDays);
 
-        Optional<TrackFullData> periodDiff = snapshotService.findFirstInRange(targetId, diffDates.getStart(), diffDates.getEnd())
-                .map(TrackSnapshot::getTrackData)
+        Optional<TrackFullData> baseSnapshot = snapshotService.findFirstInRange(targetId, diffDates.getStart(), diffDates.getEnd())
+                .map(TrackSnapshot::getTrackData);
+        if (baseSnapshot.isPresent()) {
+            log.debug("[{}] Base snapshot: {}", targetId, baseSnapshot);
+        }
+
+        Optional<TrackFullData> periodDiff = baseSnapshot
                 .map(snap -> TrackData.diff(currentData, snap))
                 .filter(TrackFullData::notEmpty);
 

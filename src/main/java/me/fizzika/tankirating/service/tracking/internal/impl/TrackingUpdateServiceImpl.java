@@ -112,8 +112,8 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                         log.info("[{}] Updated {}",  account.getId(), account.getName());
                     }
 
-                    TrackTargetStatus newStatus = ex != null ?
-                            ex instanceof InvalidTrackDataException ? DISABLED : FROZEN
+                    TrackTargetStatus newStatus = ex != null && ex.getCause() != null ?
+                            ex.getCause() instanceof InvalidTrackDataException ? DISABLED : FROZEN
                             : ACTIVE;
                     updateAccountStatus(account, newStatus);
                     return null;
@@ -132,7 +132,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         TrackTargetFilter filter = new TrackTargetFilter();
         filter.setTargetType(TrackTargetType.ACCOUNT);
 
-        // Don't try to update BLOCKED accounts
+        // Don't try to update DISABLED accounts
         filter.setStatuses(List.of(ACTIVE, FROZEN));
         Sort sort = Sort.by("id");
 

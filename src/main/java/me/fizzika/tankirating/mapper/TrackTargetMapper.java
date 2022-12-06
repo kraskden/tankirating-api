@@ -12,6 +12,8 @@ public interface TrackTargetMapper {
     TrackTargetDTO toDto(TrackTargetRecord rec);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     void update(TrackTargetDTO dto, @MappingTarget TrackTargetRecord record);
 
 }
