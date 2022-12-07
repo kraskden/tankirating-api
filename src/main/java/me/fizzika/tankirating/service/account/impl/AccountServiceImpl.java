@@ -11,6 +11,7 @@ import me.fizzika.tankirating.enums.AccountAddStatus;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
+import me.fizzika.tankirating.exceptions.alternativa.AlternativaUserNotFoundException;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
 import me.fizzika.tankirating.model.AccountData;
 import me.fizzika.tankirating.model.date.DatePeriod;
@@ -76,10 +77,8 @@ public class AccountServiceImpl implements AccountService {
         try {
             track = alternativaTrackingService.getTracking(nickname).join();
         } catch (CompletionException ex) {
-            if (ex.getCause() instanceof ExternalException) {
-                if (((ExternalException) ex.getCause()).getHttpStatus() == HttpStatus.NOT_FOUND) {
-                    return AccountAddStatus.NOT_FOUND;
-                }
+            if (ex.getCause() instanceof AlternativaUserNotFoundException) {
+                return AccountAddStatus.NOT_FOUND;
             }
             log.error("Unknown error during account {} adding: {}", nickname, ex.getCause());
             return AccountAddStatus.UNKNOWN_ERROR;

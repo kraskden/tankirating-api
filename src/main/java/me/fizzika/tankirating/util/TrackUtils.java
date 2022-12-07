@@ -1,10 +1,32 @@
 package me.fizzika.tankirating.util;
 
+import me.fizzika.tankirating.exceptions.tracking.InvalidDiffException;
+import me.fizzika.tankirating.model.track_data.TrackFullData;
+import me.fizzika.tankirating.model.track_data.TrackPlayData;
+
+import java.time.Duration;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class TrackUtils {
+
+
+    public static void validateDiffData(TrackFullData data,
+                                        long diffPeriodSeconds,
+                                        Duration timeInaccuracyInterval) throws InvalidDiffException {
+        long seconds = data.getBase().getTime();
+        long inaccuracySeconds = timeInaccuracyInterval.toSeconds();
+
+        if (seconds < -inaccuracySeconds) {
+            throw new InvalidDiffException(String.format("Diff seconds cannot be negative: %d", seconds));
+        }
+
+        if (seconds > diffPeriodSeconds) {
+            throw new InvalidDiffException(String.format("Diff seconds cannot be greater that" +
+                    "period duration: %d > %d", seconds, diffPeriodSeconds));
+        }
+    }
 
     /**
      * Merge {@code addMap} values into {@code baseMap} values. If {@code addMap} key is exists in the {@code baseMap}, that apply

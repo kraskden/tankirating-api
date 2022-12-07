@@ -36,7 +36,7 @@ public class OnlineUpdateServiceImpl implements OnlineUpdateService {
                 .filter(OnlineData::valid)
                 .orElse(null);
         if (data == null) {
-            log.error("Cannot update online data, check alternativa API");
+            log.warn("Cannot update online data, check alternativa API");
             return;
         }
 

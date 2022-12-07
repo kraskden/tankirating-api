@@ -26,13 +26,15 @@ import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
-import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
+import me.fizzika.tankirating.util.TrackUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumMap;
@@ -54,6 +56,9 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     private final TrackEntityService entityService;
 
     private final TrackDataMapper dataMapper;
+
+    @Value("${app.tracking.time-inaccuracy-interval}")
+    private Duration timeInaccuracyInterval;
 
     @Override
     @Transactional
@@ -132,8 +137,8 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 .map(snap -> TrackData.diff(currentData, snap))
                 .filter(TrackFullData::notEmpty);
 
-        // Fail fast, if diff data is invalid
-        periodDiff.ifPresent(d -> validateDiffData(diffPeriod, d));
+        periodDiff.ifPresent(d -> TrackUtils.validateDiffData(d, diffPeriod.getChronoUnit().getDuration().toSeconds(),
+                        timeInaccuracyInterval));
 
         log.debug("[{}] DiffTime: {}", targetId, periodDiff.map(d -> d.getBase().getTime()).orElse(0L));
 
@@ -157,18 +162,6 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         diffRecord.setTrackRecord(periodDiff.map(dataMapper::toTrackRecord).orElse(null));
         diffRepository.save(diffRecord);
         log.debug("[{}] Diff has been saved (id={})", targetId, diffRecord.getId());
-    }
-
-    private void validateDiffData(PeriodUnit diffPeriod, TrackFullData data) {
-        long seconds = data.getBase().getTime();
-        if (seconds < 0) {
-            throw new InvalidDiffException(String.format("Diff seconds cannot be negative: %d", seconds));
-        }
-        long periodSeconds = diffPeriod.getChronoUnit().getDuration().toSeconds();
-        if (seconds > periodSeconds) {
-            throw new InvalidDiffException(String.format("Diff seconds cannot be greater that" +
-                    "period %s duration: %d > %d", diffPeriod.name(), seconds, periodSeconds));
-        }
     }
 
     private void updateGroupDiff(TrackGroup group, LocalDateTime now, PeriodUnit diffPeriod) {

@@ -17,6 +17,7 @@ import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.v1_migration.repository.specification_builder.impl.TrackTargetSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -70,10 +71,18 @@ public class TrackTargetServiceImpl implements TrackTargetService {
     }
 
     @Override
+    public List<TrackTargetDTO> findAll(TrackTargetFilter filter, Sort sort) {
+        return repository.findAll(specificationBuilder.filterToSpec(filter), sort).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Page<TrackTargetDTO> findAll(TrackTargetFilter filter, Pageable pageable) {
         return repository.findAll(specificationBuilder.filterToSpec(filter), pageable)
                 .map(mapper::toDto);
     }
+
 
     @Override
     public boolean existsByName(String name, TrackTargetType type) {

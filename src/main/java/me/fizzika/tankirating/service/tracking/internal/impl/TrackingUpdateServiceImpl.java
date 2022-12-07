@@ -7,17 +7,20 @@ import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
+import me.fizzika.tankirating.exceptions.alternativa.AlternativaException;
+import me.fizzika.tankirating.exceptions.alternativa.AlternativaTooManyRequestsException;
+import me.fizzika.tankirating.exceptions.alternativa.AlternativaUserNotFoundException;
 import me.fizzika.tankirating.exceptions.tracking.InvalidTrackDataException;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
+import me.fizzika.tankirating.model.AccountUpdateResult;
+import me.fizzika.tankirating.model.AccountsUpdateStat;
 import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import me.fizzika.tankirating.util.Utils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,9 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.*;
 
@@ -40,11 +46,19 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     @Value("${app.tracking.update-buffer-timeout}")
     private Duration accountBufferTimeout;
 
+    @Value("${app.tracking.max-retries}")
+    private int maxRetries;
+
+    @Value("${app.tracking.retry-timeout-per-account}")
+    private Duration retryTimeoutPerAccount;
+
     private final AlternativaTrackingService alternativaService;
     private final AlternativaTrackingMapper alternativaMapper;
 
     private final TrackTargetService targetService;
     private final TrackStoreService trackStoreService;
+
+    private final Lock lock = new ReentrantLock();
 
     @Override
     public void updateOne(TrackTargetDTO account) {
@@ -54,7 +68,19 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     @Scheduled(cron = "${app.cron.update-all}")
     @Override
     public void updateAll() {
-        log.info("Starting accounts updating");
+        if (lock.tryLock()) {
+            try {
+                log.info("Starting accounts update");
+                doUpdate();
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            log.error("Another update is running, skipping");
+        }
+    }
+
+    private void doUpdate() {
         log.info("Updating parameters: buffer={}, timeout={}s", accountBufferSize,
                 accountBufferTimeout.toSeconds());
 
@@ -66,26 +92,25 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
             return;
         }
 
-        Page<TrackTargetDTO> buff = getAccountsPage(1);
+        List<TrackTargetDTO> accounts = getAccounts();
 
-        long total = buff.getTotalElements();
+        long total = accounts.size();
         long processed = 0;
 
         log.info("Found {} accounts", total);
 
-        while (!buff.getContent().isEmpty()) {
-            updateAccounts(buff.getContent()).join();
-            processed += buff.getNumberOfElements();
-
+        for (List<TrackTargetDTO> slice : Utils.split(accounts, accountBufferSize)) {
+            updateAccounts(slice);
+            processed += slice.size();
             log.info("[{}/{}] Processed", processed, total);
-
-            if (buff.hasNext()) {
+            if (processed != total) {
+                log.info("Sleeping for {}", accountBufferTimeout);
                 sleep(accountBufferTimeout);
             }
-            buff = buff.hasNext() ? getAccountsPage(buff.getNumber() + 1)
-                    : Page.empty();
         }
+
         log.info("All accounts has been processed");
+        sleep(accountBufferTimeout);
 
         log.info("Groups update has been started");
         List<TrackGroup> groups = targetService.getAllGroups();
@@ -94,29 +119,69 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         log.info("Groups update finished");
     }
 
-    private CompletableFuture<Void> updateAccounts(Collection<TrackTargetDTO> accounts) {
-        CompletableFuture<?>[] updaters = accounts.stream()
-                .map(this::updateAccountAsync)
-                .toArray(CompletableFuture<?>[]::new);
-        return CompletableFuture.allOf(updaters);
+    private void updateAccounts(Collection<TrackTargetDTO> accounts) {
+        updateAccounts(accounts, 0);
     }
 
-    private CompletableFuture<Void> updateAccountAsync(TrackTargetDTO account) {
+    private void updateAccounts(Collection<TrackTargetDTO> accounts, int retry) {
+        var stat = updateAccountsAsync(accounts).join();
+        log.info("[SLICE] Processed [{}/{}], Retried: {}", stat.getProcessedCount(), stat.getTotalCount(), stat.getRetriedCount());
+        if (stat.getRetriedCount() != 0 && retry < maxRetries) {
+            var sleepDuration = retryTimeoutPerAccount.multipliedBy(stat.getRetriedCount());
+            log.info("Waiting for retry, sleep for {}", sleepDuration);
+            sleep(sleepDuration);
+            updateAccounts(stat.getRetried(), retry + 1);
+        }
+    }
+
+    private CompletableFuture<AccountsUpdateStat> updateAccountsAsync(Collection<TrackTargetDTO> accounts) {
+        List<CompletableFuture<AccountUpdateResult>> updaters = accounts.stream()
+                .map(this::updateAccountAsync)
+                .collect(Collectors.toList());
+
+        return CompletableFuture.allOf(updaters.toArray(CompletableFuture[]::new))
+                .thenApply(ignored -> {
+                    AccountsUpdateStat stat = new AccountsUpdateStat();
+                    stat.setTotalCount(accounts.size());
+                    for (var updater : updaters) {
+                        AccountUpdateResult updateResult = updater.join();
+                        if (updateResult.isProcessed()) {
+                            stat.setProcessedCount(stat.getProcessedCount() + 1);
+                        } else {
+                            stat.getRetried().add(updateResult.getAccount());
+                        }
+                    }
+                    return stat;
+                });
+    }
+
+    private CompletableFuture<AccountUpdateResult> updateAccountAsync(TrackTargetDTO account) {
         return alternativaService.getTracking(account.getName())
                 .thenApply(alternativaMapper::toFullAccountData)
                 .thenAccept(data -> trackStoreService.updateTargetData(account.getId(), data.getTrackData(), data.isHasPremium()))
                 .handle((ignored, ex) -> {
-                    if (ex != null) {
-                        log.error("[{}] Error in updating {}", account.getId(), account.getName(), ex);
-                    } else {
-                        log.info("[{}] Updated {}",  account.getId(), account.getName());
+                    if (ex == null) {
+                        log.info("[{}] Updated {}", account.getId(), account.getName());
+                        updateAccountStatus(account, ACTIVE);
+                        return AccountUpdateResult.processed(account);
                     }
 
-                    TrackTargetStatus newStatus = ex != null && ex.getCause() != null ?
-                            ex.getCause() instanceof InvalidTrackDataException ? DISABLED : FROZEN
-                            : ACTIVE;
-                    updateAccountStatus(account, newStatus);
-                    return null;
+                    Throwable cause = ex.getCause();
+                    if (cause instanceof AlternativaException ||
+                            cause instanceof InvalidTrackDataException) {
+                        log.warn("[{}] Exception due updating {}: {}", account.getId(),
+                                account.getName(), cause.getMessage());
+                    } else {
+                        log.error("[{}] Exception due updating {}", account.getId(),
+                                account.getName(), cause);
+                    }
+
+                    TrackTargetStatus status = cause instanceof InvalidTrackDataException ||
+                            cause instanceof AlternativaUserNotFoundException ? DISABLED : FROZEN;
+                    updateAccountStatus(account, status);
+
+                    return new AccountUpdateResult(account,
+                            !(cause instanceof AlternativaTooManyRequestsException));
                 });
     }
 
@@ -128,7 +193,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         }
     }
 
-    private Page<TrackTargetDTO> getAccountsPage(int page) {
+    private List<TrackTargetDTO> getAccounts() {
         TrackTargetFilter filter = new TrackTargetFilter();
         filter.setTargetType(TrackTargetType.ACCOUNT);
 
@@ -136,10 +201,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         filter.setStatuses(List.of(ACTIVE, FROZEN));
         Sort sort = Sort.by("id");
 
-        Pageable pageable = accountBufferSize > 0 ? PageRequest.of(page, accountBufferSize, sort) :
-                Pageable.unpaged();
-
-        return targetService.findAll(filter, pageable);
+        return targetService.findAll(filter, sort);
     }
 
     @SneakyThrows

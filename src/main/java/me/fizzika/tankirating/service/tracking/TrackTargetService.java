@@ -9,6 +9,7 @@ import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.model.TrackGroup;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ public interface TrackTargetService {
                         .arg("type", type)
                 );
     }
+
+    List<TrackTargetDTO> findAll(TrackTargetFilter filter, Sort sort);
 
     Page<TrackTargetDTO> findAll(TrackTargetFilter filter, Pageable pageable);
 

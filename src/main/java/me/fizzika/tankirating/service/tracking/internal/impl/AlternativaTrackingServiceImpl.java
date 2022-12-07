@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackResponseDTO;
-import me.fizzika.tankirating.exceptions.ExternalException;
+import me.fizzika.tankirating.exceptions.alternativa.AlternativaException;
+import me.fizzika.tankirating.exceptions.alternativa.AlternativaServerUnavailableException;
+import me.fizzika.tankirating.exceptions.alternativa.AlternativaTooManyRequestsException;
+import me.fizzika.tankirating.exceptions.alternativa.AlternativaUserNotFoundException;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
-import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
@@ -28,12 +32,20 @@ public class AlternativaTrackingServiceImpl implements AlternativaTrackingServic
     @Async
     @Override
     public CompletableFuture<AlternativaTrackDTO> getTracking(String username) {
-        var response = restTemplate.getForObject(RATING_URL_TEMPLATE, AlternativaTrackResponseDTO.class, username);
-        if (response != null && OK_RESPONSE.equals(response.getResponseType())) {
-            return CompletableFuture.completedFuture(response.getTrack());
-        } else {
-            return CompletableFuture.failedFuture(new ExternalException("User {} is not found", HttpStatus.NOT_FOUND)
-                    .arg("username", username));
+        try {
+            var response = restTemplate.getForObject(RATING_URL_TEMPLATE, AlternativaTrackResponseDTO.class, username);
+            if (response != null && OK_RESPONSE.equals(response.getResponseType())) {
+                return CompletableFuture.completedFuture(response.getTrack());
+            } else {
+                return CompletableFuture.failedFuture(new AlternativaUserNotFoundException(
+                        String.format("User %s is not found", username)));
+            }
+        } catch (RestClientException e) {
+            if (e instanceof HttpClientErrorException.TooManyRequests) {
+                throw new AlternativaTooManyRequestsException(e);
+            } else {
+                throw new AlternativaServerUnavailableException(e);
+            }
         }
     }
 
@@ -45,7 +57,7 @@ public class AlternativaTrackingServiceImpl implements AlternativaTrackingServic
             restTemplate.getForObject(RATING_URL_TEMPLATE, AlternativaTrackResponseDTO.class, randomUsername);
             return CompletableFuture.completedFuture(null);
         } catch (Exception ex) {
-            return CompletableFuture.failedFuture(ex);
+            return CompletableFuture.failedFuture(new AlternativaException(ex));
         }
     }
 
