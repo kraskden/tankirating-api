@@ -6,9 +6,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
 @Data
+@MappedSuperclass
 @EqualsAndHashCode(callSuper = true)
 public abstract class AuditRecord<I> extends IdRecord<I> {
 

@@ -120,18 +120,24 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     }
 
     private void updateAccounts(Collection<TrackTargetDTO> accounts) {
-        updateAccounts(accounts, 0);
+        AccountsUpdateStat stat = updateAccounts(accounts, 0);
+        log.info("[SLICE] Processed [{}/{}], Failed: {}", stat.getProcessedCount(),
+                stat.getTotalCount(), stat.getRetriedCount());
+        stat.getRetried().forEach(a -> updateAccountStatus(a, FROZEN));
     }
 
-    private void updateAccounts(Collection<TrackTargetDTO> accounts, int retry) {
+    private AccountsUpdateStat updateAccounts(Collection<TrackTargetDTO> accounts, int retry) {
         var stat = updateAccountsAsync(accounts).join();
         log.info("[SLICE] Processed [{}/{}], Retried: {}", stat.getProcessedCount(), stat.getTotalCount(), stat.getRetriedCount());
         if (stat.getRetriedCount() != 0 && retry < maxRetries) {
             var sleepDuration = retryTimeoutPerAccount.multipliedBy(stat.getRetriedCount());
             log.info("Waiting for retry, sleep for {}", sleepDuration);
             sleep(sleepDuration);
-            updateAccounts(stat.getRetried(), retry + 1);
+            var retriedStat = updateAccounts(stat.getRetried(), retry + 1);
+            stat.setRetried(retriedStat.getRetried());
+            stat.setProcessedCount(stat.getProcessedCount() + retriedStat.getProcessedCount());
         }
+        return stat;
     }
 
     private CompletableFuture<AccountsUpdateStat> updateAccountsAsync(Collection<TrackTargetDTO> accounts) {
@@ -167,6 +173,12 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                     }
 
                     Throwable cause = ex.getCause();
+                    if (cause instanceof AlternativaTooManyRequestsException) {
+                        log.info("[{}] Too many requests due updating {}", account.getId(),
+                                account.getName());
+                        return AccountUpdateResult.retrying(account);
+                    }
+
                     if (cause instanceof AlternativaException ||
                             cause instanceof InvalidTrackDataException) {
                         log.warn("[{}] Exception due updating {}: {}", account.getId(),
@@ -179,9 +191,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                     TrackTargetStatus status = cause instanceof InvalidTrackDataException ||
                             cause instanceof AlternativaUserNotFoundException ? DISABLED : FROZEN;
                     updateAccountStatus(account, status);
-
-                    return new AccountUpdateResult(account,
-                            !(cause instanceof AlternativaTooManyRequestsException));
+                    return AccountUpdateResult.processed(account);
                 });
     }
 
@@ -189,7 +199,8 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         if (account.getStatus() != newStatus) {
             account.setStatus(newStatus);
             targetService.update(account.getId(), account);
-            log.warn("[{}] Changed account status to {}", account.getId(), account.getStatus());
+            log.warn("[{}] Changed account {} status to {}", account.getId(),
+                    account.getName(), account.getStatus());
         }
     }
 
