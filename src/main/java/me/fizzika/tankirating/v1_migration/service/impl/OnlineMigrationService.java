@@ -51,7 +51,7 @@ public class OnlineMigrationService implements V1MigrationService {
         List<OnlineSnapshotRecord> snapshots = tracking.stream()
                 .map(OnlineDaySchema::getTrack)
                 .flatMap(Collection::stream)
-                .filter(stamp -> stamp.getOnline() >= 0 && stamp.getInbattles() >= 0)
+                .filter(stamp -> stamp.getOnline() > 0 && stamp.getInbattles() > 0)
                 .map(stamp -> new OnlineSnapshotRecord(stamp.getTimestamp(), stamp.getOnline(), stamp.getInbattles()))
                 .collect(Collectors.toList());
 
