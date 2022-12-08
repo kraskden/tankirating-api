@@ -265,10 +265,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
 
     private TrackDiffRecord emptyRecord(Integer targetId, PeriodUnit period, DateRange periodDates) {
         var rec = new TrackDiffRecord();
-        var target = new TrackTargetRecord();
-        target.setId(targetId);
-
-        rec.setTarget(target);
+        rec.setTarget(targetRepository.getReferenceById(targetId));
         rec.setPeriodStart(periodDates.getStart());
         rec.setPeriodEnd(periodDates.getEnd());
         rec.setPeriod(period);

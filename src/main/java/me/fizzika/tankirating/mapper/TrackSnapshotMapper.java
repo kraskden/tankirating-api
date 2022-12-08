@@ -6,6 +6,7 @@ import me.fizzika.tankirating.dto.tracking.TrackingDTO;
 import me.fizzika.tankirating.mapper.prototype.TrackFormatMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
+import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,10 +19,13 @@ public abstract class TrackSnapshotMapper extends TrackFormatMapper<TrackSnapsho
     @Setter(onMethod_ = {@Autowired})
     private TrackRecordMapper trackRecordMapper;
 
-    @Mapping(source = "trackData", target = "trackRecord", qualifiedByName = "toTrackRecord")
-    public abstract TrackSnapshotRecord toRecord(TrackSnapshot snapshot);
+    @Mapping(source = "snapshot.trackData", target = "trackRecord", qualifiedByName = "toTrackRecord")
+    @Mapping(target = "id", ignore = true)
+    public abstract TrackSnapshotRecord toRecord(TrackSnapshot snapshot,
+                                                 TrackTargetRecord target);
 
     @Mapping(source = "trackRecord", target = "trackData")
+    @Mapping(source = "target.id", target = "targetId")
     public abstract TrackSnapshot toSnapshot(TrackSnapshotRecord record);
 
     @Override

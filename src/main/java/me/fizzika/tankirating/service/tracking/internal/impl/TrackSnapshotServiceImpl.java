@@ -3,7 +3,10 @@ package me.fizzika.tankirating.service.tracking.internal.impl;
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.mapper.TrackSnapshotMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
+import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
+import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
+import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.util.Pair;
 import org.springframework.stereotype.Service;
@@ -17,11 +20,14 @@ import java.util.Optional;
 public class TrackSnapshotServiceImpl implements TrackSnapshotService {
 
     private final TrackSnapshotRepository repository;
+    private final TrackTargetRepository targetRepository;
     private final TrackSnapshotMapper snapshotMapper;
 
     @Override
     public long save(TrackSnapshot snapshot) {
-        var rec = repository.save(snapshotMapper.toRecord(snapshot));
+        TrackTargetRecord target = targetRepository.getReferenceById(snapshot.getTargetId());
+        TrackSnapshotRecord rec = snapshotMapper.toRecord(snapshot, target);
+        rec = repository.save(rec);
         return rec.getId();
     }
 
