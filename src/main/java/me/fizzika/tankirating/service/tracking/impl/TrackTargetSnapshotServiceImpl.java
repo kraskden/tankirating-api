@@ -10,6 +10,8 @@ import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackTargetSnapshotService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class TrackTargetSnapshotServiceImpl implements TrackTargetSnapshotService {
@@ -27,6 +29,13 @@ public class TrackTargetSnapshotServiceImpl implements TrackTargetSnapshotServic
     @Override
     public TrackSnapshotDTO getInitSnapshot(Integer targetId, TrackFormat format) {
         return snapshotRepository.getInit(targetId)
+                .map(r -> snapshotMapper.toDTO(r, targetId, format))
+                .orElseThrow(() -> snapshotNotFound(targetId));
+    }
+
+    @Override
+    public TrackSnapshotDTO getSnapshotForDate(Integer targetId, LocalDate date, TrackFormat format) {
+        return snapshotRepository.findByDate(targetId, date)
                 .map(r -> snapshotMapper.toDTO(r, targetId, format))
                 .orElseThrow(() -> snapshotNotFound(targetId));
     }
