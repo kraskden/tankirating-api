@@ -13,7 +13,7 @@
         </encoder>
         <file>logs/tracking/tracking.errors.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>tracking.%d{yyyy-MM-dd}.errors.log</fileNamePattern>
+            <fileNamePattern>logs/tracking/tracking.%d{yyyy-MM-dd}.errors.log</fileNamePattern>
             <cleanHistoryOnStart>false</cleanHistoryOnStart>
             <maxHistory>90</maxHistory>
         </rollingPolicy>
@@ -29,7 +29,7 @@
         </encoder>
         <file>logs/tracking/tracking.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>tracking.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/tracking/tracking.%d{yyyy-MM-dd}.log</fileNamePattern>
             <cleanHistoryOnStart>false</cleanHistoryOnStart>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
@@ -45,7 +45,7 @@
         </encoder>
         <file>logs/online/online.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>online.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/online/online.%d{yyyy-MM-dd}.log</fileNamePattern>
             <cleanHistoryOnStart>false</cleanHistoryOnStart>
             <maxHistory>7</maxHistory>
         </rollingPolicy>

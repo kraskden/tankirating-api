@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.enums;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import me.fizzika.tankirating.model.date.DatePeriod;
 
@@ -12,6 +13,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Schema(type = "String", allowableValues = {
+        "day", "week", "month", "year", "all_time"
+})
 public enum PeriodUnit {
 
     DAY(ChronoUnit.DAYS, PeriodUnit::getDayDiffPeriod),

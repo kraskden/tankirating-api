@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.filter.OnlinePeriodFilter;
 import me.fizzika.tankirating.dto.online.OnlinePcuDTO;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping("/online")
 @RequiredArgsConstructor
 @RestController
+@Tag(name = "Online", description = "Provide online statistics")
 public class OnlineController {
 
     private final OnlineService onlineService;

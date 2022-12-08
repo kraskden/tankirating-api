@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -67,6 +68,12 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
             "where S2.target.id = :targetId" +
             ")")
     Optional<TrackSnapshotRecord> getInit(@Param("targetId") Integer targetId);
+
+    @Query("select S from TrackSnapshotRecord S " +
+            "where S.target.id = :targetId and " +
+            "DATE(S.timestamp) = :date")
+    Optional<TrackSnapshotRecord> findByDate(@Param("targetId") Integer targetId,
+                                             @Param("date") LocalDate date);
 
     @Query(value = "select count(1) from tankirating.snapshot s where s.target_id = :targetId " +
             "and s.timestamp >= :from and s.timestamp < :to and s.has_premium is true", nativeQuery = true)

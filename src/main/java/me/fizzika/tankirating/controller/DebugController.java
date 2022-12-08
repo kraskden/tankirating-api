@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.TrackTargetDTO;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/debug")
 @Slf4j
+@Tag(name = "Debug", description = "API for doing debug stuff")
 public class DebugController {
 
     private final TrackingUpdateService updateService;

@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.v1_migration.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.v1_migration.MigrationRunner;
 import me.fizzika.tankirating.v1_migration.service.impl.AccountMigrationService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Profile("migration")
+@Tag(name = "V1 migration", description = "Migrate data from mongodb")
 @RequestMapping("/migration")
 @RequiredArgsConstructor
 public class MigrationTestController {
