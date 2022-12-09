@@ -281,19 +281,26 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         return res;
     }
 
-    private void fixTrackingSchema(TrackingSchema trackingSchema) {
-        trackingSchema.getSupplies().removeIf(supplySchema -> supplySchema.getName() == null);
-        trackingSchema.getSupplies().add(new TrackSupplySchema(TankiSupply.NUCLEAR.name(), 0));
-        trackingSchema.setTimestamp(trackingSchema.getTimestamp()
+    private void fixTrackingSchema(TrackingSchema schema) {
+        schema.getSupplies().removeIf(supplySchema -> supplySchema.getName() == null);
+        schema.getSupplies().add(new TrackSupplySchema(TankiSupply.NUCLEAR.name(), 0));
+        schema.setTimestamp(schema.getTimestamp()
                 .minus(3, ChronoUnit.HOURS)
                 .plusDays(1)
         );
+        if (schema.getTime() == null) {
+            schema.setTime(0);
+        }
     }
 
     // Some diffs in the V1 system is broken
     // Oh sh, here we go again
     private boolean isValidDiffSchema(TrackingSchema schema) {
-        if (schema.getTime() == null || schema.getActivities() == null || schema.getTime() < 0) {
+        if (schema.getTime() != null && schema.getTime().equals(0)) {
+            return true;
+        }
+
+        if (schema.getActivities() == null || schema.getTime() == null || schema.getTime() < 0) {
             return false;
         }
 
