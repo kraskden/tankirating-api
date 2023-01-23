@@ -39,8 +39,8 @@ public class AccountMigrationService implements V1MigrationService {
             Multi-thread migration loaded all users in less than 1 minute! (46 seconds).
             (All tests are made on Intel i7-9700 (8) @ 4.700GHz)
 
-            One disadvantage: we can't use standard (SERIALIZABLE) transactional with multi-thread migration, thanks to EntityService and
-            it's caching policy. We need transaction with dirty read support to handle this issue.
+            One disadvantage: we can't simple use transaction with multi-thread migration, thanks to EntityService and
+            it's caching policy (that's why we need dirty read)
          */
         var accountMigrationTask = CompletableFuture.allOf(logins.stream()
                 .map(mongoRepository::findAccountDocumentByLogin)
