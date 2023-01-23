@@ -35,7 +35,7 @@ public class AccountMigrationService implements V1MigrationService {
 
         /*
             Fun story: single-thread migration processes 3 users/minute, so that takes more than 1 HOUR to load all V1 users
-            In the same time multi-thread migration processes 283 users/minute, which is more that x9 faster that single-thread approach
+            In the same time multi-thread migration processes 283 users/minute, which is more that x90 times faster that single-thread approach
             Multi-thread migration loaded all users in less than 1 minute! (46 seconds).
             (All tests are made on Intel i7-9700 (8) @ 4.700GHz)
 
