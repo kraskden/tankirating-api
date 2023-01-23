@@ -7,5 +7,3 @@ For client source (React SPA) look at [this](https://github.com/kraskden/tankira
 ## Documentation
 
 API Host: https://tankirating.org/api/
-
-- [Swagger](https://tankirating.org/api/swagger-ui/index.html)
