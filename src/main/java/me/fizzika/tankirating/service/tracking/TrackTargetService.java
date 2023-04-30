@@ -27,6 +27,8 @@ public interface TrackTargetService {
 
     Optional<TrackTargetDTO> getOptionalByName(String name, TrackTargetType type);
 
+    Optional<TrackTargetDTO> getOptionalById(Integer id, TrackTargetType type);
+
     default TrackTargetDTO getByName(String name, TrackTargetType type) {
         return getOptionalByName(name, type)
                 .orElseThrow(() -> new ExternalException(ExceptionType.TRACK_TARGET_NOT_FOUND)

@@ -61,8 +61,8 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     private final Lock lock = new ReentrantLock();
 
     @Override
-    public void updateOne(TrackTargetDTO account) {
-        updateAccountAsync(account).join();
+    public AccountUpdateResult updateOne(TrackTargetDTO account) {
+        return updateAccountAsync(account).join();
     }
 
     @Scheduled(cron = "${app.cron.update-all}")

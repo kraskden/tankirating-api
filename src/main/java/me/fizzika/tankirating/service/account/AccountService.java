@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.service.account;
 
+import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.account.AccountAddDTO;
 import me.fizzika.tankirating.dto.account.AccountAddResultDTO;
 import me.fizzika.tankirating.dto.rating.RatingDTO;
@@ -14,4 +15,5 @@ public interface AccountService {
 
     List<AccountAddResultDTO> addAccounts(AccountAddDTO addDTO);
 
+    TrackTargetDTO activate(Integer id);
 }

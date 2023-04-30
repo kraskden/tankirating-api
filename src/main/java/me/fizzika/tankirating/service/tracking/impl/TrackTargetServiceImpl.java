@@ -71,6 +71,12 @@ public class TrackTargetServiceImpl implements TrackTargetService {
     }
 
     @Override
+    public Optional<TrackTargetDTO> getOptionalById(Integer id, TrackTargetType type) {
+        return repository.findByIdAndType(id, type)
+                .map(mapper::toDto);
+    }
+
+    @Override
     public List<TrackTargetDTO> findAll(TrackTargetFilter filter, Sort sort) {
         return repository.findAll(specificationBuilder.filterToSpec(filter), sort).stream()
                 .map(mapper::toDto)

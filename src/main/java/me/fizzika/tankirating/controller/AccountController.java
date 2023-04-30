@@ -2,6 +2,7 @@ package me.fizzika.tankirating.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import me.fizzika.tankirating.dto.TrackTargetDTO;
 import me.fizzika.tankirating.dto.account.AccountAddDTO;
 import me.fizzika.tankirating.dto.account.AccountAddResultDTO;
 import me.fizzika.tankirating.dto.rating.RatingDTO;
@@ -10,6 +11,7 @@ import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.service.account.AccountService;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,8 +34,15 @@ public class AccountController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('CAPTCHA')")
     public List<AccountAddResultDTO> addUsers(@RequestBody @Valid AccountAddDTO addDTO) {
         return accountService.addAccounts(addDTO);
+    }
+
+    @PostMapping("/{id}/activate")
+    @PreAuthorize("hasAuthority('CAPTCHA')")
+    public TrackTargetDTO activate(@PathVariable Integer id) {
+        return accountService.activate(id);
     }
 
 }

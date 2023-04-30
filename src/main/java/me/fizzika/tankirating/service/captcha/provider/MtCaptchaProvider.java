@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @Component
 @RequiredArgsConstructor
 public class MtCaptchaProvider implements CaptchaProvider {
@@ -21,6 +23,10 @@ public class MtCaptchaProvider implements CaptchaProvider {
 
     @Override
     public boolean validate(String captcha) {
+        if (isBlank(captcha)) {
+            return false;
+        }
+
         var response = restTemplate.getForObject(URL_TEMPLATE, MtCaptchaResponseDTO.class,
                 privateKey, captcha);
         return response != null && response.isSuccess();

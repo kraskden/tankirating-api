@@ -12,7 +12,4 @@ public class AccountAddDTO {
     @Size(min = 1, max = 10)
     private List<String> nicknames;
 
-    @NotBlank
-    private String captcha;
-
 }

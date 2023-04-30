@@ -16,6 +16,7 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
         JpaSpecificationExecutor<TrackTargetRecord> {
 
     Optional<TrackTargetRecord> findByNameIgnoreCaseAndType(String name, TrackTargetType type);
+    Optional<TrackTargetRecord> findByIdAndType(Integer id, TrackTargetType type);
 
     boolean existsByNameIgnoreCaseAndType(String name, TrackTargetType type);
 
