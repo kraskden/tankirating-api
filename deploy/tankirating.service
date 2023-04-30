@@ -1,0 +1,12 @@
+[Unit]
+Description=TankiRating v2 REST API
+After=network.target
+
+[Service]
+User=denis
+WorkingDirectory=/home/denis/tankirating-v2/api
+ExecStart=java -XX:+UseSerialGC -Xss512k -XX:MaxRAM=1700m -Dspring.profiles.active=prod -jar tankirating.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
