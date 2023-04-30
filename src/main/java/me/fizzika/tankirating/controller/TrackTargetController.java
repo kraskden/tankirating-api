@@ -23,11 +23,6 @@ public class TrackTargetController {
 
     private final TrackTargetService trackTargetService;
 
-    @PostMapping
-    public TrackTargetDTO addAccount(@Validated(Create.class) @Valid @RequestBody TrackTargetDTO accountDTO) {
-        return trackTargetService.create(accountDTO.getName(), TrackTargetType.ACCOUNT);
-    }
-
     @GetMapping("/{name}")
     public TrackTargetDTO getTarget(@PathVariable String name, @RequestParam(defaultValue = "ACCOUNT")
             TrackTargetType targetType) {

@@ -17,12 +17,11 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI api() {
-        var api = new OpenAPI()
+        return new OpenAPI()
                 .info(new Info().title("TankiRating API")
                         .description(DESCRIPTION)
                         .version("v2.0")
                 );
-        return api;
     }
 
 }
