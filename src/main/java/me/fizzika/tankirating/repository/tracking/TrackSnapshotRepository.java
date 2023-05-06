@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -74,6 +75,13 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
             "DATE(S.timestamp) = :date")
     Optional<TrackSnapshotRecord> findByDate(@Param("targetId") Integer targetId,
                                              @Param("date") LocalDate date);
+
+    @Query("select S from TrackSnapshotRecord S " +
+            "where S.target.id = :targetId and " +
+            "DATE(S.timestamp) between :from and :to")
+    List<TrackSnapshotRecord> findAllByDate(@Param("targetId") Integer targetId,
+                                            @Param("from") LocalDate from,
+                                            @Param("to") LocalDate to);
 
     @Query(value = "select count(1) from tankirating.snapshot s where s.target_id = :targetId " +
             "and s.timestamp >= :from and s.timestamp < :to and s.has_premium is true", nativeQuery = true)

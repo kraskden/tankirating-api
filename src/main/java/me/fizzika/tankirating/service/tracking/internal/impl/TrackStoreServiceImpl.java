@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.SnapshotState;
 import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.exceptions.tracking.InvalidDiffException;
@@ -21,7 +22,6 @@ import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.model.track_data.TrackPlayData;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
-import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
@@ -70,11 +70,12 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         LocalDateTime now = LocalDateTime.now();
 
         // Save current snapshot
-        updateSnapshots(targetId, now, currentData, hasPremium);
+        SnapshotState snapshotState = createOrUpdateSnapshot(targetId, now, currentData, hasPremium);
 
-        // Update diff for each period
-        for (PeriodUnit diffPeriod : PeriodUnit.values()) {
-            updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
+        updateDiffs(targetId, now, currentData, hasPremium);
+        if (snapshotState == SnapshotState.CREATED) {
+            LocalDateTime prevDayTime = now.truncatedTo(ChronoUnit.DAYS).minusSeconds(1);
+            updateDiffs(targetId, prevDayTime, currentData, hasPremium);
         }
     }
 
@@ -87,6 +88,12 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
     }
 
+    private void updateDiffs(Integer targetId, LocalDateTime now, TrackFullData currentData, boolean hasPremium) {
+        for (PeriodUnit diffPeriod : PeriodUnit.values()) {
+            updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
+        }
+    }
+
     /**
      * Create or Update *HEAD* and *DAY_START* snapshots.
      * <br/>
@@ -95,7 +102,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
      * <br/>
      * DAY_START snapshot it is the first snapshot in the day
      */
-    private void updateSnapshots(Integer targetId, LocalDateTime now, TrackFullData data, boolean hasPremium) {
+    private SnapshotState createOrUpdateSnapshot(Integer targetId, LocalDateTime now, TrackFullData data, boolean hasPremium) {
         LocalDateTime dayStart = now.truncatedTo(ChronoUnit.DAYS);
 
         if (snapshotService.exists(targetId, dayStart)) {
@@ -108,8 +115,10 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 long id = snapshotService.save(new TrackSnapshot(targetId, now, data, hasPremium));
                 log.debug("[{}] Head snapshot isn't exists, create it (id={})", targetId, id);
             }
+            return SnapshotState.UPDATED;
         } else {
             createDaySnapshot(targetId, dayStart, data, hasPremium);
+            return SnapshotState.CREATED;
         }
     }
 

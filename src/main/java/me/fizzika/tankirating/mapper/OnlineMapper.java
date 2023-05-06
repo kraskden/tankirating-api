@@ -21,6 +21,7 @@ public abstract class OnlineMapper {
 
     public abstract OnlineSnapshotDTO toDto(OnlineSnapshotRecord record);
 
+
     public abstract OnlinePcuDTO toDto(OnlinePcuRecord record);
 
     protected abstract OnlineData toData(AlternativaOnlineNode node);

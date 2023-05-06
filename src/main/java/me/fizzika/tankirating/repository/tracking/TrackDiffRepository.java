@@ -49,6 +49,8 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
                 findAllBaseDiffsForPeriod(targetId, period, from, to, sort);
     }
 
+    List<TrackDiffRecord> findAllByTargetIdAndPeriod(Integer targetId, PeriodUnit period);
+
     @Query(value = "select D from TrackDiffRecord D " +
             "left join fetch D.trackRecord " +
             "where D.target.id = :targetId " +
