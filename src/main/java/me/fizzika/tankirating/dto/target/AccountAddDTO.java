@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.dto.account;
+package me.fizzika.tankirating.dto.target;
 
 import lombok.Data;
 

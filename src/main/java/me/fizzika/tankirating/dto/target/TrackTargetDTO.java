@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.dto;
+package me.fizzika.tankirating.dto.target;
 
 import lombok.Data;
 import me.fizzika.tankirating.enums.track.TrackTargetStatus;

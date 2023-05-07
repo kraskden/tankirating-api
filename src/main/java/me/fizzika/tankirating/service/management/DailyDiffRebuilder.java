@@ -1,7 +1,7 @@
 package me.fizzika.tankirating.service.management;
 
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.dto.management.TrackRebuildParams;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackRecordMapper;
@@ -13,7 +13,7 @@ import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
-import me.fizzika.tankirating.service.tracking.TrackTargetService;
+import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
@@ -24,7 +24,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 

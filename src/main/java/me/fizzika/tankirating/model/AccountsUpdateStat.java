@@ -1,9 +1,8 @@
 package me.fizzika.tankirating.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 
 import java.util.ArrayList;
 import java.util.List;

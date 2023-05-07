@@ -2,7 +2,7 @@ package me.fizzika.tankirating.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 
 @Data
 @AllArgsConstructor

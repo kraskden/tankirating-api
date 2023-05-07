@@ -1,8 +1,8 @@
-package me.fizzika.tankirating.service.tracking.impl;
+package me.fizzika.tankirating.service.tracking.target.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.track.GroupMeta;
@@ -13,7 +13,7 @@ import me.fizzika.tankirating.mapper.TrackTargetMapper;
 import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
-import me.fizzika.tankirating.service.tracking.TrackTargetService;
+import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import me.fizzika.tankirating.v1_migration.repository.specification_builder.impl.TrackTargetSpecificationBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

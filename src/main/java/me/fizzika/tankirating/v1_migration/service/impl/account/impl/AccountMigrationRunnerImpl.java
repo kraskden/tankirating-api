@@ -2,7 +2,7 @@ package me.fizzika.tankirating.v1_migration.service.impl.account.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.enums.track.TrackTargetStatus;
@@ -17,7 +17,7 @@ import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
-import me.fizzika.tankirating.service.tracking.TrackTargetService;
+import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.v1_migration.mapper.TrackingSchemaMapper;
 import me.fizzika.tankirating.v1_migration.record.tracking.AccountDocument;

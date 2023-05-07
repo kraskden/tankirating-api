@@ -1,6 +1,6 @@
 package me.fizzika.tankirating.mapper;
 
-import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

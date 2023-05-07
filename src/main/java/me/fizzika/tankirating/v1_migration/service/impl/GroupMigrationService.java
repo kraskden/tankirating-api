@@ -6,7 +6,7 @@ import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
-import me.fizzika.tankirating.service.tracking.TrackTargetService;
+import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.v1_migration.service.V1MigrationService;
 import org.springframework.context.annotation.Profile;

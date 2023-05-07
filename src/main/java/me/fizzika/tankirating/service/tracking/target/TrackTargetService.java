@@ -1,9 +1,8 @@
-package me.fizzika.tankirating.service.tracking;
+package me.fizzika.tankirating.service.tracking.target;
 
-import me.fizzika.tankirating.dto.TrackTargetDTO;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.ExceptionType;
-import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.model.TrackGroup;
