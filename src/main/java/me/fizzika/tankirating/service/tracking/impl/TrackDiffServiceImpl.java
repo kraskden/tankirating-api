@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.filter.TrackDatesFilter;
 import me.fizzika.tankirating.dto.filter.TrackDiffFilter;
 import me.fizzika.tankirating.dto.filter.TrackOffsetFilter;
+import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
+import me.fizzika.tankirating.dto.tracking.TrackingDTO;
 import me.fizzika.tankirating.enums.ExceptionType;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackFormat;
@@ -25,7 +27,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static me.fizzika.tankirating.enums.track.TrackFormat.FULL;
 
 @Service
 @RequiredArgsConstructor
@@ -107,12 +112,31 @@ public class TrackDiffServiceImpl implements TrackDiffService {
         DatePeriod periodDates = period.getDatePeriod(LocalDateTime.now())
                 .sub(offset);
 
-        return diffRepository.findDiffForPeriod(targetId, period, periodDates.getStart())
+        TrackDiffDTO foundDiff = diffRepository.findDiffForPeriod(targetId, period, periodDates.getStart())
                 .map(r -> diffMapper.toDTO(r, targetId, format))
                 .orElseThrow(() -> trackDiffNotFound(targetId)
                         .arg("periodStart", periodDates.getStart())
                         .arg("periodEnd", periodDates.getEnd())
                 );
+
+        // Full track information may be erased by database sanitizer
+        if (format == FULL && missedFullInfo(foundDiff)) {
+            TrackDatesFilter datesFilter = new TrackDatesFilter(periodDates.getStart().toLocalDate(),
+                    periodDates.getEnd().toLocalDate());
+            return calculateDiffBetweenDates(targetId, datesFilter);
+        } else {
+            return foundDiff;
+        }
+
+    }
+
+    private boolean missedFullInfo(TrackDiffDTO foundDiff) {
+        return Optional.ofNullable(foundDiff.getTracking())
+                .map(TrackingDTO::getActivities)
+                .map(TrackActivitiesDTO::getModes)
+                .map(List::size)
+                .filter(x -> x > 0)
+                .isEmpty();
     }
 
     private ExternalException trackDiffNotFound(Integer targetId) {

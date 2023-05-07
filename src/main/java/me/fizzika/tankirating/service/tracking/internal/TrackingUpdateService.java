@@ -7,6 +7,7 @@ public interface TrackingUpdateService {
 
     AccountUpdateResult updateOne(TrackTargetDTO account);
 
-    void updateAll();
+    void updateAllActive();
 
+    void updateAllFrozenAndSleep();
 }

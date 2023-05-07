@@ -10,6 +10,7 @@ import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.FrozenAccountsSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.HeadSnapshotSanitizer;
+import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,7 @@ public class DebugController {
     private final TrackTargetService targetService;
     private final HeadSnapshotSanitizer headSnapshotSanitizer;
     private final FrozenAccountsSanitizer frozenAccountsSanitizer;
+    private final SleepAccountsSanitizer sleepAccountsSanitizer;
 
     @PostMapping("/update/{account}")
     public void updateOne(@PathVariable String account) {
@@ -36,9 +38,14 @@ public class DebugController {
         updateService.updateOne(target);
     }
 
-    @PostMapping("/update/all")
-    public void updateAll() {
-        updateService.updateAll();
+    @PostMapping("/update/active")
+    public void updateActive() {
+        updateService.updateAllActive();
+    }
+
+    @PostMapping("/update/sleep")
+    public void updateSleepAndFrozen() {
+        updateService.updateAllFrozenAndSleep();
     }
 
     @PostMapping("/update/online")
@@ -56,4 +63,8 @@ public class DebugController {
         frozenAccountsSanitizer.sanitize();
     }
 
+    @PostMapping("/sanitizer/sleep")
+    public void sleepSanitizer() {
+        sleepAccountsSanitizer.sanitize();
+    }
 }

@@ -19,6 +19,7 @@ import me.fizzika.tankirating.service.tracking.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
 import me.fizzika.tankirating.util.Utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
@@ -58,6 +59,8 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     private final TrackTargetService targetService;
     private final TrackStoreService trackStoreService;
 
+    private final SleepAccountsSanitizer sleepAccountsSanitizer;
+
     private final Lock lock = new ReentrantLock();
 
     @Override
@@ -65,13 +68,29 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         return updateAccountAsync(account).join();
     }
 
-    @Scheduled(cron = "${app.cron.update-all}")
+    @Scheduled(cron = "${app.cron.update-active}")
     @Override
-    public void updateAll() {
+    public void updateAllActive() {
+        List<TrackTargetDTO> accounts = getActiveAccounts();
+        log.info("Starting update {} active accounts", accounts.size());
+        doUpdateExclusive(accounts);
+        log.info("Finishing update {} active accounts", accounts.size());
+    }
+
+    @Scheduled(cron = "${app.cron.update-sleep-frozen}")
+    @Override
+    public void updateAllFrozenAndSleep() {
+        List<TrackTargetDTO> accounts = getFrozenAndSleepAccounts();
+        log.info("Starting update {} inactive accounts", accounts.size());
+        doUpdateExclusive(accounts);
+        sleepAccountsSanitizer.sanitize(); // Mark active accounts as sleep
+        log.info("Finishing update {} inactive accounts", accounts.size());
+    }
+
+    private void doUpdateExclusive(List<TrackTargetDTO> accounts) {
         if (lock.tryLock()) {
             try {
-                log.info("Starting accounts update");
-                doUpdate();
+                doUpdate(accounts);
             } finally {
                 lock.unlock();
             }
@@ -80,7 +99,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         }
     }
 
-    private void doUpdate() {
+    private void doUpdate(List<TrackTargetDTO> accounts) {
         log.info("Updating parameters: buffer={}, timeout={}s", accountBufferSize,
                 accountBufferTimeout.toSeconds());
 
@@ -91,8 +110,6 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
             log.error("Skipping accounts updating");
             return;
         }
-
-        List<TrackTargetDTO> accounts = getAccounts();
 
         long total = accounts.size();
         long processed = 0;
@@ -197,19 +214,32 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     private void updateAccountStatus(TrackTargetDTO account, TrackTargetStatus newStatus) {
         if (account.getStatus() != newStatus) {
+            TrackTargetStatus oldStatus = account.getStatus();
             account.setStatus(newStatus);
             targetService.update(account.getId(), account);
-            log.warn("[{}] Changed account {} status to {}", account.getId(),
-                    account.getName(), account.getStatus());
+            if (oldStatus == SLEEP && newStatus == ACTIVE) {
+                return;
+            }
+            log.warn("[{}] Changed account {} status from {} to {}", account.getId(),
+                    account.getName(), oldStatus, account.getStatus());
         }
     }
 
-    private List<TrackTargetDTO> getAccounts() {
+    private List<TrackTargetDTO> getActiveAccounts() {
         TrackTargetFilter filter = new TrackTargetFilter();
         filter.setTargetType(TrackTargetType.ACCOUNT);
 
-        // Don't try to update DISABLED accounts
-        filter.setStatuses(List.of(ACTIVE, FROZEN));
+        filter.setStatuses(List.of(ACTIVE));
+        Sort sort = Sort.by("id");
+
+        return targetService.findAll(filter, sort);
+    }
+
+    private List<TrackTargetDTO> getFrozenAndSleepAccounts() {
+        TrackTargetFilter filter = new TrackTargetFilter();
+        filter.setTargetType(TrackTargetType.ACCOUNT);
+
+        filter.setStatuses(List.of(SLEEP, FROZEN));
         Sort sort = Sort.by("id");
 
         return targetService.findAll(filter, sort);

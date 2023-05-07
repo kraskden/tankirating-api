@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.repository.tracking;
 
+import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,16 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
             "(select 1 from \"snapshot\" s where s.target_id = t.id and s.\"timestamp\" > :updateDate);", nativeQuery = true)
     void markFrozenAccountsAsBlocked(@Param("updateDate") LocalDateTime minLastUpdateDate);
 
+    @Modifying
+    @Query(value = "update target t set status = 'SLEEP' " +
+            "where t.status = 'ACTIVE' " +
+            "and not exists(select 1 from \"diff\" d " +
+                "where d.period_start >= :minActivityDate " +
+                "and d.period = 'DAY' " +
+                "and d.target_id = t.id " +
+                "and d.track_id is not null) ",
+            nativeQuery = true)
+    void markActiveAccountsAsSleep(LocalDateTime minActivityDate);
+
+    int countByStatus(TrackTargetStatus status);
 }
