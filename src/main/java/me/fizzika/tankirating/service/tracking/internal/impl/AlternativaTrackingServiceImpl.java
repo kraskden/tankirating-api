@@ -29,7 +29,7 @@ public class AlternativaTrackingServiceImpl implements AlternativaTrackingServic
 
     private final RestTemplate restTemplate;
 
-    @Async
+    @Async("apiTaskExecutor")
     @Override
     public CompletableFuture<AlternativaTrackDTO> getTracking(String username) {
         try {
@@ -50,7 +50,7 @@ public class AlternativaTrackingServiceImpl implements AlternativaTrackingServic
     }
 
     @Override
-    @Async
+    @Async("apiTaskExecutor")
     public CompletableFuture<Void> healthCheck() {
         try {
             String randomUsername = UUID.randomUUID().toString();
