@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .cors().and().csrf().disable()
                 .authorizeRequests()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .addFilterBefore(captchaFilter, AnonymousAuthenticationFilter.class)
                 .sessionManagement()

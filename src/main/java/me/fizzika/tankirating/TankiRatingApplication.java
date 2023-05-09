@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaRepositories(basePackages = "me.fizzika.tankirating.repository")
 @EnableMongoRepositories(basePackages = "me.fizzika.tankirating.v1_migration.repository")
 @EnableScheduling
+@EnableAsync
 public class TankiRatingApplication {
 
 	public static void main(String[] args) {

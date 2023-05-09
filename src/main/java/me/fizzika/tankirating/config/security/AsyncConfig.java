@@ -3,27 +3,36 @@ package me.fizzika.tankirating.config.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.time.Duration;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Configuration
-@EnableAsync
 public class AsyncConfig {
 
     @Value("${app.pool.api.max-threads}")
     private Integer maxApiPoolSize;
+    @Value("${app.pool.migration.max-threads}")
+    private Integer maxMigrationPoolSize;
 
     @Value("${app.pool.api.tll}")
     private Duration apiTtl;
+    @Value("${app.pool.migration.ttl}")
+    private Duration migrationTtl;
 
     @Bean("apiTaskExecutor")
     public Executor apiTaskExecutor() {
-        return new ThreadPoolExecutor(0, maxApiPoolSize, apiTtl.toSeconds(),
+        var executor = new ThreadPoolExecutor(maxApiPoolSize, maxApiPoolSize, apiTtl.toSeconds(),
                 TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        executor.allowCoreThreadTimeOut(true);
+        return executor;
+    }
+
+    @Bean("migrationTaskExecutor")
+    public Executor migrationTaskExecutor() {
+        var executor = new ThreadPoolExecutor(maxMigrationPoolSize, maxMigrationPoolSize, migrationTtl.toSeconds(),
+                TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        executor.allowCoreThreadTimeOut(true);
+        return executor;
     }
 }

@@ -66,11 +66,12 @@ public class DailyDiffRebuilder {
                 .map(acc -> self.rebuildDailyDiffs(acc, rebuildParams.getFrom(), rebuildParams.getTo()))
                 .toArray(CompletableFuture[]::new);
 
+        log.info("All tasks are started");
         CompletableFuture.allOf(tasks)
                 .join();
     }
 
-    @Async
+    @Async("migrationTaskExecutor")
     @Transactional
     public CompletableFuture<Void> rebuildDailyDiffs(TrackTargetDTO trackTargetDTO, LocalDate from, LocalDate to) {
         Integer targetId = trackTargetDTO.getId();
@@ -108,6 +109,8 @@ public class DailyDiffRebuilder {
         if (rebuilded > 0) {
             log.warn("Rebuild {} broken diff for user {}", rebuilded,
                     trackTargetDTO.getName());
+        } else {
+            log.info("Skip {}", trackTargetDTO.getName());
         }
         return completedFuture(null);
     }

@@ -55,7 +55,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
     private final TrackDiffRepository diffRepository;
 
     @Override
-    @Async
+    @Async("migrationTaskExecutor")
     public CompletableFuture<Void> migrateAccountAsync(AccountDocument account) {
         String login = account.getLogin();
         log.info("Starting migration for {}", login);
