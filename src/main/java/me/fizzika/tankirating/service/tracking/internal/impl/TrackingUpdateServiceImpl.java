@@ -217,6 +217,9 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
             TrackTargetStatus oldStatus = account.getStatus();
             account.setStatus(newStatus);
             targetService.update(account.getId(), account);
+            if (oldStatus == SLEEP && newStatus == ACTIVE) {
+                return;
+            }
             log.warn("[{}] Changed account {} status from {} to {}", account.getId(),
                     account.getName(), oldStatus, account.getStatus());
         }

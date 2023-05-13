@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import me.fizzika.tankirating.dto.management.TrackRebuildParams;
 import me.fizzika.tankirating.service.management.DailyDiffRebuilder;
@@ -11,11 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @Tag(name = "Management", description = "Admin panel for TankiRating.org")
 @RequestMapping("/management")
 @PreAuthorize("hasRole('ADMIN')")
+@SecurityRequirement(name = "auth")
 public class ManagementController {
 
     @Resource
@@ -24,5 +27,10 @@ public class ManagementController {
     @PostMapping("/rebuildDailyDiff")
     public void jobRunner(@RequestBody @Valid TrackRebuildParams rebuildParams) {
         dailyDiffRebuilder.rebuildDailyDiffs(rebuildParams);
+    }
+
+    @PostMapping("/ping")
+    public String test(Principal principal) {
+        return String.format("Hello, %s, I'm up and running", principal.getName());
     }
 }
