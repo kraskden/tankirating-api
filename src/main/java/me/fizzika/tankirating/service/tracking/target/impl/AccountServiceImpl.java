@@ -2,6 +2,7 @@ package me.fizzika.tankirating.service.tracking.target.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.fizzika.tankirating.dto.target.AccountUpdateResultDTO;
 import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.dto.target.AccountAddDTO;
 import me.fizzika.tankirating.dto.target.AccountAddResultDTO;
@@ -13,7 +14,9 @@ import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.exceptions.alternativa.AlternativaUserNotFoundException;
 import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
+import me.fizzika.tankirating.mapper.TrackTargetMapper;
 import me.fizzika.tankirating.model.AccountData;
+import me.fizzika.tankirating.model.AccountUpdateResult;
 import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
@@ -42,6 +45,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final TrackTargetRepository trackTargetRepository;
     private final TrackTargetService trackTargetService;
+    private final TrackTargetMapper trackTargetMapper;
 
     private final AlternativaTrackingService alternativaTrackingService;
     private final TrackStoreService trackStoreService;
@@ -72,6 +76,14 @@ public class AccountServiceImpl implements AccountService {
         TrackTargetDTO trackTargetDTO = trackTargetService.getOptionalById(id, ACCOUNT)
                 .orElseThrow(() -> new ExternalException(TRACK_TARGET_NOT_FOUND));
         return trackingUpdateService.updateOne(trackTargetDTO).getAccount();
+    }
+
+    @Override
+    public AccountUpdateResultDTO update(Integer id) {
+        TrackTargetDTO trackTargetDTO = trackTargetService.getOptionalById(id, ACCOUNT)
+                .orElseThrow(() -> new ExternalException(TRACK_TARGET_NOT_FOUND));
+        AccountUpdateResult updateResult = trackingUpdateService.updateOne(trackTargetDTO);
+        return trackTargetMapper.toDto(updateResult);
     }
 
     private AccountAddStatus addAccount(String nickname, Set<String> existing) {
