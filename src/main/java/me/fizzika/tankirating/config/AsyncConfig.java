@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.config.security;
+package me.fizzika.tankirating.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
