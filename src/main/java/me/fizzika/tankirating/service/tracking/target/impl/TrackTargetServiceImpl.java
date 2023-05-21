@@ -48,6 +48,16 @@ public class TrackTargetServiceImpl implements TrackTargetService {
     }
 
     @Override
+    public List<TrackTargetDTO> getAllAccounts(List<String> nicknames) {
+        List<String> nicknamesInLowerCase = nicknames.stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+        return repository.findAllAccountsByNicknamesInLowerCase(nicknamesInLowerCase).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<TrackGroup> getAllGroups() {
         return getAll(TrackTargetType.GROUP).stream()
                 .map(this::toTrackGroup)

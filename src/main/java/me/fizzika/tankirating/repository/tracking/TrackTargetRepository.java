@@ -29,6 +29,9 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
 
     List<TrackTargetRecord> findAllByType(TrackTargetType type);
 
+    @Query("from TrackTargetRecord R where R.type = 'ACCOUNT' and lower(R.name) in :nicknames")
+    List<TrackTargetRecord> findAllAccountsByNicknamesInLowerCase(Collection<String> nicknames);
+
     @Modifying
     @Query(value = "update target t set status = 'DISABLED' " +
             "where t.status = 'FROZEN' " +

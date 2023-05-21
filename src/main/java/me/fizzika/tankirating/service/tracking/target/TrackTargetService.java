@@ -20,6 +20,8 @@ public interface TrackTargetService {
 
     List<TrackTargetDTO> getAll(TrackTargetType type);
 
+    List<TrackTargetDTO> getAllAccounts(List<String> nicknames);
+
     List<TrackGroup> getAllGroups();
 
     Map<TrackTargetType, List<TrackTargetDTO>> getAllTargetsMap();
@@ -45,5 +47,4 @@ public interface TrackTargetService {
     TrackTargetDTO create(String name, TrackTargetType type);
 
     TrackTargetDTO update(Integer id, TrackTargetDTO updated);
-
 }
