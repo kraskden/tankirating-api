@@ -36,20 +36,20 @@ public class AccountController {
     }
 
     @PostMapping
-    @Secured({"CAPTCHA", "ROLE_ADMIN"})
+    @PreAuthorize("hasAnyAuthority('CAPTCHA', 'ROLE_ADMIN')")
     public List<AccountAddResultDTO> addUsers(@RequestBody @Valid AccountAddDTO addDTO) {
         return accountService.addAccounts(addDTO);
     }
 
     @PostMapping("/{id}/activate")
-    @Secured({"CAPTCHA", "ROLE_ADMIN"})
+    @PreAuthorize("hasAnyAuthority('CAPTCHA', 'ROLE_ADMIN')")
     public TrackTargetDTO activate(@PathVariable Integer id) {
         return accountService.activate(id);
     }
 
     @PostMapping("/{id}/update")
-    @Secured({"CAPTCHA", "ROLE_ADMIN"})
-    public AccountUpdateResultDTO update(@PathVariable Integer id) {
-        return accountService.update(id);
+    @PreAuthorize("hasAnyAuthority('CAPTCHA', 'ROLE_ADMIN')")
+    public TrackTargetDTO update(@PathVariable Integer id) {
+        return accountService.update(id).getAccount();
     }
 }

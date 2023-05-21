@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.fizzika.tankirating.exceptions.ExternalException;
@@ -22,6 +23,12 @@ public class ExceptionDTO {
         name = ex.getName();
         status = ex.getHttpStatus();
         args = ex.getArgs();
+    }
+
+    public ExceptionDTO(HttpStatus status, String message) {
+        name = status.name();
+        this.message = message;
+        this.status = status;
     }
 
     public int getCode() {
