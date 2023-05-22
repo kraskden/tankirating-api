@@ -11,10 +11,9 @@ public abstract class AlternativaTrackEntity {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof AlternativaTrackEntity)) {
+        if (!(obj instanceof AlternativaTrackEntity o)) {
             return false;
         }
-        AlternativaTrackEntity o = (AlternativaTrackEntity) obj;
         return this.getName().equals(o.getName());
     }
 

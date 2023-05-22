@@ -18,7 +18,7 @@ public class VersionServiceImpl implements VersionService {
     @Value("${app.version}")
     private String version;
 
-    @DateTimeFormat(iso = DATE)
+    @DateTimeFormat(iso = DATE_TIME)
     @Value("${app.build-timestamp}")
     private LocalDate buildAt;
 
