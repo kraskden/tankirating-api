@@ -17,6 +17,7 @@
 		<org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
 		<java.version>11</java.version>
 		<springdoc.version>1.6.13</springdoc.version>
+		<maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
 	</properties>
 	<dependencies>
 		<dependency>
