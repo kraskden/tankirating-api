@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.security.Principal;
 
 @RestController
 @Tag(name = "Management", description = "Admin panel for TankiRating.org")
@@ -25,12 +24,7 @@ public class ManagementController {
     private DailyDiffRebuilder dailyDiffRebuilder;
 
     @PostMapping("/rebuildDailyDiff")
-    public void jobRunner(@RequestBody @Valid TrackRebuildParams rebuildParams) {
+    public void rebuildDailyDiff(@RequestBody @Valid TrackRebuildParams rebuildParams) {
         dailyDiffRebuilder.rebuildDailyDiffs(rebuildParams);
-    }
-
-    @PostMapping("/ping")
-    public String test(Principal principal) {
-        return String.format("Hello, %s, I'm up and running", principal.getName());
     }
 }

@@ -1,8 +1,8 @@
 package me.fizzika.tankirating.service.management;
 
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.dto.management.TrackRebuildParams;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.mapper.TrackRecordMapper;
 import me.fizzika.tankirating.model.TrackData;
@@ -23,6 +23,7 @@ import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -62,7 +63,10 @@ public class DailyDiffRebuilder {
     private DailyDiffRebuilder self;
 
     public void rebuildDailyDiffs(TrackRebuildParams rebuildParams) {
-        var tasks = trackTargetService.getAll(ACCOUNT).stream()
+        List<TrackTargetDTO> accounts = rebuildParams.getAccounts().isEmpty() ?
+                trackTargetService.getAll(ACCOUNT) :
+                trackTargetService.getAllAccounts(rebuildParams.getAccounts());
+        var tasks = accounts.stream()
                 .map(acc -> self.rebuildDailyDiffs(acc, rebuildParams.getFrom(), rebuildParams.getTo()))
                 .toArray(CompletableFuture[]::new);
 

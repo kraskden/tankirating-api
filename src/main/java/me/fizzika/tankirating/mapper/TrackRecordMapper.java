@@ -49,18 +49,10 @@ public abstract class TrackRecordMapper {
            TrackActivityDTO activity = toTrackActivityDTO(rec, entity);
 
            switch (entity.getType()) {
-               case HULL:
-                   activities.getHulls().add(activity);
-                   break;
-               case MODE:
-                   activities.getModes().add(activity);
-                   break;
-               case MODULE:
-                   activities.getModules().add(activity);
-                   break;
-               case TURRET:
-                   activities.getTurrets().add(activity);
-                   break;
+               case HULL -> activities.getHulls().add(activity);
+               case MODE -> activities.getModes().add(activity);
+               case MODULE -> activities.getModules().add(activity);
+               case TURRET -> activities.getTurrets().add(activity);
            }
        }
        return activities;

@@ -68,23 +68,32 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         return updateAccountAsync(account).join();
     }
 
-    @Scheduled(cron = "${app.cron.update-active}")
+    @Scheduled(cron = "${app.cron.update-active-frozen}")
     @Override
-    public void updateAllActive() {
-        List<TrackTargetDTO> accounts = getActiveAccounts();
-        log.info("Starting update {} active accounts", accounts.size());
+    public void updateAllActiveAndFrozen() {
+        List<TrackTargetDTO> accounts = getAccounts(ACTIVE, FROZEN);
+        log.info("Starting update {} active and frozen accounts", accounts.size());
         doUpdateExclusive(accounts);
-        log.info("Finishing update {} active accounts", accounts.size());
+        log.info("Finishing update {} active and frozen accounts", accounts.size());
     }
 
     @Scheduled(cron = "${app.cron.update-sleep-frozen}")
     @Override
     public void updateAllFrozenAndSleep() {
-        List<TrackTargetDTO> accounts = getFrozenAndSleepAccounts();
-        log.info("Starting update {} inactive accounts", accounts.size());
+        List<TrackTargetDTO> accounts = getAccounts(SLEEP, FROZEN);
+        log.info("Starting update {} sleep and frozen accounts", accounts.size());
         doUpdateExclusive(accounts);
         sleepAccountsSanitizer.sanitize(); // Mark active accounts as sleep
-        log.info("Finishing update {} inactive accounts", accounts.size());
+        log.info("Finishing update {} sleep and frozen accounts", accounts.size());
+    }
+
+    @Scheduled(cron = "${app.cron.update-frozen}")
+    @Override
+    public void updateFrozen() {
+        List<TrackTargetDTO> accounts = getAccounts(FROZEN);
+        log.info("Starting update {} frozen accounts", accounts.size());
+        doUpdateExclusive(accounts);
+        log.info("Finishing update {} frozen accounts", accounts.size());
     }
 
     private void doUpdateExclusive(List<TrackTargetDTO> accounts) {
@@ -225,21 +234,11 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         }
     }
 
-    private List<TrackTargetDTO> getActiveAccounts() {
+    private List<TrackTargetDTO> getAccounts(TrackTargetStatus... statuses) {
         TrackTargetFilter filter = new TrackTargetFilter();
         filter.setTargetType(TrackTargetType.ACCOUNT);
 
-        filter.setStatuses(List.of(ACTIVE));
-        Sort sort = Sort.by("id");
-
-        return targetService.findAll(filter, sort);
-    }
-
-    private List<TrackTargetDTO> getFrozenAndSleepAccounts() {
-        TrackTargetFilter filter = new TrackTargetFilter();
-        filter.setTargetType(TrackTargetType.ACCOUNT);
-
-        filter.setStatuses(List.of(SLEEP, FROZEN));
+        filter.setStatuses(List.of(statuses));
         Sort sort = Sort.by("id");
 
         return targetService.findAll(filter, sort);

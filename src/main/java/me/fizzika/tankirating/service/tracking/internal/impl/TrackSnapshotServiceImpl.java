@@ -5,6 +5,7 @@ import me.fizzika.tankirating.mapper.TrackSnapshotMapper;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
+import me.fizzika.tankirating.repository.tracking.TrackRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,6 +23,8 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
 
     private final TrackSnapshotRepository repository;
     private final TrackTargetRepository targetRepository;
+    private final TrackRepository trackRepository;
+
     private final TrackSnapshotMapper snapshotMapper;
 
     @Override
@@ -56,8 +60,10 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     }
 
     @Override
-    public int deleteAllInRange(LocalDateTime from, LocalDateTime to) {
-        return repository.deleteByTimestampBetween(from, to);
+    public int deleteAllInRangeWithTrackData(LocalDateTime from, LocalDateTime to) {
+        List<Long> trackRecordIds = repository.findAllTrackIdsByTimestampBetween(from, to);
+        // Snapshot is deleted by cascade operation
+        trackRepository.deleteAllByIdInBatch(trackRecordIds);
+        return trackRecordIds.size();
     }
-
 }

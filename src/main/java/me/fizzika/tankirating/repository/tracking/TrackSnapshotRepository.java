@@ -19,7 +19,8 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
 
     boolean existsByTargetIdAndTimestamp(Integer targetId, LocalDateTime timestamp);
 
-    int deleteByTimestampBetween(LocalDateTime start, LocalDateTime end);
+    @Query("select S.trackRecord.id from TrackSnapshotRecord S where S.timestamp between :start and :end")
+    List<Long> findAllTrackIdsByTimestampBetween(LocalDateTime start, LocalDateTime end);
 
     Optional<TrackSnapshotRecord> findFirstByTargetIdAndTimestampBetweenOrderByTimestampAsc(Integer targetId,
                                                                                            LocalDateTime from,

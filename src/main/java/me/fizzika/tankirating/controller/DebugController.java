@@ -40,7 +40,7 @@ public class DebugController {
 
     @PostMapping("/update/active")
     public void updateActive() {
-        updateService.updateAllActive();
+        updateService.updateAllActiveAndFrozen();
     }
 
     @PostMapping("/update/sleep")

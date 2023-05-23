@@ -1,8 +1,9 @@
-package me.fizzika.tankirating.config.security;
+package me.fizzika.tankirating.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import java.time.Duration;
 import java.util.concurrent.*;
@@ -25,6 +26,7 @@ public class AsyncConfig {
         var executor = new ThreadPoolExecutor(maxApiPoolSize, maxApiPoolSize, apiTtl.toSeconds(),
                 TimeUnit.SECONDS, new LinkedBlockingQueue<>());
         executor.allowCoreThreadTimeOut(true);
+        executor.setThreadFactory(new CustomizableThreadFactory("api-"));
         return executor;
     }
 
@@ -33,6 +35,7 @@ public class AsyncConfig {
         var executor = new ThreadPoolExecutor(maxMigrationPoolSize, maxMigrationPoolSize, migrationTtl.toSeconds(),
                 TimeUnit.SECONDS, new LinkedBlockingQueue<>());
         executor.allowCoreThreadTimeOut(true);
+        executor.setThreadFactory(new CustomizableThreadFactory("migration-"));
         return executor;
     }
 }
