@@ -83,6 +83,7 @@ public class AccountServiceImpl implements AccountService {
         TrackTargetDTO trackTargetDTO = trackTargetService.getOptionalById(id, ACCOUNT)
                 .orElseThrow(() -> new ExternalException(TRACK_TARGET_NOT_FOUND));
         AccountUpdateResult updateResult = trackingUpdateService.updateOne(trackTargetDTO);
+        log.info("Account {} has been manually updated", trackTargetDTO.getName());
         return trackTargetMapper.toDto(updateResult);
     }
 
