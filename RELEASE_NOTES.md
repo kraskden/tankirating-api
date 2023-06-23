@@ -1,4 +1,4 @@
-## TankiRating 2.2.0
+## TankiRating 2.2.1
 
 ### RU
 
@@ -7,6 +7,7 @@
 * Информация о версии в шапке страницы, плюс ссылка на чейнжлоги
 * Сортировка на главной по-умолчанию киллы/время, а не по уп, кемперы сосатб
 * Время битвы выставлено в 13мин, параметры показываются относительно него
+* (2.2.1) Изменен график обновления. Включены частые обновления FROZEN аккаунтов
 
 ### EN
 
@@ -15,11 +16,13 @@
 * Add version information to the navigation bar
 * Change default sorting in the home page from k/d to k/t. 
 * Adjust parameters to fill 12min battle time
+* (2.2.1) Change update config. Enable frozen account frequently updates
 
 #### Misc
 
 * Swagger api is working now
 * Remove unused data from database, fix bug with snapshot sanitizer
+
 
 ## TankiRating 2.1.0
 
