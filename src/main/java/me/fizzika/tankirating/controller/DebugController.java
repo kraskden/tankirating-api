@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.target.TrackTargetDTO;
+import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.service.online.OnlineUpdateService;
 import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
@@ -37,17 +38,6 @@ public class DebugController {
         TrackTargetDTO target = targetService.getByName(account, TrackTargetType.ACCOUNT);
         updateService.updateOne(target);
     }
-
-    @PostMapping("/update/active")
-    public void updateActive() {
-        updateService.updateAllActiveAndFrozen();
-    }
-
-    @PostMapping("/update/sleep")
-    public void updateSleepAndFrozen() {
-        updateService.updateAllFrozenAndSleep();
-    }
-
     @PostMapping("/update/online")
     public void updateOnline() {
         onlineUpdateService.updateOnline();
