@@ -59,52 +59,27 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
     private final TrackTargetService targetService;
     private final TrackStoreService trackStoreService;
 
-    private final SleepAccountsSanitizer sleepAccountsSanitizer;
-
-    private final Lock lock = new ReentrantLock();
+    private final Map<TrackTargetStatus, Lock> lockMap = new EnumMap<>(TrackTargetStatus.class);
 
     @Override
     public AccountUpdateResult updateOne(TrackTargetDTO account) {
         return updateAccountAsync(account).join();
     }
 
-    @Scheduled(cron = "${app.cron.update-active-frozen}")
     @Override
-    public void updateAllActiveAndFrozen() {
-        List<TrackTargetDTO> accounts = getAccounts(ACTIVE, FROZEN);
-        log.info("Starting update {} active and frozen accounts", accounts.size());
-        doUpdateExclusive(accounts);
-        log.info("Finishing update {} active and frozen accounts", accounts.size());
-    }
-
-    @Scheduled(cron = "${app.cron.update-sleep-frozen}")
-    @Override
-    public void updateAllFrozenAndSleep() {
-        List<TrackTargetDTO> accounts = getAccounts(SLEEP, FROZEN);
-        log.info("Starting update {} sleep and frozen accounts", accounts.size());
-        doUpdateExclusive(accounts);
-        sleepAccountsSanitizer.sanitize(); // Mark active accounts as sleep
-        log.info("Finishing update {} sleep and frozen accounts", accounts.size());
-    }
-
-    @Scheduled(cron = "${app.cron.update-frozen}")
-    @Override
-    public void updateFrozen() {
-        List<TrackTargetDTO> accounts = getAccounts(FROZEN);
-        log.info("Starting update {} frozen accounts", accounts.size());
-        doUpdateExclusive(accounts);
-        log.info("Finishing update {} frozen accounts", accounts.size());
-    }
-
-    private void doUpdateExclusive(List<TrackTargetDTO> accounts) {
-        if (lock.tryLock()) {
-            try {
-                doUpdate(accounts);
-            } finally {
-                lock.unlock();
-            }
-        } else {
-            log.error("Another update is running, skipping");
+    public void updateAll(TrackTargetStatus targetStatus) {
+        lockMap.putIfAbsent(targetStatus, new ReentrantLock());
+        Lock lock = lockMap.get(targetStatus);
+        if (!lock.tryLock()) {
+            log.error("Update {} is running, skipping and exiting", targetStatus);
+        }
+        try {
+            List<TrackTargetDTO> accounts = getAccounts(Set.of(targetStatus));
+            log.info("Start updating {} {} accounts", accounts.size(), targetStatus);
+            doUpdate(accounts);
+            log.info("Finish updating {} {} accounts", accounts.size(), targetStatus);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -234,11 +209,11 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         }
     }
 
-    private List<TrackTargetDTO> getAccounts(TrackTargetStatus... statuses) {
+    private List<TrackTargetDTO> getAccounts(Set<TrackTargetStatus> statuses) {
         TrackTargetFilter filter = new TrackTargetFilter();
         filter.setTargetType(TrackTargetType.ACCOUNT);
 
-        filter.setStatuses(List.of(statuses));
+        filter.setStatuses(statuses);
         Sort sort = Sort.by("id");
 
         return targetService.findAll(filter, sort);

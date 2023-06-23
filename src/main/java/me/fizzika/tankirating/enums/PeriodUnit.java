@@ -2,7 +2,9 @@ package me.fizzika.tankirating.enums;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
+import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.model.date.DatePeriod;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,6 +55,13 @@ public enum PeriodUnit {
 
     public DatePeriod getDatePeriod(LocalDateTime stamp) {
         return periodGenerator.apply(stamp.truncatedTo(ChronoUnit.DAYS));
+    }
+
+    public String getDBTruncatePeriod() {
+        if (this == ALL_TIME) {
+            throw new ExternalException("Invalid truncate period", HttpStatus.BAD_REQUEST);
+        }
+        return name().toLowerCase();
     }
 
     private static DatePeriod getDiffPeriod(LocalDateTime now, ChronoField resetField, ChronoUnit addUnit) {

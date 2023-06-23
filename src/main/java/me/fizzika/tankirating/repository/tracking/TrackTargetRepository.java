@@ -1,5 +1,11 @@
 package me.fizzika.tankirating.repository.tracking;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import me.fizzika.tankirating.dto.management.TargetStatEntryDTO;
 import me.fizzika.tankirating.dto.rating.AccountRatingDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackTargetStatus;
@@ -12,12 +18,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, Integer>,
         JpaSpecificationExecutor<TrackTargetRecord> {
@@ -79,4 +79,8 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
             "and (cast(:to as date) is null or D.periodStart < :to) " +
             "and D.trackRecord is not null")
     long getPlayedCount(Integer minScore, Integer maxScore, LocalDateTime from, LocalDateTime to);
+
+    @Query("select new me.fizzika.tankirating.dto.management.TargetStatEntryDTO(T.status, count(T.id)) from TrackTargetRecord T " +
+            "group by T.status")
+    List<TargetStatEntryDTO> getTargetStat();
 }
