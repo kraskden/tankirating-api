@@ -1,4 +1,4 @@
-## TankiRating 2.2.1
+## TankiRating 2.2.x
 
 ### RU
 
@@ -24,7 +24,7 @@
 * Remove unused data from database, fix bug with snapshot sanitizer
 
 
-## TankiRating 2.1.0
+## TankiRating 2.1.x
 
 ### RU
 
