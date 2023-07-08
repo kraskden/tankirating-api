@@ -8,6 +8,7 @@
 * Сортировка на главной по-умолчанию киллы/время, а не по уп, кемперы сосатб
 * Время битвы выставлено в 13мин, параметры показываются относительно него
 * (2.2.1) Изменен график обновления. Включены частые обновления FROZEN аккаунтов
+* (2.2.2) Пофикшена отрицательная статистика у модулей, спасибо альтернативе за слом счетчика
 
 ### EN
 
@@ -17,6 +18,7 @@
 * Change default sorting in the home page from k/d to k/t. 
 * Adjust parameters to fill 12min battle time
 * (2.2.1) Change update config. Enable frozen account frequently updates
+* (2.2.2) Fixed negative module stat, thanks to alternativa broken ratings
 
 #### Misc
 

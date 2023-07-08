@@ -1,5 +1,10 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
+import static java.util.Collections.unmodifiableSet;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
@@ -102,4 +107,13 @@ public class TrackEntityServiceImpl implements TrackEntityService {
         }
     }
 
+    @Override
+    public Set<String> getNames(TankiEntityType type) {
+        readLock.lock();
+        try {
+            return unmodifiableSet(ENTITY_TYPE_MAP.get(type).keySet());
+        } finally {
+            readLock.unlock();
+        }
+    }
 }

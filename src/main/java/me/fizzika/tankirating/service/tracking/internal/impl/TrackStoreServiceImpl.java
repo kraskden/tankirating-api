@@ -10,7 +10,7 @@ import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.exceptions.tracking.InvalidDiffException;
 import me.fizzika.tankirating.exceptions.tracking.InvalidTrackDataException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
-import me.fizzika.tankirating.model.EntityActivityTrack;
+import me.fizzika.tankirating.model.activity.EntityIdActivityTrack;
 import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.model.TrackSnapshot;
@@ -26,6 +26,7 @@ import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
+import me.fizzika.tankirating.service.tracking.internal.TrackDataDiffService;
 import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
@@ -54,6 +55,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
 
     private final TrackSnapshotService snapshotService;
     private final TrackEntityService entityService;
+    private final TrackDataDiffService dataDiffService;
 
     private final TrackDataMapper dataMapper;
 
@@ -143,7 +145,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
 
         Optional<TrackFullData> periodDiff = baseSnapshot
-                .map(snap -> TrackData.diff(currentData, snap))
+                .map(snap -> dataDiffService.diff(targetId, currentData, snap, diffDates))
                 .filter(TrackFullData::notEmpty);
 
         periodDiff.ifPresent(d -> TrackUtils.validateDiffData(d, diffPeriod.getChronoUnit().getDuration().toSeconds(),
@@ -257,8 +259,8 @@ public class TrackStoreServiceImpl implements TrackStoreService {
             activityMap.put(e, new TrackActivityData());
         }
 
-        List<EntityActivityTrack> activityStat = diffRepository.getActivityStat(diffPeriod, diffDates.getStart(),
-                        group.getMinScore(), group.getMaxScore());
+        List<EntityIdActivityTrack> activityStat = diffRepository.getActivityStat(diffPeriod, diffDates.getStart(),
+                                                                                  group.getMinScore(), group.getMaxScore());
 
         activityStat
                 .forEach(tr -> {

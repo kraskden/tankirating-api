@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.service.tracking.internal;
 
+import java.util.Set;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 
@@ -15,5 +16,7 @@ public interface TrackEntityService {
     TrackEntityDTO get(Short id);
 
     Short getId(String name, TankiEntityType type);
+
+    Set<String> getNames(TankiEntityType type);
 
 }
