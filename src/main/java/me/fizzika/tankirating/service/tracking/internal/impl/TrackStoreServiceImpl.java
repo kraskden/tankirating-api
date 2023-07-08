@@ -1,5 +1,7 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
+import static org.apache.commons.lang3.BooleanUtils.toInteger;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
@@ -31,6 +33,7 @@ import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.util.TrackUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -134,7 +137,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         log.debug("[{}] Dates: {} - {}", targetId, diffDates.getStart(), diffDates.getEnd());
 
         int premiumDays = diffPeriod == PeriodUnit.DAY ?
-                hasPremium ? 1 : 0
+                toInteger(hasPremium)
                 : snapshotRepository.getPremiumDays(targetId, diffDates.getStart(), diffDates.getEnd());
         log.debug("[{}] Premium days: {}", targetId, premiumDays);
 

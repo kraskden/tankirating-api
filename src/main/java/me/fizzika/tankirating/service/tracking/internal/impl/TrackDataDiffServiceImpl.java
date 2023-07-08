@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.model.TrackData;
+import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.activity.EntityNameActivityTrack;
 import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
@@ -28,8 +29,14 @@ public class TrackDataDiffServiceImpl implements TrackDataDiffService {
     private TrackDiffRepository trackDiffRepository;
 
     @Override
-    public TrackFullData diff(Integer targetId, TrackFullData current, TrackFullData snapshot, DatePeriod diffDates) {
-        TrackFullData result = TrackData.diff(current, snapshot);
+    public TrackFullData diff(TrackSnapshot end, TrackSnapshot start) {
+        return diff(start.getTargetId(), end.getTrackData(), start.getTrackData(),
+                    new DatePeriod(start.getTimestamp(), end.getTimestamp(), null));
+    }
+
+    @Override
+    public TrackFullData diff(Integer targetId, TrackFullData endData, TrackFullData startData, DatePeriod diffDates) {
+        TrackFullData result = TrackData.diff(endData, startData);
         // Alternativa broke module stats, so trying to reuse TankiRating power
         if (isNegativeModuleDiff(result)) {
             Map<TankiEntityType, TrackActivityData> activities = result.getActivities();

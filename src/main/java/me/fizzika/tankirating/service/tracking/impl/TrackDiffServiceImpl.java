@@ -19,6 +19,7 @@ import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.TrackDiffService;
+import me.fizzika.tankirating.service.tracking.internal.TrackDataDiffService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.util.Pair;
 import org.springframework.data.domain.Sort;
@@ -42,6 +43,7 @@ public class TrackDiffServiceImpl implements TrackDiffService {
 
     private final TrackSnapshotService trackSnapshotService;
     private final TrackDataMapper trackDataMapper;
+    private final TrackDataDiffService dataDiffService;
 
     private List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, PeriodUnit period, TrackDatesFilter datesFilter) {
         return diffRepository.findAllDiffsForPeriod(targetId, period, datesFilter.getFrom().atStartOfDay(),
@@ -93,9 +95,7 @@ public class TrackDiffServiceImpl implements TrackDiffService {
 
         TrackSnapshot start = borderSnapshots.getFirst();
         TrackSnapshot end = borderSnapshots.getSecond();
-
-        TrackFullData diffData = end.getTrackData();
-        diffData.sub(start.getTrackData());
+        TrackFullData diffData = dataDiffService.diff(end, start);
 
         TrackDiffDTO res = new TrackDiffDTO();
         res.setPeriodStart(from);
@@ -143,5 +143,4 @@ public class TrackDiffServiceImpl implements TrackDiffService {
         return new ExternalException(ExceptionType.TRACK_DIFF_NOT_FOUND)
                 .arg("targetId", targetId);
     }
-
 }
