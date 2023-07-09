@@ -1,11 +1,12 @@
 package me.fizzika.tankirating.repository.tracking;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO;
 import me.fizzika.tankirating.enums.PeriodUnit;
-import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.enums.track.TrackFormat;
 import me.fizzika.tankirating.model.activity.EntityIdActivityTrack;
-import me.fizzika.tankirating.model.activity.EntityNameActivityTrack;
 import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.record.tracking.TrackDiffRecord;
 import org.springframework.data.domain.Sort;
@@ -14,10 +15,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long> {
@@ -88,22 +85,6 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
                                                 @Param("periodStart") LocalDateTime periodStart,
                                                 @Param("minScore") Integer minScore,
                                                 @Param("maxScore") Integer maxScore);
-
-    @Query("select new me.fizzika.tankirating.model.activity.EntityNameActivityTrack(E.name, sum(A.time), sum(A.score)) "
-            + "from TrackDiffRecord D "
-            + "inner join fetch TrackTargetRecord T on D.target = T "
-            + "inner join fetch TrackRecord TR on D.trackRecord = TR "
-            + "inner join fetch TrackActivityRecord A on A.track = TR "
-            + "inner join fetch TrackEntityRecord E on E.id = A.entityId "
-            + "where D.period = 'DAY'"
-            + "and D.periodStart between :from and :to "
-            + "and E.type = :type "
-            + "and T.id = :targetId "
-            + "group by E.name")
-    List<EntityNameActivityTrack> getActivityStatForAccount(@Param("targetId") Integer targetId,
-                                                            @Param("from") LocalDateTime from,
-                                                            @Param("to") LocalDateTime to,
-                                                            @Param("type") TankiEntityType type);
 
     @Query("select new me.fizzika.tankirating.model.date.PeriodDiffDates(D.periodStart, D.periodEnd, min(D.trackStart), max(D.trackEnd)) " +
             "from TrackDiffRecord D " +

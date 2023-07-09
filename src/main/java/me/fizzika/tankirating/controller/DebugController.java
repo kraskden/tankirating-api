@@ -1,28 +1,21 @@
 package me.fizzika.tankirating.controller;
 
-import static me.fizzika.tankirating.enums.track.TankiEntityType.MODULE;
-
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
-import me.fizzika.tankirating.model.activity.EntityNameActivityTrack;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.service.online.OnlineUpdateService;
-import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.FrozenAccountsSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.HeadSnapshotSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
+import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -64,12 +57,5 @@ public class DebugController {
     @PostMapping("/sanitizer/sleep")
     public void sleepSanitizer() {
         sleepAccountsSanitizer.sanitize();
-    }
-
-    @PostMapping("/target/{targetId}/diff/modules")
-    public List<EntityNameActivityTrack> modulesDiff(@PathVariable Integer targetId,
-                                                     @RequestParam LocalDate from,
-                                                     @RequestParam LocalDate to) {
-        return diffRepository.getActivityStatForAccount(targetId, from.atStartOfDay(), to.atStartOfDay(), MODULE);
     }
 }

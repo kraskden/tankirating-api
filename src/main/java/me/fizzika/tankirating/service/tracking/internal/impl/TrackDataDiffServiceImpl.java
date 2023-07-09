@@ -1,32 +1,21 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toMap;
 import static me.fizzika.tankirating.enums.track.TankiEntityType.MODULE;
-import static org.apache.commons.lang3.ObjectUtils.max;
 
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import javax.annotation.Resource;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.model.TrackSnapshot;
-import me.fizzika.tankirating.model.activity.EntityNameActivityTrack;
 import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
-import me.fizzika.tankirating.model.track_data.TrackPlayData;
-import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.service.tracking.internal.TrackDataDiffService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TrackDataDiffServiceImpl implements TrackDataDiffService {
-
-    @Resource
-    private TrackDiffRepository trackDiffRepository;
 
     @Override
     public TrackFullData diff(TrackSnapshot end, TrackSnapshot start) {
@@ -37,24 +26,12 @@ public class TrackDataDiffServiceImpl implements TrackDataDiffService {
     @Override
     public TrackFullData diff(Integer targetId, TrackFullData endData, TrackFullData startData, DatePeriod diffDates) {
         TrackFullData result = TrackData.diff(endData, startData);
-        // Alternativa broke module stats, so trying to reuse TankiRating power
+        // Alternativa broke module stats, so assume that startData = 0
         if (isNegativeModuleDiff(result)) {
             Map<TankiEntityType, TrackActivityData> activities = result.getActivities();
-            if (diffDates.getUnit() == ChronoUnit.DAYS) {
-                Map<String, TrackPlayData> playTracks = activities.get(MODULE).getPlayTracks();
-                playTracks.replaceAll((k, v) -> max(v, new TrackPlayData(0, 0)));
-            } else {
-                activities.put(MODULE, calculateModuleActivities(targetId, diffDates));
-            }
+            activities.put(MODULE, endData.getActivities().get(MODULE));
         }
         return result;
-    }
-
-    private TrackActivityData calculateModuleActivities(Integer targetId, DatePeriod diffDates) {
-        List<EntityNameActivityTrack> activities = trackDiffRepository.getActivityStatForAccount(targetId, diffDates.getStart(), diffDates.getEnd(), MODULE);
-        Map<String, TrackPlayData> activityMap = activities.stream()
-                                                           .collect(toMap(EntityNameActivityTrack::getName, t -> new TrackPlayData(t.getScore(), t.getTime())));
-        return new TrackActivityData(activityMap);
     }
 
     private boolean isNegativeModuleDiff(TrackFullData result) {
