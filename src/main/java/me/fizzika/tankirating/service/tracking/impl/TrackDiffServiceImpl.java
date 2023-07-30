@@ -1,5 +1,11 @@
 package me.fizzika.tankirating.service.tracking.impl;
 
+import static me.fizzika.tankirating.enums.track.TrackFormat.FULL;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.filter.TrackDatesFilter;
 import me.fizzika.tankirating.dto.filter.TrackDiffFilter;
@@ -25,13 +31,6 @@ import me.fizzika.tankirating.util.Pair;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static me.fizzika.tankirating.enums.track.TrackFormat.FULL;
 
 @Service
 @RequiredArgsConstructor

@@ -2,6 +2,7 @@ package me.fizzika.tankirating.service.tracking.target.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.fizzika.tankirating.dto.rating.AccountRatingDTO;
 import me.fizzika.tankirating.dto.target.AccountUpdateResultDTO;
 import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.dto.target.AccountAddDTO;
@@ -26,6 +27,7 @@ import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +36,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
+import org.springframework.util.CollectionUtils;
 
 import static me.fizzika.tankirating.enums.ExceptionType.TRACK_TARGET_NOT_FOUND;
 import static me.fizzika.tankirating.enums.track.TrackTargetType.ACCOUNT;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 @Slf4j
@@ -56,8 +60,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public RatingDTO getRatingForPeriod(PeriodUnit period, Integer offset, RatingFilter filter, Pageable pageable) {
         DatePeriod datePeriod = period.getDatePeriod(LocalDateTime.now()).sub(offset);
-        return new RatingDTO(period, datePeriod.getStart(), datePeriod.getEnd(),
-                trackTargetRepository.getAccountRating(period, datePeriod.getStart(), filter.getMinScore(), pageable));
+        Page<AccountRatingDTO> ratingPage = filter.getIds() == null ?
+                trackTargetRepository.getAccountRating(period, datePeriod.getStart(), filter.getMinScore(), pageable) :
+                trackTargetRepository.getAccountRating(period, datePeriod.getStart(), filter.getMinScore(), filter.getIds(), pageable);
+
+        return new RatingDTO(period, datePeriod.getStart(), datePeriod.getEnd(), ratingPage);
     }
 
     @Override
@@ -109,5 +116,4 @@ public class AccountServiceImpl implements AccountService {
         log.info("Registered account {}", rec.getName());
         return AccountAddStatus.OK;
     }
-
 }

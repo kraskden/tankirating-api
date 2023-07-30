@@ -54,18 +54,27 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
 
     int countByStatus(TrackTargetStatus status);
 
-    @Query("select new me.fizzika.tankirating.dto.rating.AccountRatingDTO( " +
+    //language=HQL
+    String SELECT_ACCOUNT_RATING_WITHOUT_IDS = "select new me.fizzika.tankirating.dto.rating.AccountRatingDTO( " +
             "T.id, T.name, D.maxScore, TR.time, TR.kills, TR.deaths, TR.score, TR.cry) " +
             "from TrackDiffRecord D " +
             "left join D.trackRecord TR " +
             "left join D.target T " +
             "where T.status <> 'DISABLED' and D.period = :period and D.periodStart = :periodStart " +
             "and T.type = 'ACCOUNT' " +
-            "and (:minScore is null or D.maxScore >= :minScore)")
+            "and (:minScore is null or D.maxScore >= :minScore) ";
+    String SELECT_ACCOUNT_RATING_WITH_IDS = SELECT_ACCOUNT_RATING_WITHOUT_IDS + " and T.id in :ids";
+
+    @Query(SELECT_ACCOUNT_RATING_WITHOUT_IDS)
     Page<AccountRatingDTO> getAccountRating(PeriodUnit period, LocalDateTime periodStart,
                                             Integer minScore,
                                             Pageable pageable);
 
+    @Query(SELECT_ACCOUNT_RATING_WITH_IDS)
+    Page<AccountRatingDTO> getAccountRating(PeriodUnit period, LocalDateTime periodStart,
+                                            Integer minScore,
+                                            List<Integer> ids,
+                                            Pageable pageable);
 
     @Query("select lower(T.name) from TrackTargetRecord T where T.type = 'ACCOUNT' " +
             "and lower(T.name) in :queriedNicknames ")

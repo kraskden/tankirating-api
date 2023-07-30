@@ -1,3 +1,17 @@
+## TankiRating 2.3.x
+
+### RU
+
+* [2.3.0] Возможность помечать аккаунты как "избранные", отдельный фильтр на странице рейтинга по любимым аккаунтам. Избранные аккаунты хранятся локально на устройстве. 
+* [2.3.0] Пофикшен трекинг премиума (раньше была ситуация, когда считало на один день больше, чем было на самом деле, и в неделе получалось 8 дней према к примеру)
+* [2.3.0] DISABLED аккаунты теперь будут обновляться раз в неделю, на случай если они снова станут активными
+
+### EN
+
+* [2.3.0] Introduce an ability to add favourite accounts. Add radio button to show only favourite accounts in the main ratings page
+* [2.3.0] Fix bug with premium tracking (premium percent > 100)
+* [2.3.0] DISABLED accounts now updates ones per week, in a case if they became available
+
 ## TankiRating 2.2.x
 
 ### RU
