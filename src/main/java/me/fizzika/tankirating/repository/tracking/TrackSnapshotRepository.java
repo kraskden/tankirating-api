@@ -86,7 +86,7 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
 
     @Query(value = "select count(1) from tankirating.snapshot s where s.target_id = :targetId " +
             "and s.timestamp >= :from and s.timestamp < :to and s.has_premium is true "
-            + "and s.timestamp::time = '00:00:00'", nativeQuery = true)
+            + "and cast(s.timestamp as time) = '00:00:00'", nativeQuery = true)
     int getPremiumDays(@Param("targetId") Integer targetId, @Param("from") LocalDateTime from,
                        @Param("to") LocalDateTime to);
 }
