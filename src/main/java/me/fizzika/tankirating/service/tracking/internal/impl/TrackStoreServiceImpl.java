@@ -148,7 +148,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
 
         Optional<TrackFullData> periodDiff = baseSnapshot
-                .map(snap -> dataDiffService.diff(targetId, currentData, snap, diffDates))
+                .map(snap -> dataDiffService.diff(currentData, snap, diffDates))
                 .filter(TrackFullData::notEmpty);
 
         periodDiff.ifPresent(d -> TrackUtils.validateDiffData(d, diffPeriod.getChronoUnit().getDuration().toSeconds(),

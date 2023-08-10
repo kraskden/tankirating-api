@@ -12,7 +12,5 @@ import java.time.LocalDateTime;
 public class DateRange {
 
     protected LocalDateTime start;
-
     protected LocalDateTime end;
-
 }
