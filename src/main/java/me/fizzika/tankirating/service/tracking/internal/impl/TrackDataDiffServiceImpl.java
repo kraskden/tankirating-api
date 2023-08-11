@@ -36,11 +36,18 @@ public class TrackDataDiffServiceImpl implements TrackDataDiffService {
         LocalDateTime end = dateRange.getEnd();
 
         TrackFullData result = TrackData.diff(endData, startData);
-        if (start.isBefore(MODULE_RESET_AT) && end.isBefore(MODULE_RESTORE_AT) && end.isAfter(MODULE_RESET_AT) && isNegativeModuleDiff(result)) {
+        boolean negativeModuleDiff = isNegativeModuleDiff(result);
+
+        if (start.isBefore(MODULE_RESET_AT) && end.isBefore(MODULE_RESTORE_AT) && end.isAfter(MODULE_RESET_AT) && negativeModuleDiff) {
             result.getActivities().put(MODULE, endData.getActivities().get(MODULE));
         }
-        if (start.isAfter(MODULE_RESET_AT) && start.isBefore(MODULE_RESTORE_AT) && end.isAfter(MODULE_RESTORE_AT)) {
-            result.getActivities().put(MODULE, new TrackActivityData());
+        // TODO: enable after alternativa fix module
+//        if (start.isAfter(MODULE_RESET_AT) && start.isBefore(MODULE_RESTORE_AT) && end.isAfter(MODULE_RESTORE_AT)) {
+//            result.getActivities().put(MODULE, new TrackActivityData());
+//        }
+        // TODO: remove after alternativa fix module stat
+        if (negativeModuleDiff) {
+            result.getActivities().put(MODULE, endData.getActivities().get(MODULE));
         }
         return result;
     }
