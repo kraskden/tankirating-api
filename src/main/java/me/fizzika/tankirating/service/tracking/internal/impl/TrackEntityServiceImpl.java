@@ -2,9 +2,14 @@ package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import static java.util.Collections.unmodifiableSet;
 
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
@@ -13,14 +18,6 @@ import me.fizzika.tankirating.record.tracking.TrackEntityRecord;
 import me.fizzika.tankirating.repository.tracking.TrackEntityRepository;
 import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Service
 @Slf4j
@@ -97,7 +94,7 @@ public class TrackEntityServiceImpl implements TrackEntityService {
                 TrackEntityRecord rec = new TrackEntityRecord();
                 rec.setName(name);
                 rec.setType(type);
-                TrackEntityRecord saved = entityRepository.save(rec);
+                TrackEntityRecord saved = entityRepository.saveAndFlush(rec);
                 ENTITY_ID_MAP.put(saved.getId(), new TrackEntityDTO(saved.getId(), saved.getName(), saved.getType()));
                 nameMap.put(saved.getName(), saved.getId());
                 return saved.getId();

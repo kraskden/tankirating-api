@@ -1,12 +1,12 @@
 [Unit]
-Description=TankiRating v2 REST API
+Description=Alesya 2024 Happy New Year
 After=network.target
 
 [Service]
 User=denis
-WorkingDirectory=/home/denis/tankirating-v2/api
-ExecStart=java -XX:+UseSerialGC -Xss512k -XX:MaxRAM=1700m -Dspring.profiles.active=prod -jar tankirating.jar
-SuccessExitStatus=143
+WorkingDirectory=/home/denis/alesya2024
+ExecStart=nvm run node build
+Environment="PORT=2024"
 
 [Install]
 WantedBy=multi-user.target
