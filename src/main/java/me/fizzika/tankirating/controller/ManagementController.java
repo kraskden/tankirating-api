@@ -4,8 +4,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import me.fizzika.tankirating.dto.management.TargetStatEntryDTO;
 import me.fizzika.tankirating.dto.management.TrackRebuildParams;
+import me.fizzika.tankirating.enums.track.TrackTargetStatus;
+import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.service.management.DailyDiffRebuilder;
 import me.fizzika.tankirating.service.management.StatService;
+import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +27,8 @@ public class ManagementController {
     private DailyDiffRebuilder dailyDiffRebuilder;
     @Resource
     private StatService statService;
+    @Resource
+    private TrackingUpdateService trackingUpdateService;
 
     @PostMapping("/rebuildDailyDiff")
     public void rebuildDailyDiff(@RequestBody @Valid TrackRebuildParams rebuildParams) {
@@ -33,5 +38,10 @@ public class ManagementController {
     @GetMapping("/stat/targets")
     public List<TargetStatEntryDTO> targetStat() {
         return statService.getTargetStat();
+    }
+
+    @PostMapping("/update/{status}")
+    public void doUpdate(@PathVariable TrackTargetStatus status) {
+        trackingUpdateService.updateAll(status);
     }
 }

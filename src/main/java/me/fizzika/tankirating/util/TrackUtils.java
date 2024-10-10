@@ -1,6 +1,10 @@
 package me.fizzika.tankirating.util;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import me.fizzika.tankirating.exceptions.tracking.InvalidDiffException;
+import me.fizzika.tankirating.exceptions.tracking.InvalidTrackDataException;
+import me.fizzika.tankirating.exceptions.tracking.SkipDiffException;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.model.track_data.TrackPlayData;
 
@@ -8,22 +12,26 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Producer;
 
 public class TrackUtils {
 
 
     public static void validateDiffData(TrackFullData data,
                                         long diffPeriodSeconds,
-                                        Duration timeInaccuracyInterval) throws InvalidDiffException {
+                                        Duration timeInaccuracyInterval,
+                                        boolean strict) throws InvalidTrackDataException {
         long seconds = data.getBase().getTime();
         long inaccuracySeconds = timeInaccuracyInterval.toSeconds();
 
+        Function<String, InvalidTrackDataException> exCreator = strict ? InvalidDiffException::new : SkipDiffException::new;
+
         if (seconds < -inaccuracySeconds) {
-            throw new InvalidDiffException(String.format("Diff seconds cannot be negative: %d", seconds));
+            throw exCreator.apply(String.format("Diff seconds cannot be negative: %d", seconds));
         }
 
         if (seconds > diffPeriodSeconds) {
-            throw new InvalidDiffException(String.format("Diff seconds cannot be greater that" +
+            throw exCreator.apply(String.format("Diff seconds cannot be greater that" +
                     "period duration: %d > %d", seconds, diffPeriodSeconds));
         }
     }

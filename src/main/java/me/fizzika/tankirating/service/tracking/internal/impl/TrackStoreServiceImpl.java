@@ -11,6 +11,7 @@ import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.exceptions.tracking.InvalidDiffException;
 import me.fizzika.tankirating.exceptions.tracking.InvalidTrackDataException;
+import me.fizzika.tankirating.exceptions.tracking.SkipDiffException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.model.activity.EntityIdActivityTrack;
 import me.fizzika.tankirating.model.TrackData;
@@ -151,8 +152,14 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 .map(snap -> dataDiffService.diff(currentData, snap, diffDates))
                 .filter(TrackFullData::notEmpty);
 
-        periodDiff.ifPresent(d -> TrackUtils.validateDiffData(d, diffPeriod.getChronoUnit().getDuration().toSeconds(),
-                        timeInaccuracyInterval));
+        try {
+            boolean isStrict = dataDiffService.strictDiffMode(diffDates);
+            periodDiff.ifPresent(d -> TrackUtils.validateDiffData(d, diffPeriod.getChronoUnit().getDuration().toSeconds(),
+                                                                  timeInaccuracyInterval, isStrict));
+        } catch (SkipDiffException ex) {
+            log.warn("[{}] Skip diff {}, cause: {}", targetId, diffPeriod, ex.getMessage());
+            return;
+        }
 
         log.debug("[{}] DiffTime: {}", targetId, periodDiff.map(d -> d.getBase().getTime()).orElse(0L));
 

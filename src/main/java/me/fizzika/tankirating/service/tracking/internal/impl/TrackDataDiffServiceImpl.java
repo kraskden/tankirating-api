@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import static java.util.Optional.ofNullable;
+import static me.fizzika.tankirating.enums.track.TankiEntityType.MODE;
 import static me.fizzika.tankirating.enums.track.TankiEntityType.MODULE;
 
 import java.time.LocalDate;
@@ -24,6 +25,9 @@ public class TrackDataDiffServiceImpl implements TrackDataDiffService {
     private static final LocalDateTime MODULE_RESET_AT = LocalDate.of(2023, Month.JULY, 7).atStartOfDay();
     private static final LocalDateTime MODULE_RESTORE_AT = LocalDate.of(2023, Month.AUGUST, 11).atStartOfDay();
 
+    // Alternativa broke modes statistics. Кринжули
+    private static final LocalDateTime MODE_BROKED_AT = LocalDate.of(2024, Month.APRIL, 28).atStartOfDay();
+
     @Override
     public TrackFullData diff(TrackSnapshot end, TrackSnapshot start) {
         return diff(end.getTrackData(), start.getTrackData(),
@@ -41,15 +45,20 @@ public class TrackDataDiffServiceImpl implements TrackDataDiffService {
         if (start.isBefore(MODULE_RESET_AT) && end.isBefore(MODULE_RESTORE_AT) && end.isAfter(MODULE_RESET_AT) && negativeModuleDiff) {
             result.getActivities().put(MODULE, endData.getActivities().get(MODULE));
         }
-        // TODO: enable after alternativa fix module
-//        if (start.isAfter(MODULE_RESET_AT) && start.isBefore(MODULE_RESTORE_AT) && end.isAfter(MODULE_RESTORE_AT)) {
-//            result.getActivities().put(MODULE, new TrackActivityData());
-//        }
-        // TODO: remove after alternativa fix module stat
         if (negativeModuleDiff) {
             result.getActivities().put(MODULE, endData.getActivities().get(MODULE));
         }
+
+        // TODO: Waiting for alternativa fixes...
+        if (end.isAfter(MODE_BROKED_AT)) {
+            result.getActivities().put(MODE, new TrackActivityData());
+        }
         return result;
+    }
+
+    @Override
+    public boolean strictDiffMode(DatePeriod datePeriod) {
+        return datePeriod.getStart().isAfter(MODE_BROKED_AT);
     }
 
     private boolean isNegativeModuleDiff(TrackFullData result) {

@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import static java.util.Collections.unmodifiableSet;
+import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -10,21 +11,26 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
+import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.record.tracking.TrackEntityRecord;
 import me.fizzika.tankirating.repository.tracking.TrackEntityRepository;
 import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class TrackEntityServiceImpl implements TrackEntityService {
 
-    private final TrackEntityRepository entityRepository;
+    @Resource
+    private TrackEntityRepository entityRepository;
+    @Resource
+    @Lazy
+    private TrackEntityServiceImpl trackEntityService;
 
     private Map<Short, TrackEntityDTO> ENTITY_ID_MAP;
     private Map<TankiEntityType, Map<String, Short>> ENTITY_TYPE_MAP;
@@ -91,10 +97,8 @@ public class TrackEntityServiceImpl implements TrackEntityService {
                     return nameMap.get(name);
                 }
 
-                TrackEntityRecord rec = new TrackEntityRecord();
-                rec.setName(name);
-                rec.setType(type);
-                TrackEntityRecord saved = entityRepository.saveAndFlush(rec);
+                TrackEntityRecord saved = trackEntityService.persistRecord(name, type);
+                log.info("Create entity {}", saved);
                 ENTITY_ID_MAP.put(saved.getId(), new TrackEntityDTO(saved.getId(), saved.getName(), saved.getType()));
                 nameMap.put(saved.getName(), saved.getId());
                 return saved.getId();
@@ -102,6 +106,14 @@ public class TrackEntityServiceImpl implements TrackEntityService {
                 writeLock.unlock();
             }
         }
+    }
+
+    @Transactional(REQUIRES_NEW)
+    public TrackEntityRecord persistRecord(String name, TankiEntityType type) {
+        TrackEntityRecord rec = new TrackEntityRecord();
+        rec.setName(name);
+        rec.setType(type);
+        return entityRepository.saveAndFlush(rec);
     }
 
     @Override

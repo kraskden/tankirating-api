@@ -1,9 +1,6 @@
 package me.fizzika.tankirating.exceptions.tracking;
 
 public class InvalidTrackDataException extends RuntimeException {
-    public InvalidTrackDataException() {
-    }
-
     public InvalidTrackDataException(String message) {
         super(message);
     }

@@ -46,7 +46,7 @@ public abstract class AlternativaTrackingMapper {
     protected long getTimePlayed(Collection<? extends AlternativaPlayTrack> playTracks) {
         return playTracks.stream()
                 .mapToLong(AlternativaPlayTrack::getTimePlayed)
-                .reduce(0, Long::sum) / 1000;
+                .sum() / 1000;
     }
 
     private Map<String, TrackUsageData> toSupplyUsageTrackMap(List<AlternativaSupplyUsageTrack> tracks) {

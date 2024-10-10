@@ -1,3 +1,11 @@
+## TankiRating 2.4.x
+
+### RU
+* [2.4.0] Восстановлена работа портала
+
+### EN
+* [2.4.0] Restore portal work
+
 ## TankiRating 2.3.x
 
 ### RU
