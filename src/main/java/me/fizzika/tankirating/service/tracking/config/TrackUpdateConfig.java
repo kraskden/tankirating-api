@@ -3,6 +3,7 @@ package me.fizzika.tankirating.service.tracking.config;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.ACTIVE;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.DISABLED;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.FROZEN;
+import static me.fizzika.tankirating.enums.track.TrackTargetStatus.PREMIUM;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.SLEEP;
 
 import javax.annotation.Resource;
@@ -18,6 +19,11 @@ public class TrackUpdateConfig {
     private TrackingUpdateService updateService;
     @Resource
     private SleepAccountsSanitizer sleepSanitizer;
+
+    @Scheduled(cron = "${app.cron.update-premium}")
+    public void updatePremium() {
+        updateService.updateAll(PREMIUM);
+    }
 
     @Scheduled(cron = "${app.cron.update-active}")
     public void updateActive() {

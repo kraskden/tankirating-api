@@ -19,11 +19,9 @@ import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
-import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
 import me.fizzika.tankirating.util.Utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -124,7 +122,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         AccountsUpdateStat stat = updateAccounts(accounts, 0);
         log.info("[SLICE] Processed [{}/{}], Failed: {}", stat.getProcessedCount(),
                 stat.getTotalCount(), stat.getRetriedCount());
-        stat.getRetried().forEach(a -> updateAccountStatus(a, FROZEN));
+        stat.getRetried().forEach(a -> updateAccountStatusIfNeed(a, FROZEN));
     }
 
     private AccountsUpdateStat updateAccounts(Collection<TrackTargetDTO> accounts, int retry) {
@@ -169,7 +167,7 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                 .handle((ignored, ex) -> {
                     if (ex == null) {
                         log.info("[{}] Updated {}", account.getId(), account.getName());
-                        updateAccountStatus(account, ACTIVE);
+                        updateAccountStatusIfNeed(account, ACTIVE);
                         return AccountUpdateResult.processed(account);
                     }
 
@@ -191,12 +189,15 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
                     TrackTargetStatus status = cause instanceof InvalidTrackDataException ||
                             cause instanceof AlternativaUserNotFoundException ? DISABLED : FROZEN;
-                    updateAccountStatus(account, status);
+                    updateAccountStatusIfNeed(account, status);
                     return AccountUpdateResult.processed(account);
                 });
     }
 
-    private void updateAccountStatus(TrackTargetDTO account, TrackTargetStatus newStatus) {
+    private void updateAccountStatusIfNeed(TrackTargetDTO account, TrackTargetStatus newStatus) {
+        if (account.getStatus() == PREMIUM) {
+            return;
+        }
         if (account.getStatus() != newStatus) {
             TrackTargetStatus oldStatus = account.getStatus();
             account.setStatus(newStatus);

@@ -2,9 +2,11 @@
 
 ### RU
 * [2.4.0] Восстановлена работа портала
+* [2.4.1] Premium статус для донаторов
 
 ### EN
 * [2.4.0] Restore portal work
+* [2.4.1] Premium status for donators
 
 ## TankiRating 2.3.x
 
