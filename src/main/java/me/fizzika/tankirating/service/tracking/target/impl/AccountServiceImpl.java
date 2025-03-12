@@ -18,10 +18,12 @@ import me.fizzika.tankirating.mapper.AlternativaTrackingMapper;
 import me.fizzika.tankirating.mapper.TrackTargetMapper;
 import me.fizzika.tankirating.model.AccountData;
 import me.fizzika.tankirating.model.AccountUpdateResult;
+import me.fizzika.tankirating.model.RatingParams;
 import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
+import me.fizzika.tankirating.service.tracking.RatingService;
 import me.fizzika.tankirating.service.tracking.target.AccountService;
 import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
@@ -56,16 +58,6 @@ public class AccountServiceImpl implements AccountService {
     private final TrackingUpdateService trackingUpdateService;
 
     private final AlternativaTrackingMapper trackingMapper;
-
-    @Override
-    public RatingDTO getRatingForPeriod(PeriodUnit period, Integer offset, RatingFilter filter, Pageable pageable) {
-        DatePeriod datePeriod = period.getDatePeriod(LocalDateTime.now()).sub(offset);
-        Page<AccountRatingDTO> ratingPage = filter.getIds() == null ?
-                trackTargetRepository.getAccountRating(period, datePeriod.getStart(), filter.getMinScore(), pageable) :
-                trackTargetRepository.getAccountRating(period, datePeriod.getStart(), filter.getMinScore(), filter.getIds(), pageable);
-
-        return new RatingDTO(period, datePeriod.getStart(), datePeriod.getEnd(), ratingPage);
-    }
 
     @Override
     public List<AccountAddResultDTO> addAccounts(AccountAddDTO addDTO) {
