@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Collection;
 import java.util.Map;
+import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.date.DatePeriod;
@@ -16,6 +17,7 @@ import me.fizzika.tankirating.model.date.DateRange;
 import me.fizzika.tankirating.model.track_data.TrackActivityData;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.service.tracking.internal.TrackDataDiffService;
+import org.springframework.data.util.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,8 +27,8 @@ public class TrackDataDiffServiceImpl implements TrackDataDiffService {
     private static final LocalDateTime MODULE_RESET_AT = LocalDate.of(2023, Month.JULY, 7).atStartOfDay();
     private static final LocalDateTime MODULE_RESTORE_AT = LocalDate.of(2023, Month.AUGUST, 11).atStartOfDay();
 
-    // Alternativa broke modes statistics. Кринжули
-    private static final LocalDateTime MODE_BROKED_AT = LocalDate.of(2024, Month.APRIL, 28).atStartOfDay();
+    // Alternativa broke modes statistics
+    private static final LocalDateTime MODE_RESET_AT = LocalDate.of(2024, Month.APRIL, 28).atStartOfDay();
 
     @Override
     public TrackFullData diff(TrackSnapshot end, TrackSnapshot start) {
@@ -40,7 +42,7 @@ public class TrackDataDiffServiceImpl implements TrackDataDiffService {
         LocalDateTime end = dateRange.getEnd();
 
         TrackFullData result = TrackData.diff(endData, startData);
-        boolean negativeModuleDiff = isNegativeModuleDiff(result);
+        boolean negativeModuleDiff = isNegativeActivityDiff(result, MODULE);
 
         if (start.isBefore(MODULE_RESET_AT) && end.isBefore(MODULE_RESTORE_AT) && end.isAfter(MODULE_RESET_AT) && negativeModuleDiff) {
             result.getActivities().put(MODULE, endData.getActivities().get(MODULE));
@@ -49,20 +51,20 @@ public class TrackDataDiffServiceImpl implements TrackDataDiffService {
             result.getActivities().put(MODULE, endData.getActivities().get(MODULE));
         }
 
-        // TODO: Waiting for alternativa fixes...
-        if (end.isAfter(MODE_BROKED_AT)) {
-            result.getActivities().put(MODE, new TrackActivityData());
+        boolean negativeModeDiff = isNegativeActivityDiff(result, MODE);
+        if (start.isBefore(MODE_RESET_AT) && end.isAfter(MODE_RESET_AT) && negativeModeDiff) {
+            result.getActivities().put(MODE, endData.getActivities().get(MODE));
         }
         return result;
     }
 
     @Override
     public boolean strictDiffMode(DatePeriod datePeriod) {
-        return datePeriod.getStart().isAfter(MODE_BROKED_AT);
+        return datePeriod.getStart().isAfter(MODE_RESET_AT);
     }
 
-    private boolean isNegativeModuleDiff(TrackFullData result) {
-        TrackActivityData modulesStat = result.getActivities().get(MODULE);
+    private boolean isNegativeActivityDiff(TrackFullData result, TankiEntityType type) {
+        TrackActivityData modulesStat = result.getActivities().get(type);
         return ofNullable(modulesStat)
                 .map(TrackActivityData::getPlayTracks)
                 .map(Map::values)
