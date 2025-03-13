@@ -3,10 +3,14 @@
 ### RU
 * [2.4.0] Восстановлена работа портала
 * [2.4.1] Premium статус для донаторов
+* [2.4.2] Включена статистика по режимам. Архивные данные будут восстановлены позже
+* [2.4.2] Кэширование рейтинга на главной странице (обновляется раз в 15 минут)
 
 ### EN
 * [2.4.0] Restore portal work
 * [2.4.1] Premium status for donators
+* [2.4.2] Enable mode stats. Old data will be restored later
+* [2.4.2] Rating on the main page will be refreshed every 15 minutes
 
 ## TankiRating 2.3.x
 
