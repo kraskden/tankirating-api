@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.fizzika.tankirating.record.PeriodRecord;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "diff")

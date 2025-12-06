@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class TrackDataMapper {
@@ -55,6 +54,9 @@ public abstract class TrackDataMapper {
             TrackActivityData model = activityMap.get(type);
             for (String entityName : model.getPlayTracks().keySet()) {
                 TrackPlayData playModel = model.getPlayTracks().get(entityName);
+                if (playModel.isEmpty()) {
+                    continue;
+                }
                 result.add(toTrackActivityRecord(playModel, entityName, type));
             }
         }
@@ -63,9 +65,10 @@ public abstract class TrackDataMapper {
 
     @Named("toTrackSuppliesList")
     protected List<TrackUsageRecord> toTrackSuppliesList(Map<String, TrackUsageData> usageMap) {
-        return usageMap.keySet().stream()
-                .map(k -> toTrackUsageRecord(usageMap.get(k), k))
-                .collect(Collectors.toList());
+        return usageMap.entrySet().stream()
+                       .filter(entry -> !entry.getValue().isEmpty())
+                       .map(entry -> toTrackUsageRecord(entry.getValue(), entry.getKey()))
+                       .toList();
     }
 
     protected TrackUsageRecord toTrackUsageRecord(TrackUsageData model, String name) {
@@ -75,15 +78,11 @@ public abstract class TrackDataMapper {
         return res;
     }
 
-    @Mapping(target = ".", source = "playModel")
-    protected TrackActivityRecord toTrackActivityRecord(TrackPlayData playModel,
-                                                                 String name, TankiEntityType type) {
+    protected TrackActivityRecord toTrackActivityRecord(TrackPlayData playModel, String name, TankiEntityType type) {
         TrackActivityRecord res = new TrackActivityRecord();
         res.setScore(playModel.getScore());
         res.setTime(playModel.getTime());
         res.setEntityId(entityService.getId(name, type));
         return res;
     }
-
-
 }

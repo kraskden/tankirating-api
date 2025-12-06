@@ -7,7 +7,7 @@ import lombok.ToString;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.record.IdRecord;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Getter

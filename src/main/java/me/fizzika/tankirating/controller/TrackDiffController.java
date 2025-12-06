@@ -6,15 +6,15 @@ import me.fizzika.tankirating.dto.filter.TrackDatesFilter;
 import me.fizzika.tankirating.dto.filter.TrackDiffFilter;
 import me.fizzika.tankirating.dto.filter.TrackFormatFilter;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.service.tracking.TrackDiffService;
-import org.springdoc.api.annotations.ParameterObject;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -33,14 +33,14 @@ public class TrackDiffController {
 
     @GetMapping("/{period}")
     public List<TrackDiffDTO> getAllDiffsForPeriod(@PathVariable Integer targetId,
-                                                   @PathVariable PeriodUnit period,
+                                                   @PathVariable DiffPeriodUnit period,
                                                    @ParameterObject @Valid TrackDiffFilter diffFilter) {
         return trackDiffService.getAllDiffsForPeriod(targetId, period, diffFilter);
     }
 
     @GetMapping("/{period}/{offset}")
     public TrackDiffDTO getDiffForPeriod(@PathVariable Integer targetId,
-                                         @PathVariable PeriodUnit period,
+                                         @PathVariable DiffPeriodUnit period,
                                          @PathVariable Integer offset,
                                          @ParameterObject @Valid TrackFormatFilter formatFilter) {
         return trackDiffService.getDiffForPeriod(targetId, period, offset, formatFilter.getFormat());

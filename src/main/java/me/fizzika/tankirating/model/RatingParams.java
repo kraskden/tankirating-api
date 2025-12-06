@@ -3,13 +3,13 @@ package me.fizzika.tankirating.model;
 import java.time.LocalDateTime;
 import java.util.Set;
 import me.fizzika.tankirating.dto.rating.RatingFilter;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.model.date.DatePeriod;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
-public record RatingParams(PeriodUnit period, Integer offset, RatingFilter filter, Pageable pageable) {
+public record RatingParams(DiffPeriodUnit period, Integer offset, RatingFilter filter, Pageable pageable) {
 
     private static final Set<String> ALLOWED_SORTS = Set.of("trackRecord.kt", "trackRecord.kd", "trackRecord.cry", "trackRecord.score", "trackRecord.time");
 
@@ -18,7 +18,7 @@ public record RatingParams(PeriodUnit period, Integer offset, RatingFilter filte
     }
 
     public boolean isCacheable() {
-        if (offset < 0 || offset > 1 || period == PeriodUnit.DAY) {
+        if (offset < 0 || offset > 1 || period == DiffPeriodUnit.DAY) {
             return false;
         }
         if (!CollectionUtils.isEmpty(filter.getIds())) {

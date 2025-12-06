@@ -1,7 +1,7 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
 import static java.util.Collections.unmodifiableSet;
-import static javax.transaction.Transactional.TxType.REQUIRES_NEW;
+import static jakarta.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -10,9 +10,9 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.track.TankiEntityType;

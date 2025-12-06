@@ -1,16 +1,16 @@
 package me.fizzika.tankirating.config.converter;
 
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Component
-public class StringToPeriodUnitConverter implements WebMvcConverter<String, PeriodUnit> {
+public class StringToPeriodUnitConverter implements WebMvcConverter<String, DiffPeriodUnit> {
 
     @Override
-    public PeriodUnit convert(@NotNull String source) {
-        return PeriodUnit.valueOf(source.toUpperCase());
+    public DiffPeriodUnit convert(@NotNull String source) {
+        return DiffPeriodUnit.valueOf(source.toUpperCase());
     }
 
 }

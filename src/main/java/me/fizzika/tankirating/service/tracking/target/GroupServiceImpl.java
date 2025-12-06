@@ -6,7 +6,7 @@ import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.time.LocalDateTime;
 
 @Service

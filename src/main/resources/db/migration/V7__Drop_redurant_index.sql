@@ -1,0 +1,1 @@
+drop index if exists idx_target_timestamp;

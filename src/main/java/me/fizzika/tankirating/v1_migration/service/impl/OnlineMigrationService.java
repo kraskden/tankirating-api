@@ -2,7 +2,7 @@ package me.fizzika.tankirating.v1_migration.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.exceptions.ServerException;
 import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.record.online.OnlinePcuRecord;
@@ -60,13 +60,13 @@ public class OnlineMigrationService implements V1MigrationService {
     }
 
     private void migratePcuStat(List<OnlineDaySchema> tracking) {
-        Map<PeriodUnit, Map<LocalDateTime, OnlinePcuRecord>> recordMap = new EnumMap<>(PeriodUnit.class);
-        for (PeriodUnit period : PeriodUnit.values()) {
+        Map<DiffPeriodUnit, Map<LocalDateTime, OnlinePcuRecord>> recordMap = new EnumMap<>(DiffPeriodUnit.class);
+        for (DiffPeriodUnit period : DiffPeriodUnit.values()) {
             recordMap.put(period, new HashMap<>());
         }
 
         for (OnlineDaySchema day : tracking) {
-            for (PeriodUnit period : PeriodUnit.values()) {
+            for (DiffPeriodUnit period : DiffPeriodUnit.values()) {
                 Map<LocalDateTime, OnlinePcuRecord> periodRecMap = recordMap.get(period);
                 LocalDateTime currentDate = day.getDate().truncatedTo(ChronoUnit.DAYS);
 

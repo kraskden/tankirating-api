@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.config;
 
+import javax.naming.AuthenticationException;
 import me.fizzika.tankirating.dto.ExceptionDTO;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,6 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import javax.naming.AuthenticationException;
 
 @ControllerAdvice
 public class ExceptionControllerAdvice {

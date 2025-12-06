@@ -3,12 +3,12 @@ package me.fizzika.tankirating.record;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.model.date.DatePeriod;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
 @Getter
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public abstract class PeriodRecord<I> extends IdRecord<I> {
 
     @Enumerated(EnumType.STRING)
-    protected PeriodUnit period;
+    protected DiffPeriodUnit period;
 
     protected LocalDateTime periodStart;
 

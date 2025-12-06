@@ -3,7 +3,7 @@ package me.fizzika.tankirating.v1_migration.service.impl.account.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.target.TrackTargetDTO;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.enums.track.TankiSupply;
 import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
@@ -165,17 +165,17 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
 
 
     private void migrateDiffs(AccountDocument account, TrackTargetDTO target) {
-        migrateDiffs(account.getDaily(), PeriodUnit.DAY, target);
+        migrateDiffs(account.getDaily(), DiffPeriodUnit.DAY, target);
 
         if (account.getCurrWeek() != null) {
             account.getWeekly().add(account.getCurrWeek());
         }
-        migrateDiffs(account.getWeekly(), PeriodUnit.WEEK, target);
+        migrateDiffs(account.getWeekly(), DiffPeriodUnit.WEEK, target);
 
         if (account.getCurrMonth() != null) {
             account.getMonthly().add(account.getCurrMonth());
         }
-        migrateDiffs(account.getMonthly(), PeriodUnit.MONTH, target);
+        migrateDiffs(account.getMonthly(), DiffPeriodUnit.MONTH, target);
     }
 
     private void createYearlyDiffs(TrackTargetDTO target, TreeMap<LocalDateTime, TrackingSchema> v1Snapshots) {
@@ -189,7 +189,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
             var lastTrackingEntry = v1Snapshots.floorEntry(yearEnd);
             if (firstTrackingEntry != null && lastTrackingEntry != null) {
                 createDiff(target, firstTrackingEntry.getValue(), lastTrackingEntry.getValue(),
-                        PeriodUnit.YEAR, new DatePeriod(yearStart, yearEnd, ChronoUnit.YEARS));
+                           DiffPeriodUnit.YEAR, new DatePeriod(yearStart, yearEnd, ChronoUnit.YEARS));
             } else {
                 log.warn("Migration [{}]: Cannot create diff for year {}", target.getName(), year);
             }
@@ -198,13 +198,13 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
     }
 
     private void createAllTimeDiff(TrackTargetDTO target, TrackingSchema initSnapshot, TrackingSchema lastSnapshot) {
-        createDiff(target, initSnapshot, lastSnapshot, PeriodUnit.ALL_TIME,
-                PeriodUnit.ALL_TIME.getDatePeriod(LocalDateTime.now()));
+        createDiff(target, initSnapshot, lastSnapshot, DiffPeriodUnit.ALL_TIME,
+                   DiffPeriodUnit.ALL_TIME.getDatePeriod(LocalDateTime.now()));
         log.info("Migration [{}]: Successfully created ALL_TIME diff", target.getName());
     }
 
     private void createDiff(TrackTargetDTO target, TrackingSchema initSnapshot, TrackingSchema lastSnapshot,
-                            PeriodUnit period, DatePeriod periodDates) {
+                            DiffPeriodUnit period, DatePeriod periodDates) {
         TrackFullData diffData = schemaMapper.toDataModel(lastSnapshot);
         diffData.sub(schemaMapper.toDataModel(initSnapshot));
 
@@ -235,7 +235,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         diffRepository.save(record);
     }
 
-    private void migrateDiffs(List<TrackingSchema> schemas, PeriodUnit period, TrackTargetDTO target) {
+    private void migrateDiffs(List<TrackingSchema> schemas, DiffPeriodUnit period, TrackTargetDTO target) {
         List<TrackDiffRecord> records = schemas.stream()
                 .peek(this::fixTrackingSchema)
                 .filter(this::isValidDiffSchema)
@@ -245,7 +245,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         log.info("Migration [{}]: Successfully migrate {} diffs for {} period", target.getName(), records.size(), period);
     }
 
-    private TrackDiffRecord toDiff(TrackingSchema diff, PeriodUnit period, TrackTargetDTO target) {
+    private TrackDiffRecord toDiff(TrackingSchema diff, DiffPeriodUnit period, TrackTargetDTO target) {
         TrackDiffRecord res = new TrackDiffRecord();
         res.setTarget(new TrackTargetRecord(target.getId()));
         res.setTrackRecord(schemaMapper.toRecord(diff));
@@ -258,7 +258,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
                 .map(s -> s.getTrackRecord().getScore())
                 .orElse(null));
 
-        res.setPremiumDays(period == PeriodUnit.DAY ?
+        res.setPremiumDays(period == DiffPeriodUnit.DAY ?
                 diff.getHasPremium() ? 1 : 0
                 : snapshotRepository.getPremiumDays(target.getId(), datePeriod.getStart(), datePeriod.getEnd()));
         return res;

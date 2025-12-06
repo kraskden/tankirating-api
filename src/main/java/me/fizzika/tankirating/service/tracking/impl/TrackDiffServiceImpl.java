@@ -13,8 +13,8 @@ import me.fizzika.tankirating.dto.filter.TrackOffsetFilter;
 import me.fizzika.tankirating.dto.tracking.TrackActivitiesDTO;
 import me.fizzika.tankirating.dto.tracking.TrackDiffDTO;
 import me.fizzika.tankirating.dto.tracking.TrackingDTO;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.enums.ExceptionType;
-import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackFormat;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
@@ -44,25 +44,25 @@ public class TrackDiffServiceImpl implements TrackDiffService {
     private final TrackDataMapper trackDataMapper;
     private final TrackDataDiffService dataDiffService;
 
-    private List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, PeriodUnit period, TrackDatesFilter datesFilter) {
+    private List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, DiffPeriodUnit period, TrackDatesFilter datesFilter) {
         return diffRepository.findAllDiffsForPeriod(targetId, period, datesFilter.getFrom().atStartOfDay(),
                 datesFilter.getTo().atStartOfDay(), Sort.by("periodStart"), datesFilter.getFormat()).stream()
                 .map(r -> diffMapper.toDTO(r, targetId, datesFilter.getFormat()))
                 .collect(Collectors.toList());
     }
 
-    private List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, PeriodUnit periodUnit, TrackOffsetFilter offsetFilter) {
-        DatePeriod curr = periodUnit.getDatePeriod(LocalDateTime.now());
+    private List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, DiffPeriodUnit diffPeriodUnit, TrackOffsetFilter offsetFilter) {
+        DatePeriod curr = diffPeriodUnit.getDatePeriod(LocalDateTime.now());
 
         TrackDatesFilter datesFilter = new TrackDatesFilter();
         datesFilter.setFormat(offsetFilter.getFormat());
         datesFilter.setFrom(curr.sub(offsetFilter.getOffsetFrom()).getStart().toLocalDate());
         datesFilter.setTo(curr.sub(offsetFilter.getOffsetTo()).getStart().toLocalDate());
-        return getAllDiffsForPeriod(targetId, periodUnit, datesFilter);
+        return getAllDiffsForPeriod(targetId, diffPeriodUnit, datesFilter);
     }
 
     @Override
-    public List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, PeriodUnit period, TrackDiffFilter diffFilter) {
+    public List<TrackDiffDTO> getAllDiffsForPeriod(Integer targetId, DiffPeriodUnit period, TrackDiffFilter diffFilter) {
         boolean offsetsPresent = diffFilter.getOffsetTo() != null && diffFilter.getOffsetFrom() != null;
         boolean datesPresent = diffFilter.getFrom() != null && diffFilter.getTo() != null;
 
@@ -107,7 +107,7 @@ public class TrackDiffServiceImpl implements TrackDiffService {
     }
 
     @Override
-    public TrackDiffDTO getDiffForPeriod(Integer targetId, PeriodUnit period, Integer offset, TrackFormat format) {
+    public TrackDiffDTO getDiffForPeriod(Integer targetId, DiffPeriodUnit period, Integer offset, TrackFormat format) {
         DatePeriod periodDates = period.getDatePeriod(LocalDateTime.now())
                 .sub(offset);
 

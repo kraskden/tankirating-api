@@ -5,7 +5,7 @@ import static org.apache.commons.lang3.BooleanUtils.toInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.enums.SnapshotState;
 import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
@@ -14,7 +14,6 @@ import me.fizzika.tankirating.exceptions.tracking.InvalidTrackDataException;
 import me.fizzika.tankirating.exceptions.tracking.SkipDiffException;
 import me.fizzika.tankirating.mapper.TrackDataMapper;
 import me.fizzika.tankirating.model.activity.EntityIdActivityTrack;
-import me.fizzika.tankirating.model.TrackData;
 import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.model.TrackSnapshot;
 import me.fizzika.tankirating.model.date.DatePeriod;
@@ -34,11 +33,10 @@ import me.fizzika.tankirating.service.tracking.internal.TrackEntityService;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
 import me.fizzika.tankirating.util.TrackUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -89,13 +87,13 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     @Transactional
     public void updateCurrentGroupData(TrackGroup group) {
         LocalDateTime now = LocalDateTime.now();
-        for (PeriodUnit diffPeriod : PeriodUnit.GROUP_PERIODS) {
+        for (DiffPeriodUnit diffPeriod : DiffPeriodUnit.GROUP_PERIODS) {
             updateGroupDiff(group, now, diffPeriod);
         }
     }
 
     private void updateDiffs(Integer targetId, LocalDateTime now, TrackFullData currentData, boolean hasPremium) {
-        for (PeriodUnit diffPeriod : PeriodUnit.values()) {
+        for (DiffPeriodUnit diffPeriod : DiffPeriodUnit.values()) {
             updateDiff(targetId, now, currentData, diffPeriod, hasPremium);
         }
     }
@@ -128,7 +126,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
     }
 
-    private void updateDiff(Integer targetId, LocalDateTime now, TrackFullData currentData, PeriodUnit diffPeriod,
+    private void updateDiff(Integer targetId, LocalDateTime now, TrackFullData currentData, DiffPeriodUnit diffPeriod,
                             boolean hasPremium) throws InvalidDiffException {
 
         log.debug("[{}] Updating diff {}", targetId, diffPeriod);
@@ -137,7 +135,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         DatePeriod diffDates = diffPeriod.getDatePeriod(now);
         log.debug("[{}] Dates: {} - {}", targetId, diffDates.getStart(), diffDates.getEnd());
 
-        int premiumDays = diffPeriod == PeriodUnit.DAY ?
+        int premiumDays = diffPeriod == DiffPeriodUnit.DAY ?
                 toInteger(hasPremium)
                 : snapshotRepository.getPremiumDays(targetId, diffDates.getStart(), diffDates.getEnd());
         log.debug("[{}] Premium days: {}", targetId, premiumDays);
@@ -185,7 +183,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         log.debug("[{}] Diff has been saved (id={})", targetId, diffRecord.getId());
     }
 
-    private void updateGroupDiff(TrackGroup group, LocalDateTime now, PeriodUnit diffPeriod) {
+    private void updateGroupDiff(TrackGroup group, LocalDateTime now, DiffPeriodUnit diffPeriod) {
         log.debug("[{}] Updating diff {}", group, diffPeriod);
         PeriodDiffDates diffDates = new PeriodDiffDates(diffPeriod.getDatePeriod(now), new DateRange(now, now));
         log.debug("[{}] Diff dates: \nPeriod: {} - {}\nTrack: {} - {}", group,
@@ -195,7 +193,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     }
 
     @Override
-    public void updateGroupDiff(TrackGroup group, PeriodUnit diffPeriod, PeriodDiffDates diffDates) {
+    public void updateGroupDiff(TrackGroup group, DiffPeriodUnit diffPeriod, PeriodDiffDates diffDates) {
         TrackDiffRecord diffRecord = getOrCreateDiffRecord(group.getId(), diffPeriod, diffDates.toPeriodRange());
 
         diffRecord.setTrackEnd(diffDates.getTrackEnd());
@@ -213,7 +211,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         log.debug("[{}] Diff has been saved (id={})", group, saved.getId());
     }
 
-    private TrackDiffRecord getOrCreateDiffRecord(Integer targetId, PeriodUnit diffPeriod, DateRange diffDates) {
+    private TrackDiffRecord getOrCreateDiffRecord(Integer targetId, DiffPeriodUnit diffPeriod, DateRange diffDates) {
         return diffRepository.findByTargetIdAndPeriodStartAndPeriodEnd(targetId,
                 diffDates.getStart(), diffDates.getEnd()).orElseGet(() -> emptyRecord(targetId, diffPeriod, diffDates));
     }
@@ -263,7 +261,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         }
     }
 
-    private TrackFullData getActivityGroupData(DateRange diffDates, PeriodUnit diffPeriod, GroupMeta group) {
+    private TrackFullData getActivityGroupData(DateRange diffDates, DiffPeriodUnit diffPeriod, GroupMeta group) {
         Map<TankiEntityType, TrackActivityData> activityMap = new EnumMap<>(TankiEntityType.class);
         for (TankiEntityType e : TankiEntityType.values()) {
             activityMap.put(e, new TrackActivityData());
@@ -284,7 +282,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         return res;
     }
 
-    private TrackDiffRecord emptyRecord(Integer targetId, PeriodUnit period, DateRange periodDates) {
+    private TrackDiffRecord emptyRecord(Integer targetId, DiffPeriodUnit period, DateRange periodDates) {
         var rec = new TrackDiffRecord();
         rec.setTarget(targetRepository.getReferenceById(targetId));
         rec.setPeriodStart(periodDates.getStart());

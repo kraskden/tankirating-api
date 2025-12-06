@@ -1,7 +1,7 @@
 package me.fizzika.tankirating.service.management.impl;
 
 import java.util.List;
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import me.fizzika.tankirating.dto.management.TargetStatEntryDTO;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
 import me.fizzika.tankirating.service.management.StatService;

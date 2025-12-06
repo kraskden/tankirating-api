@@ -2,7 +2,7 @@ package me.fizzika.tankirating.service.online.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.mapper.OnlineMapper;
 import me.fizzika.tankirating.model.OnlineData;
 import me.fizzika.tankirating.model.date.DatePeriod;
@@ -51,7 +51,7 @@ public class OnlineUpdateServiceImpl implements OnlineUpdateService {
 
     private void updatePcuStats(OnlineData data) {
         LocalDateTime now = LocalDateTime.now();
-        for (PeriodUnit period : PeriodUnit.values()) {
+        for (DiffPeriodUnit period : DiffPeriodUnit.values()) {
             DatePeriod datePeriod = period.getDatePeriod(now);
             OnlinePcuRecord rec = pcuRepository.findFirstByPeriodAndPeriodStart(period, datePeriod.getStart())
                     .orElseGet(() -> newRecord(data, period, datePeriod));
@@ -63,7 +63,7 @@ public class OnlineUpdateServiceImpl implements OnlineUpdateService {
         }
     }
 
-    private OnlinePcuRecord newRecord(OnlineData data, PeriodUnit period, DatePeriod datePeriod) {
+    private OnlinePcuRecord newRecord(OnlineData data, DiffPeriodUnit period, DatePeriod datePeriod) {
         var res = new OnlinePcuRecord();
         res.setPeriod(period);
         res.setPeriodDates(datePeriod);

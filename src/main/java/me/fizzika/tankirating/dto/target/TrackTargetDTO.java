@@ -6,8 +6,8 @@ import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.model.validation.Create;
 import me.fizzika.tankirating.model.validation.Update;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Null;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 
 @Data
 public class TrackTargetDTO {

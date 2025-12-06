@@ -1,5 +1,6 @@
 package me.fizzika.tankirating.service.tracking.sanitizer.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.service.tracking.internal.TrackSnapshotService;
@@ -7,7 +8,6 @@ import me.fizzika.tankirating.service.tracking.sanitizer.TrackSanitizer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 

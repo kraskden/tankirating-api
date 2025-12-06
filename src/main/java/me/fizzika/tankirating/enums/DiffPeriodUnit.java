@@ -1,7 +1,6 @@
 package me.fizzika.tankirating.enums;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.model.date.DatePeriod;
 import org.springframework.http.HttpStatus;
@@ -18,9 +17,9 @@ import java.util.stream.Collectors;
 @Schema(type = "String", allowableValues = {
         "day", "week", "month", "year", "all_time"
 })
-public enum PeriodUnit {
+public enum DiffPeriodUnit {
 
-    DAY(ChronoUnit.DAYS, PeriodUnit::getDayDiffPeriod),
+    DAY(ChronoUnit.DAYS, DiffPeriodUnit::getDayDiffPeriod),
     WEEK(ChronoUnit.WEEKS, ChronoField.DAY_OF_WEEK),
     MONTH(ChronoUnit.MONTHS, ChronoField.DAY_OF_MONTH),
     YEAR(ChronoUnit.YEARS, ChronoField.DAY_OF_YEAR),
@@ -32,19 +31,19 @@ public enum PeriodUnit {
             ChronoUnit.FOREVER
     ));
 
-    PeriodUnit(ChronoUnit unit, Function<LocalDateTime, DatePeriod> periodGenerator) {
+    DiffPeriodUnit(ChronoUnit unit, Function<LocalDateTime, DatePeriod> periodGenerator) {
         this.chronoUnit = unit;
         this.periodGenerator = periodGenerator;
     }
 
-    PeriodUnit(ChronoUnit unit, ChronoField resetField) {
+    DiffPeriodUnit(ChronoUnit unit, ChronoField resetField) {
         this.chronoUnit = unit;
         this.periodGenerator = stamp -> getDiffPeriod(stamp, resetField, chronoUnit);
     }
 
-    public static final List<PeriodUnit> GROUP_PERIODS = Arrays.stream(PeriodUnit.values())
-            .filter(p -> p != DAY)
-            .collect(Collectors.toList());
+    public static final List<DiffPeriodUnit> GROUP_PERIODS = Arrays.stream(DiffPeriodUnit.values())
+                                                                   .filter(p -> p != DAY)
+                                                                   .collect(Collectors.toList());
 
     private final ChronoUnit chronoUnit;
     private final Function<LocalDateTime, DatePeriod> periodGenerator;

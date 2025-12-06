@@ -9,7 +9,7 @@ import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.AuditRecord;
 import me.fizzika.tankirating.record.IdRecord;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Getter

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.filter.OnlinePeriodFilter;
 import me.fizzika.tankirating.dto.online.OnlinePcuDTO;
 import me.fizzika.tankirating.dto.online.OnlineSnapshotDTO;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.enums.ExceptionType;
-import me.fizzika.tankirating.enums.PeriodUnit;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.mapper.OnlineMapper;
 import me.fizzika.tankirating.repository.online.OnlinePcuRepository;
@@ -43,7 +43,7 @@ public class OnlineServiceImpl implements OnlineService {
     }
 
     @Override
-    public List<OnlinePcuDTO> getPcuPeriodData(PeriodUnit period, OnlinePeriodFilter periodFilter) {
+    public List<OnlinePcuDTO> getPcuPeriodData(DiffPeriodUnit period, OnlinePeriodFilter periodFilter) {
         return pcuRepository.findAllForPeriodAndRange(period, periodFilter.getFrom(),
                         periodFilter.getTo()).stream()
                 .map(onlineMapper::toDto)
@@ -51,7 +51,7 @@ public class OnlineServiceImpl implements OnlineService {
     }
 
     @Override
-    public OnlinePcuDTO getPcuForPeriod(PeriodUnit period, Integer offset) {
+    public OnlinePcuDTO getPcuForPeriod(DiffPeriodUnit period, Integer offset) {
         LocalDateTime start = period.getDatePeriod(LocalDateTime.now()).sub(offset).getStart();
         return pcuRepository.findFirstByPeriodAndPeriodStart(period, start)
                 .map(onlineMapper::toDto)
@@ -64,7 +64,7 @@ public class OnlineServiceImpl implements OnlineService {
     @Override
     public List<OnlinePcuDTO> getCurrentPcuForAllPeriods() {
         var res = new ArrayList<OnlinePcuDTO>();
-        for (PeriodUnit period : PeriodUnit.values()) {
+        for (DiffPeriodUnit period : DiffPeriodUnit.values()) {
             try {
                 res.add(getPcuForPeriod(period, 0));
             } catch (ExternalException ex) {

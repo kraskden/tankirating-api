@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import me.fizzika.tankirating.dto.management.TargetStatEntryDTO;
 import me.fizzika.tankirating.dto.rating.AccountRatingDTO;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
@@ -66,12 +66,12 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
     String SELECT_ACCOUNT_RATING_WITH_IDS = SELECT_ACCOUNT_RATING_WITHOUT_IDS + " and T.id in :ids";
 
     @Query(SELECT_ACCOUNT_RATING_WITHOUT_IDS)
-    Page<AccountRatingDTO> getAccountRating(PeriodUnit period, LocalDateTime periodStart,
+    Page<AccountRatingDTO> getAccountRating(DiffPeriodUnit period, LocalDateTime periodStart,
                                             Integer minScore,
                                             Pageable pageable);
 
     @Query(SELECT_ACCOUNT_RATING_WITH_IDS)
-    Page<AccountRatingDTO> getAccountRating(PeriodUnit period, LocalDateTime periodStart,
+    Page<AccountRatingDTO> getAccountRating(DiffPeriodUnit period, LocalDateTime periodStart,
                                             Integer minScore,
                                             List<Integer> ids,
                                             Pageable pageable);

@@ -31,6 +31,10 @@ public class TrackUsageData implements TrackData<TrackUsageData> {
         return new TrackUsageData(this);
     }
 
+    public boolean isEmpty() {
+        return usages == 0;
+    }
+
     @Override
     public String toString() {
         return String.format("(%d)", usages);

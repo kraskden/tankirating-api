@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import me.fizzika.tankirating.dto.tracking.TrackHeatMapDTO;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.enums.track.TrackFormat;
 import me.fizzika.tankirating.model.activity.EntityIdActivityTrack;
 import me.fizzika.tankirating.model.date.PeriodDiffDates;
@@ -31,16 +31,16 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
                                                                        LocalDateTime periodEnd);
 
     @Query(GET_ALL_DIFFS_FOR_PERIOD)
-    List<TrackDiffRecord> findAllBaseDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
-                                                LocalDateTime to, Sort sort);
+    List<TrackDiffRecord> findAllBaseDiffsForPeriod(Integer targetId, DiffPeriodUnit period, LocalDateTime from,
+                                                    LocalDateTime to, Sort sort);
 
 
     @Query(GET_ALL_DIFFS_FOR_PERIOD)
     @EntityGraph(attributePaths = {"trackRecord.supplies"}, type = EntityGraph.EntityGraphType.LOAD)
-    List<TrackDiffRecord> findAllFullDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
-                                                LocalDateTime to, Sort sort);
+    List<TrackDiffRecord> findAllFullDiffsForPeriod(Integer targetId, DiffPeriodUnit period, LocalDateTime from,
+                                                    LocalDateTime to, Sort sort);
 
-    default List<TrackDiffRecord> findAllDiffsForPeriod(Integer targetId, PeriodUnit period, LocalDateTime from,
+    default List<TrackDiffRecord> findAllDiffsForPeriod(Integer targetId, DiffPeriodUnit period, LocalDateTime from,
                                                         LocalDateTime to, Sort sort, TrackFormat format) {
         // Static typing is a sh~
         return format == TrackFormat.FULL ?
@@ -48,14 +48,14 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
                 findAllBaseDiffsForPeriod(targetId, period, from, to, sort);
     }
 
-    List<TrackDiffRecord> findAllByTargetIdAndPeriod(Integer targetId, PeriodUnit period);
+    List<TrackDiffRecord> findAllByTargetIdAndPeriod(Integer targetId, DiffPeriodUnit period);
 
     @Query(value = "select D from TrackDiffRecord D " +
             "left join fetch D.trackRecord " +
             "where D.target.id = :targetId " +
             "and D.period = :period " +
             "and D.periodStart = :periodStart")
-    Optional<TrackDiffRecord> findDiffForPeriod(Integer targetId, PeriodUnit period,
+    Optional<TrackDiffRecord> findDiffForPeriod(Integer targetId, DiffPeriodUnit period,
                                                 LocalDateTime periodStart);
 
     @Query("select D from TrackDiffRecord D left join fetch D.trackRecord " +
@@ -81,7 +81,7 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
             "and (:minScore is null or D.maxScore >= :minScore) " +
             "and (:maxScore is null or D.maxScore <= :maxScore) " +
             "group by A.entityId")
-    List<EntityIdActivityTrack> getActivityStat(@Param("period") PeriodUnit period,
+    List<EntityIdActivityTrack> getActivityStat(@Param("period") DiffPeriodUnit period,
                                                 @Param("periodStart") LocalDateTime periodStart,
                                                 @Param("minScore") Integer minScore,
                                                 @Param("maxScore") Integer maxScore);
@@ -91,7 +91,7 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
             "where D.period = :period " +
             "group by D.periodStart, D.periodEnd " +
             "order by D.periodStart asc")
-    List<PeriodDiffDates> getAllPeriodDates(PeriodUnit period);
+    List<PeriodDiffDates> getAllPeriodDates(DiffPeriodUnit period);
 
 
 

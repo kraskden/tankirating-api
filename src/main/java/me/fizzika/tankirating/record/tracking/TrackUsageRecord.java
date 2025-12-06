@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import me.fizzika.tankirating.record.IdRecord;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "track_usage")

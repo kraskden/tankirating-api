@@ -42,6 +42,10 @@ public class TrackPlayData implements TrackData<TrackPlayData>, Comparable<Track
         return String.format("(s: %d, t: %d)", score, time);
     }
 
+    public boolean isEmpty() {
+        return time == 0 && score == 0;
+    }
+
     @Override
     public int compareTo(TrackPlayData other) {
         return comparing(TrackPlayData::getScore).thenComparingLong(TrackPlayData::getTime)

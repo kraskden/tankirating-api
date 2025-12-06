@@ -1,11 +1,11 @@
 package me.fizzika.tankirating.record.online;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 import me.fizzika.tankirating.record.IdRecord;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity

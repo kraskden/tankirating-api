@@ -1,8 +1,8 @@
 package me.fizzika.tankirating.v1_migration.repository.specification_builder;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
 
 public interface BaseSpecificationBuilder {
 

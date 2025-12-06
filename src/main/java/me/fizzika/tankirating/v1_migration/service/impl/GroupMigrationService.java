@@ -2,7 +2,7 @@ package me.fizzika.tankirating.v1_migration.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.model.TrackGroup;
 import me.fizzika.tankirating.model.date.PeriodDiffDates;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
@@ -36,7 +36,7 @@ public class GroupMigrationService implements V1MigrationService {
         List<TrackGroup> groups = trackTargetService.getAllGroups();
         log.info("Found {} groups: {}", groups.size(), groups);
 
-        for (PeriodUnit period : PeriodUnit.GROUP_PERIODS) {
+        for (DiffPeriodUnit period : DiffPeriodUnit.GROUP_PERIODS) {
             List<PeriodDiffDates> diffDates = diffRepository.getAllPeriodDates(period);
             log.info("[{}] Starting groups creation...", period);
             log.info("[{}] Found {} existing entries", period, diffDates.size());

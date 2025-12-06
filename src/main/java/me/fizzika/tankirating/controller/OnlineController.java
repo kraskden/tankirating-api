@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.filter.OnlinePeriodFilter;
 import me.fizzika.tankirating.dto.online.OnlinePcuDTO;
 import me.fizzika.tankirating.dto.online.OnlineSnapshotDTO;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.service.online.OnlineService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +33,7 @@ public class OnlineController {
     }
 
     @GetMapping("/pcu/{period}")
-    public List<OnlinePcuDTO> getPcuPeriodData(@PathVariable PeriodUnit period, OnlinePeriodFilter periodFilter) {
+    public List<OnlinePcuDTO> getPcuPeriodData(@PathVariable DiffPeriodUnit period, OnlinePeriodFilter periodFilter) {
         return onlineService.getPcuPeriodData(period, periodFilter);
     }
 
@@ -43,7 +43,7 @@ public class OnlineController {
     }
 
     @GetMapping("/pcu/{period}/{offset}")
-    public OnlinePcuDTO getPcuForPeriod(@PathVariable PeriodUnit period, @PathVariable Integer offset) {
+    public OnlinePcuDTO getPcuForPeriod(@PathVariable DiffPeriodUnit period, @PathVariable Integer offset) {
         return onlineService.getPcuForPeriod(period, offset);
     }
 

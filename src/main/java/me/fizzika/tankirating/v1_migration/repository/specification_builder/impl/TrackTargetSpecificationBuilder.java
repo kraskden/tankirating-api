@@ -8,8 +8,8 @@ import me.fizzika.tankirating.v1_migration.repository.specification_builder.Filt
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
 
 @Component
 public class TrackTargetSpecificationBuilder implements FilterSpecificationBuilder<TrackTargetRecord, TrackTargetFilter> {

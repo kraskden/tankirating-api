@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import me.fizzika.tankirating.dto.rating.AccountRatingDTO;
 import me.fizzika.tankirating.dto.rating.RatingDTO;
 import me.fizzika.tankirating.dto.rating.RatingFilter;
-import me.fizzika.tankirating.enums.PeriodUnit;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.model.RatingParams;
 import me.fizzika.tankirating.model.date.DatePeriod;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
@@ -13,6 +13,7 @@ import me.fizzika.tankirating.service.tracking.RatingService;
 import me.fizzika.tankirating.util.Cache;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,12 +27,12 @@ public class RatingServiceImpl implements RatingService {
     private final TrackTargetRepository trackTargetRepository;
 
     @Override
-    public RatingDTO getRatingForPeriod(PeriodUnit period, Integer offset, RatingFilter filter, Pageable pageable) {
+    public RatingDTO getRatingForPeriod(DiffPeriodUnit period, Integer offset, RatingFilter filter, Pageable pageable) {
         RatingParams ratingParams = new RatingParams(period, offset, filter, pageable);
         DatePeriod datePeriod = ratingParams.getDatePeriod();
 
         Page<AccountRatingDTO> ratingPage = getAccountRating(ratingParams);
-        return new RatingDTO(period, datePeriod.getStart(), datePeriod.getEnd(), ratingPage);
+        return new RatingDTO(period, datePeriod.getStart(), datePeriod.getEnd(), new PagedModel<>(ratingPage));
     }
 
     @Override

@@ -6,12 +6,13 @@ import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.dto.filter.TrackTargetFilter;
 import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
-import org.springdoc.api.annotations.ParameterObject;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,9 +29,9 @@ public class TrackTargetController {
     }
 
     @GetMapping
-    public Page<TrackTargetDTO> findAll(@ParameterObject  @Valid TrackTargetFilter filter,
-                                        @ParameterObject Pageable pageable) {
-        return trackTargetService.findAll(filter, pageable);
+    public PagedModel<TrackTargetDTO> findAll(@org.springdoc.core.annotations.ParameterObject @Valid TrackTargetFilter filter,
+                                              @ParameterObject Pageable pageable) {
+        Page<TrackTargetDTO> all = trackTargetService.findAll(filter, pageable);
+        return new PagedModel<>(all);
     }
-
 }

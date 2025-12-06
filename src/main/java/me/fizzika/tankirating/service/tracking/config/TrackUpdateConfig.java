@@ -6,7 +6,7 @@ import static me.fizzika.tankirating.enums.track.TrackTargetStatus.FROZEN;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.PREMIUM;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.SLEEP;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
 import org.springframework.scheduling.annotation.Scheduled;
