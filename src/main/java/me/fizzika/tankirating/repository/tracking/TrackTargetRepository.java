@@ -46,7 +46,7 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
             "and t.type = 'ACCOUNT' " +
             "and not exists(select 1 from \"diff\" d " +
                 "where d.period_start >= :minActivityDate " +
-                "and d.period = 'DAY' " +
+                "and d.period = cast('DAY' as diff_period) " +
                 "and d.target_id = t.id " +
                 "and d.track_id is not null) ",
             nativeQuery = true)

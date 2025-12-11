@@ -10,6 +10,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Getter
 @Setter
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 public abstract class PeriodRecord<I> extends IdRecord<I> {
 
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     protected DiffPeriodUnit period;
 
     protected LocalDateTime periodStart;

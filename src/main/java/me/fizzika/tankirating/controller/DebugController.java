@@ -11,6 +11,7 @@ import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.FrozenAccountsSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.HeadSnapshotSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
+import me.fizzika.tankirating.service.tracking.sanitizer.impl.TtlSnapshotSanitizer;
 import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,8 @@ public class DebugController {
     private final HeadSnapshotSanitizer headSnapshotSanitizer;
     private final FrozenAccountsSanitizer frozenAccountsSanitizer;
     private final SleepAccountsSanitizer sleepAccountsSanitizer;
+    private final TtlSnapshotSanitizer ttlSnapshotSanitizer;
+
     private final TrackDiffRepository diffRepository;
 
     @PostMapping("/update/{account}")
@@ -57,5 +60,10 @@ public class DebugController {
     @PostMapping("/sanitizer/sleep")
     public void sleepSanitizer() {
         sleepAccountsSanitizer.sanitize();
+    }
+
+    @PostMapping("/sanitizer/ttl/snapshot")
+    public void snapshotSanitizer() {
+        ttlSnapshotSanitizer.sanitize();
     }
 }

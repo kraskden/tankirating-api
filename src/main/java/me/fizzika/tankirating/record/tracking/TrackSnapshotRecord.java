@@ -4,10 +4,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import me.fizzika.tankirating.enums.SnapshotPeriod;
 import me.fizzika.tankirating.record.IdRecord;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 @Entity
 @Getter
@@ -26,6 +29,10 @@ public class TrackSnapshotRecord extends IdRecord<Long> {
     private TrackRecord trackRecord;
 
     private LocalDateTime timestamp;
+
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    private SnapshotPeriod period;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_id", referencedColumnName = "id")

@@ -1,0 +1,2 @@
+ALTER TABLE tankirating."snapshot" DROP CONSTRAINT snapshot_track_id_fkey;
+ALTER TABLE tankirating."snapshot" ADD CONSTRAINT snapshot_track_id_fkey FOREIGN KEY (track_id) REFERENCES tankirating.track(id) ON DELETE SET NULL;
