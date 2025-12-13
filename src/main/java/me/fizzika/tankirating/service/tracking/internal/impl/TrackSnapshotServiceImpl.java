@@ -37,19 +37,19 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
 
     @Override
     public boolean exists(Integer targetId, LocalDateTime timestamp) {
-        return repository.existsByTargetIdAndTimestamp(targetId, timestamp);
+        return repository.existsByTargetIdAndTimestampAndTrackRecordNotNull(targetId, timestamp);
     }
 
     @Override
     @Transactional
     public Optional<TrackSnapshot> findFirstInRange(Integer targetId, LocalDateTime from, LocalDateTime to) {
-       return repository.findFirstSnapshot(targetId, from, to)
+       return repository.findFirstSnapshotInPeriod(targetId, from, to)
                .map(snapshotMapper::toSnapshot);
     }
 
     @Override
     public Optional<TrackSnapshot> findLastInRange(Integer targetId, LocalDateTime from, LocalDateTime to) {
-        return repository.findLastSnapshot(targetId, from, to)
+        return repository.findLastSnapshotInPeriod(targetId, from, to)
                 .map(snapshotMapper::toSnapshot);
     }
 

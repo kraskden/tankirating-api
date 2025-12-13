@@ -254,7 +254,7 @@ public class AccountMigrationRunnerImpl implements AccountMigrationRunner {
         DatePeriod datePeriod = period.getDatePeriod(diff.getTimestamp());
         fillDiffRecordDates(res, datePeriod);
 
-        res.setMaxScore(snapshotRepository.findLastSnapshot(target.getId(), datePeriod.getStart(), datePeriod.getEnd())
+        res.setMaxScore(snapshotRepository.findLastSnapshotInPeriod(target.getId(), datePeriod.getStart(), datePeriod.getEnd())
                 .map(s -> s.getTrackRecord().getScore())
                 .orElse(null));
 

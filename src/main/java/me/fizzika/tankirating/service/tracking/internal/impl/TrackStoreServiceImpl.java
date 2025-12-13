@@ -3,12 +3,15 @@ package me.fizzika.tankirating.service.tracking.internal.impl;
 import static me.fizzika.tankirating.enums.SnapshotPeriod.DAY;
 import static org.apache.commons.lang3.BooleanUtils.toInteger;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.tracking.TrackEntityDTO;
 import me.fizzika.tankirating.enums.DiffPeriodUnit;
+import me.fizzika.tankirating.enums.SnapshotPeriod;
 import me.fizzika.tankirating.enums.SnapshotState;
-import me.fizzika.tankirating.enums.SnapshotType;
 import me.fizzika.tankirating.enums.track.GroupMeta;
 import me.fizzika.tankirating.enums.track.TankiEntityType;
 import me.fizzika.tankirating.exceptions.tracking.InvalidDiffException;
@@ -112,8 +115,8 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         LocalDateTime dayStart = now.truncatedTo(ChronoUnit.DAYS);
 
         if (snapshotService.exists(targetId, dayStart)) {
-            Optional<TrackSnapshotRecord> optHeadSnapshot = snapshotRepository.findLastSnapshot(targetId,
-                    dayStart.plusSeconds(1), now);
+            Optional<TrackSnapshotRecord> optHeadSnapshot = snapshotRepository.findLastSnapshotInPeriod(targetId,
+                                                                                                        dayStart.plusSeconds(1), now);
             if (optHeadSnapshot.isPresent()) {
                 log.debug("[{}] Head snapshot is exists, updating head snapshot (id={})", targetId, optHeadSnapshot.get().getId());
                 updateHeadSnapshot(optHeadSnapshot.get(), targetId, now, data, hasPremium);
@@ -219,10 +222,10 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     }
 
     private void createFirstSnapshotInDay(Integer targetId, LocalDateTime dayStart, TrackFullData data, boolean hasPremium) {
-        // TODO: Need to know real snapshot type
+        SnapshotPeriod snapshotPeriod = computeSnapshotPeriod(targetId, dayStart);
 
         LocalDateTime prevDay = dayStart.minusDays(1);
-        Optional<TrackSnapshotRecord> optPrevDaySnapshot = snapshotRepository.findOneByTargetIdAndTimestamp(targetId, prevDay);
+        Optional<TrackSnapshotRecord> optPrevDaySnapshot = snapshotRepository.findByTargetAndTimestamp(targetId, prevDay);
         if (optPrevDaySnapshot.isPresent()) {
             TrackSnapshotRecord prevSnapshot = optPrevDaySnapshot.get();
             if (getTime(prevSnapshot) == data.getBase().getTime()) {
@@ -234,13 +237,23 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 dayRec.setTarget(prevSnapshot.getTarget());
                 dayRec.setTimestamp(dayStart);
                 dayRec.setHasPremium(hasPremium);
+                dayRec.setPeriod(snapshotPeriod);
                 var created = snapshotRepository.save(dayRec);
                 log.debug("[{}] Created snapshot (id={})", targetId, created.getId());
                 return;
             }
         }
-        long id = snapshotService.save(new TrackSnapshot(targetId, DAY, dayStart, data, hasPremium)); // TODO: remove day with real period
+        long id = snapshotService.save(new TrackSnapshot(targetId, snapshotPeriod, dayStart, data, hasPremium)); // TODO: remove day with real period
         log.debug("[{}] Created snapshot (id={})", targetId, id);
+    }
+
+    private SnapshotPeriod computeSnapshotPeriod(Integer targetId, LocalDateTime dayStart) {
+        Set<SnapshotPeriod> currentPeriods = snapshotRepository.findCurrentPeriods(targetId, dayStart);
+        return Arrays.stream(SnapshotPeriod.values())
+                     .sorted(Comparator.reverseOrder())
+                     .filter(period -> !currentPeriods.contains(period))
+                     .findFirst()
+                     .orElse(DAY);
     }
 
     private void updateHeadSnapshot(TrackSnapshotRecord headRecord, Integer targetId, LocalDateTime now,

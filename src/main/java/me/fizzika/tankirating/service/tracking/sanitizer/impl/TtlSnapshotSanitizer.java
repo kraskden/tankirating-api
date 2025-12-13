@@ -1,20 +1,14 @@
 package me.fizzika.tankirating.service.tracking.sanitizer.impl;
 
-//import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.config.properties.TtlProperties;
 import me.fizzika.tankirating.enums.SnapshotPeriod;
-import me.fizzika.tankirating.enums.track.TrackTargetStatus;
 import me.fizzika.tankirating.repository.tracking.TrackRepository;
-import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.tracking.sanitizer.TrackSanitizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
