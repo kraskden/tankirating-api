@@ -92,4 +92,7 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
     @Query("select new me.fizzika.tankirating.dto.management.TargetStatEntryDTO(T.status, count(T.id)) from TrackTargetRecord T " +
             "group by T.status")
     List<TargetStatEntryDTO> getTargetStat();
+
+    @Query("select T.id from TrackTargetRecord T where T.status = 'DISABLED' and T.updatedAt < :updatedBeforeAt")
+    Set<Integer> findDisabledUpdatedBeforeAt(LocalDateTime updatedBeforeAt);
 }

@@ -1,6 +1,7 @@
 package me.fizzika.tankirating.repository.tracking;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import me.fizzika.tankirating.enums.SnapshotPeriod;
 import me.fizzika.tankirating.record.tracking.TrackRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,17 @@ public interface TrackRepository extends JpaRepository<TrackRecord, Long> {
             """)
     @Modifying
     int deleteSnapshotTracks(SnapshotPeriod period, LocalDateTime beforeAt);
+
+    @Query(value = """
+            delete from track t where t.id in (
+                select distinct s.track_id  from "snapshot" s
+                    where s.target_id in :targetIds
+                    and s.track_id is not null
+                union all
+                select distinct d.track_id from "diff" d
+                    where d.target_id in :targetIds
+            )
+            """, nativeQuery = true)
+    @Modifying
+    int deleteAccountTracks(Set<Integer> targetIds);
 }

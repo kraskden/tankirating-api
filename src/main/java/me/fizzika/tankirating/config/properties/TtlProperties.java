@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.enums.SnapshotPeriod;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 public class TtlProperties {
 
     private Map<SnapshotPeriod, Period> snapshot;
+    private Map<DiffPeriodUnit, Period> fullDiff;
 
     @PostConstruct
     public void log() {

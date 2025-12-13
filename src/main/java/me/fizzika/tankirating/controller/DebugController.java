@@ -12,9 +12,11 @@ import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.online.OnlineUpdateService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import me.fizzika.tankirating.service.tracking.sanitizer.impl.DisabledAccountSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.FrozenAccountsSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.HeadSnapshotSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
+import me.fizzika.tankirating.service.tracking.sanitizer.impl.TtlDiffSanitizer;
 import me.fizzika.tankirating.service.tracking.sanitizer.impl.TtlSnapshotSanitizer;
 import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import org.springframework.context.annotation.Profile;
@@ -38,7 +40,10 @@ public class DebugController {
     private final HeadSnapshotSanitizer headSnapshotSanitizer;
     private final FrozenAccountsSanitizer frozenAccountsSanitizer;
     private final SleepAccountsSanitizer sleepAccountsSanitizer;
+
     private final TtlSnapshotSanitizer ttlSnapshotSanitizer;
+    private final TtlDiffSanitizer ttlDiffSanitizer;
+    private final DisabledAccountSanitizer disabledAccountSanitizer;
 
     private final TrackDiffRepository diffRepository;
     private final TrackSnapshotRepository snapshotRepository;
@@ -48,6 +53,7 @@ public class DebugController {
         TrackTargetDTO target = targetService.getByName(account, TrackTargetType.ACCOUNT);
         updateService.updateOne(target);
     }
+
     @PostMapping("/update/online")
     public void updateOnline() {
         onlineUpdateService.updateOnline();
@@ -68,9 +74,19 @@ public class DebugController {
         sleepAccountsSanitizer.sanitize();
     }
 
+    @PostMapping("/sanitizer/disabled")
+    public void disabledSanitizer() {
+        disabledAccountSanitizer.sanitize();
+    }
+
     @PostMapping("/sanitizer/ttl/snapshot")
     public void snapshotSanitizer() {
         ttlSnapshotSanitizer.sanitize();
+    }
+
+    @PostMapping("/sanitizer/ttl/diff")
+    public void fullDiffSanitizer() {
+        ttlDiffSanitizer.sanitize();
     }
 
     @GetMapping("/periods/{targetId}")
