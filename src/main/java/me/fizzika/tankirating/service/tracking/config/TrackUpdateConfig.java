@@ -8,7 +8,6 @@ import static me.fizzika.tankirating.enums.track.TrackTargetStatus.SLEEP;
 
 import jakarta.annotation.Resource;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
-import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +16,6 @@ public class TrackUpdateConfig {
 
     @Resource
     private TrackingUpdateService updateService;
-    @Resource
-    private SleepAccountsSanitizer sleepSanitizer;
 
     @Scheduled(cron = "${app.cron.update-premium}")
     public void updatePremium() {
@@ -38,7 +35,6 @@ public class TrackUpdateConfig {
     @Scheduled(cron = "${app.cron.update-sleep}")
     public void updateSleep() {
         updateService.updateAll(SLEEP);
-        sleepSanitizer.sanitize();
     }
 
     @Scheduled(cron = "${app.cron.update-disabled}")

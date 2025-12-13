@@ -1,4 +1,4 @@
-package me.fizzika.tankirating.service.tracking.sanitizer.impl;
+package me.fizzika.tankirating.service.tracking.maintenance.jobs;
 
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -9,13 +9,13 @@ import me.fizzika.tankirating.config.properties.TtlProperties;
 import me.fizzika.tankirating.enums.DiffPeriodUnit;
 import me.fizzika.tankirating.repository.tracking.TrackActivityRepository;
 import me.fizzika.tankirating.repository.tracking.TrackUsageRepository;
-import me.fizzika.tankirating.service.tracking.sanitizer.TrackSanitizer;
+import me.fizzika.tankirating.service.tracking.maintenance.MaintenanceJob;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class TtlDiffSanitizer implements TrackSanitizer {
+public class RemoveFullDiffMaintenanceJob extends MaintenanceJob {
 
     @Autowired
     private TtlProperties ttlProperties;
@@ -25,8 +25,7 @@ public class TtlDiffSanitizer implements TrackSanitizer {
     private TrackUsageRepository trackUsageRepository;
 
     @Override
-    @Transactional
-    public void sanitize() {
+    public void runMaintenance() {
         Map<DiffPeriodUnit, Period> fullDiffTtls = ttlProperties.getFullDiff();
 
         int totalActivitiesDeleted = 0;

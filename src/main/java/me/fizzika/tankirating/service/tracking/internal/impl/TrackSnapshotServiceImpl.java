@@ -60,10 +60,9 @@ public class TrackSnapshotServiceImpl implements TrackSnapshotService {
     }
 
     @Override
-    public int deleteAllInRangeWithTrackData(LocalDateTime from, LocalDateTime to) {
-        List<Long> trackRecordIds = repository.findAllTrackIdsByTimestampBetween(from, to);
-        // Snapshot is deleted by cascade operation
-        trackRepository.deleteAllByIdInBatch(trackRecordIds);
-        return trackRecordIds.size();
+    @Transactional
+    public int deleteHeadSnapshots(LocalDateTime beforeAt) {
+        trackRepository.deleteHeadSnapshotTracks(beforeAt);
+        return repository.deleteHeadSnapshots(beforeAt);
     }
 }

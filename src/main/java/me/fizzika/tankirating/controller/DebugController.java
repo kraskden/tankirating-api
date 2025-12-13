@@ -12,12 +12,12 @@ import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.online.OnlineUpdateService;
 import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
-import me.fizzika.tankirating.service.tracking.sanitizer.impl.DisabledAccountSanitizer;
-import me.fizzika.tankirating.service.tracking.sanitizer.impl.FrozenAccountsSanitizer;
-import me.fizzika.tankirating.service.tracking.sanitizer.impl.HeadSnapshotSanitizer;
-import me.fizzika.tankirating.service.tracking.sanitizer.impl.SleepAccountsSanitizer;
-import me.fizzika.tankirating.service.tracking.sanitizer.impl.TtlDiffSanitizer;
-import me.fizzika.tankirating.service.tracking.sanitizer.impl.TtlSnapshotSanitizer;
+import me.fizzika.tankirating.service.tracking.maintenance.jobs.DeleteDisabledAccountMaintenanceJob;
+import me.fizzika.tankirating.service.tracking.maintenance.jobs.MarkFrozenAsDisabledMaintenanceJob;
+import me.fizzika.tankirating.service.tracking.maintenance.jobs.DeleteHeadSnapshotMaintenanceJob;
+import me.fizzika.tankirating.service.tracking.maintenance.jobs.MarkActiveAccountsAsSleepMaintenanceJob;
+import me.fizzika.tankirating.service.tracking.maintenance.jobs.RemoveFullDiffMaintenanceJob;
+import me.fizzika.tankirating.service.tracking.maintenance.jobs.DeleteSnapshotsMaintenanceJob;
 import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,13 +37,6 @@ public class DebugController {
     private final TrackingUpdateService updateService;
     private final OnlineUpdateService onlineUpdateService;
     private final TrackTargetService targetService;
-    private final HeadSnapshotSanitizer headSnapshotSanitizer;
-    private final FrozenAccountsSanitizer frozenAccountsSanitizer;
-    private final SleepAccountsSanitizer sleepAccountsSanitizer;
-
-    private final TtlSnapshotSanitizer ttlSnapshotSanitizer;
-    private final TtlDiffSanitizer ttlDiffSanitizer;
-    private final DisabledAccountSanitizer disabledAccountSanitizer;
 
     private final TrackDiffRepository diffRepository;
     private final TrackSnapshotRepository snapshotRepository;
@@ -57,36 +50,6 @@ public class DebugController {
     @PostMapping("/update/online")
     public void updateOnline() {
         onlineUpdateService.updateOnline();
-    }
-
-    @PostMapping("/sanitizer/head")
-    public void headSanitizer() {
-        headSnapshotSanitizer.sanitize();
-    }
-
-    @PostMapping("/sanitizer/frozen")
-    public void frozenSanitizer() {
-        frozenAccountsSanitizer.sanitize();
-    }
-
-    @PostMapping("/sanitizer/sleep")
-    public void sleepSanitizer() {
-        sleepAccountsSanitizer.sanitize();
-    }
-
-    @PostMapping("/sanitizer/disabled")
-    public void disabledSanitizer() {
-        disabledAccountSanitizer.sanitize();
-    }
-
-    @PostMapping("/sanitizer/ttl/snapshot")
-    public void snapshotSanitizer() {
-        ttlSnapshotSanitizer.sanitize();
-    }
-
-    @PostMapping("/sanitizer/ttl/diff")
-    public void fullDiffSanitizer() {
-        ttlDiffSanitizer.sanitize();
     }
 
     @GetMapping("/periods/{targetId}")

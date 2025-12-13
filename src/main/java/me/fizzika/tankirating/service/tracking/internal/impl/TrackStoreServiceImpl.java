@@ -243,7 +243,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 return;
             }
         }
-        long id = snapshotService.save(new TrackSnapshot(targetId, snapshotPeriod, dayStart, data, hasPremium)); // TODO: remove day with real period
+        long id = snapshotService.save(new TrackSnapshot(targetId, snapshotPeriod, dayStart, data, hasPremium));
         log.trace("[{}] Created first day snapshot (id={})", targetId, id);
     }
 

@@ -1,16 +1,14 @@
-package me.fizzika.tankirating.service.tracking.sanitizer.impl;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
-import me.fizzika.tankirating.service.tracking.sanitizer.TrackSanitizer;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+package me.fizzika.tankirating.service.tracking.maintenance.jobs;
 
 import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
+import me.fizzika.tankirating.service.tracking.maintenance.MaintenanceJob;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * Marks frozen accounts as blocked if they aren't updated more than N days
@@ -18,7 +16,7 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class FrozenAccountsSanitizer implements TrackSanitizer {
+public class MarkFrozenAsDisabledMaintenanceJob extends MaintenanceJob {
 
     @Value("${app.tracking.frozen-to-disabled-timeout}")
     private Duration frozenToDisabledDuration;
@@ -26,15 +24,8 @@ public class FrozenAccountsSanitizer implements TrackSanitizer {
     private final TrackTargetRepository repository;
 
     @Override
-    @Scheduled(cron = "${app.cron.frozen-account-sanitizer}")
-    @Transactional
-    public void sanitize() {
-        log.info("Start {} sanitizer (period={}d)", this.getClass().getSimpleName(),
-                frozenToDisabledDuration.toDays());
+    public void runMaintenance() {
         LocalDateTime minUpdateDate = LocalDateTime.now().minus(frozenToDisabledDuration);
-
         repository.markFrozenAccountsAsBlocked(minUpdateDate);
-        log.info("Finish {} sanitizer", this.getClass().getSimpleName());
     }
-
 }

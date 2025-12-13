@@ -18,6 +18,6 @@ public interface TrackSnapshotService {
 
     Optional<Pair<TrackSnapshot>> findBorderSnapshots(Integer targetId, LocalDateTime from, LocalDateTime to);
 
-    int deleteAllInRangeWithTrackData(LocalDateTime from, LocalDateTime to);
+    int deleteHeadSnapshots(LocalDateTime beforeAt);
 
 }

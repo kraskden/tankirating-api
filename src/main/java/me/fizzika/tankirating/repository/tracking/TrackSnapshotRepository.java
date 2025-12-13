@@ -5,6 +5,7 @@ import me.fizzika.tankirating.enums.SnapshotPeriod;
 import me.fizzika.tankirating.record.tracking.TrackSnapshotRecord;
 import me.fizzika.tankirating.util.Pair;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,9 +23,9 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
 
     boolean existsByTargetIdAndTimestampAndTrackRecordNotNull(Integer targetId, LocalDateTime timestamp);
 
-    @Query("select S.trackRecord.id from TrackSnapshotRecord S where S.timestamp between :start and :end "
+    @Query("select S.trackRecord.id from TrackSnapshotRecord S where S.timestamp < :beforeAt "
             + "and S.trackRecord is not null")
-    List<Long> findAllTrackIdsByTimestampBetween(LocalDateTime start, LocalDateTime end);
+    Set<Long> findAllTrackIdsForHeadSnapshots(LocalDateTime beforeAt);
 
     @Query("from TrackSnapshotRecord S where S.target.id = :targetId and S.timestamp between :from and :to and S.trackRecord is not null"
             + " order by S.timestamp asc limit 1")
@@ -97,4 +98,8 @@ public interface TrackSnapshotRepository extends JpaRepository<TrackSnapshotReco
             + "and cast(s.timestamp as time) = '00:00:00'", nativeQuery = true)
     int getPremiumDays(@Param("targetId") Integer targetId, @Param("from") LocalDateTime from,
                        @Param("to") LocalDateTime to);
+
+    @Query(value = "delete from snapshot where timestamp < :beforeAt and CAST(timestamp as time) != '00:00:00'", nativeQuery = true)
+    @Modifying
+    int deleteHeadSnapshots(LocalDateTime beforeAt);
 }

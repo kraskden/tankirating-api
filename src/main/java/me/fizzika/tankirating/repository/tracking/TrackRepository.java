@@ -24,6 +24,17 @@ public interface TrackRepository extends JpaRepository<TrackRecord, Long> {
     @Modifying
     int deleteSnapshotTracks(SnapshotPeriod period, LocalDateTime beforeAt);
 
+
+    @Query(value = """
+            delete from track where id in (
+                select s.track_id from snapshot s
+                where s.timestamp < :beforeAt and s.track_id is not null
+                and CAST(s.timestamp as time) != '00:00:00'
+            )
+            """, nativeQuery = true)
+    @Modifying
+    int deleteHeadSnapshotTracks(LocalDateTime beforeAt);
+
     @Query(value = """
             delete from track t where t.id in (
                 select distinct s.track_id  from "snapshot" s
