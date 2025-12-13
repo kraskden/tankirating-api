@@ -96,14 +96,14 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
         long total = accounts.size();
         long processed = 0;
 
-        log.info("Found {} accounts", total);
+        log.debug("Found {} accounts", total);
 
         for (List<TrackTargetDTO> slice : Utils.split(accounts, accountBufferSize)) {
             updateAccounts(slice);
             processed += slice.size();
-            log.info("[{}/{}] Processed", processed, total);
+            log.debug("[{}/{}] Processed", processed, total);
             if (processed != total) {
-                log.info("Sleeping for {}", accountBufferTimeout);
+                log.debug("Sleeping for {}", accountBufferTimeout);
                 sleep(accountBufferTimeout);
             }
         }
@@ -120,17 +120,17 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
 
     private void updateAccounts(Collection<TrackTargetDTO> accounts) {
         AccountsUpdateStat stat = updateAccounts(accounts, 0);
-        log.info("[SLICE] Processed [{}/{}], Failed: {}", stat.getProcessedCount(),
+        log.debug("[SLICE] Processed [{}/{}], Failed: {}", stat.getProcessedCount(),
                 stat.getTotalCount(), stat.getRetriedCount());
         stat.getRetried().forEach(a -> updateAccountStatusIfNeed(a, FROZEN));
     }
 
     private AccountsUpdateStat updateAccounts(Collection<TrackTargetDTO> accounts, int retry) {
         var stat = updateAccountsAsync(accounts).join();
-        log.info("[SLICE] Processed [{}/{}], Retried: {}", stat.getProcessedCount(), stat.getTotalCount(), stat.getRetriedCount());
+        log.debug("[SLICE] Processed [{}/{}], Retried: {}", stat.getProcessedCount(), stat.getTotalCount(), stat.getRetriedCount());
         if (stat.getRetriedCount() != 0 && retry < maxRetries) {
             var sleepDuration = retryTimeoutPerAccount.multipliedBy(stat.getRetriedCount());
-            log.info("Waiting for retry, sleep for {}", sleepDuration);
+            log.debug("Waiting for retry, sleep for {}", sleepDuration);
             sleep(sleepDuration);
             var retriedStat = updateAccounts(stat.getRetried(), retry + 1);
             stat.setRetried(retriedStat.getRetried());
@@ -166,14 +166,14 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
                 .thenAccept(data -> trackStoreService.updateTargetData(account.getId(), data.getTrackData(), data.isHasPremium()))
                 .handle((ignored, ex) -> {
                     if (ex == null) {
-                        log.info("[{}] Updated {}", account.getId(), account.getName());
+                        log.debug("[{}] Updated {}", account.getId(), account.getName());
                         updateAccountStatusIfNeed(account, ACTIVE);
                         return AccountUpdateResult.processed(account);
                     }
 
                     Throwable cause = ex.getCause();
                     if (cause instanceof AlternativaTooManyRequestsException) {
-                        log.info("[{}] Too many requests due updating {}", account.getId(),
+                        log.debug("[{}] Too many requests due updating {}", account.getId(),
                                 account.getName());
                         return AccountUpdateResult.retrying(account);
                     }
@@ -202,10 +202,10 @@ public class TrackingUpdateServiceImpl implements TrackingUpdateService {
             TrackTargetStatus oldStatus = account.getStatus();
             account.setStatus(newStatus);
             targetService.update(account.getId(), account);
-            if (oldStatus == SLEEP && newStatus == ACTIVE) {
+            if (newStatus != DISABLED && newStatus != FROZEN) {
                 return;
             }
-            log.warn("[{}] Changed account {} status from {} to {}", account.getId(),
+            log.info("[{}] Changed account {} status from {} to {}", account.getId(),
                     account.getName(), oldStatus, account.getStatus());
         }
     }

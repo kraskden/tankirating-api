@@ -73,7 +73,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     @Transactional
     public void updateTargetData(Integer targetId, TrackFullData currentData, boolean hasPremium)
             throws InvalidTrackDataException {
-        log.debug("[{}] Updating target", targetId);
+        log.trace("[{}] Updating target", targetId);
         log.trace("Target: {}, Prem: {}, Data: {}", targetId, hasPremium, currentData);
 
         LocalDateTime now = LocalDateTime.now();
@@ -118,11 +118,11 @@ public class TrackStoreServiceImpl implements TrackStoreService {
             Optional<TrackSnapshotRecord> optHeadSnapshot = snapshotRepository.findLastSnapshotInPeriod(targetId,
                                                                                                         dayStart.plusSeconds(1), now);
             if (optHeadSnapshot.isPresent()) {
-                log.debug("[{}] Head snapshot is exists, updating head snapshot (id={})", targetId, optHeadSnapshot.get().getId());
+                log.trace("[{}] Head snapshot is exists, updating head snapshot (id={})", targetId, optHeadSnapshot.get().getId());
                 updateHeadSnapshot(optHeadSnapshot.get(), targetId, now, data, hasPremium);
             } else {
                 long id = snapshotService.save(new TrackSnapshot(targetId, DAY, now, data, hasPremium));
-                log.debug("[{}] Head snapshot isn't exists, create it (id={})", targetId, id);
+                log.trace("[{}] Head snapshot isn't exists, create it (id={})", targetId, id);
             }
             return SnapshotState.UPDATED;
         } else {
@@ -138,17 +138,17 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         Integer maxScore = currentData.getBase().getScore();
 
         DatePeriod diffDates = diffPeriod.getDatePeriod(now);
-        log.debug("[{}] Dates: {} - {}", targetId, diffDates.getStart(), diffDates.getEnd());
+        log.trace("[{}] Dates: {} - {}", targetId, diffDates.getStart(), diffDates.getEnd());
 
         int premiumDays = diffPeriod == DiffPeriodUnit.DAY ?
                 toInteger(hasPremium)
                 : snapshotRepository.getPremiumDays(targetId, diffDates.getStart(), diffDates.getEnd());
-        log.debug("[{}] Premium days: {}", targetId, premiumDays);
+        log.trace("[{}] Premium days: {}", targetId, premiumDays);
 
         Optional<TrackFullData> baseSnapshot = snapshotService.findFirstInRange(targetId, diffDates.getStart(), diffDates.getEnd())
                 .map(TrackSnapshot::getTrackData);
         if (baseSnapshot.isPresent()) {
-            log.debug("[{}] Base snapshot: {}", targetId, baseSnapshot);
+            log.trace("[{}] Base snapshot: {}", targetId, baseSnapshot);
         }
 
         Optional<TrackFullData> periodDiff = baseSnapshot
@@ -164,7 +164,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
             return;
         }
 
-        log.debug("[{}] DiffTime: {}", targetId, periodDiff.map(d -> d.getBase().getTime()).orElse(0L));
+        log.trace("[{}] DiffTime: {}", targetId, periodDiff.map(d -> d.getBase().getTime()).orElse(0L));
 
         TrackDiffRecord diffRecord = getOrCreateDiffRecord(targetId, diffPeriod, diffDates);
         diffRecord.setTrackEnd(now);
@@ -174,12 +174,12 @@ public class TrackStoreServiceImpl implements TrackStoreService {
 
         if (diffRecord.getTrackRecord() != null) {
             if (periodDiff.isPresent() && periodDiff.get().getBase().getTime() == diffRecord.getTrackRecord().getTime()) {
-                log.debug("[{}] Diff isn't changed, update track timestamps in existing (id={})", targetId, diffRecord.getId());
+                log.trace("[{}] Diff isn't changed, update track timestamps in existing (id={})", targetId, diffRecord.getId());
                 // Don't rewrite track data if it's not changed, just update trackStart, trackEnd && premium
                 diffRepository.save(diffRecord);
                 return;
             }
-            log.debug("[{}] Deleting old diff data (id={})", targetId, diffRecord.getTrackRecord().getId());
+            log.trace("[{}] Deleting old diff data (id={})", targetId, diffRecord.getTrackRecord().getId());
             // Delete old track data
             trackRepository.delete(diffRecord.getTrackRecord());
         }
@@ -191,7 +191,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
     private void updateGroupDiff(TrackGroup group, LocalDateTime now, DiffPeriodUnit diffPeriod) {
         log.debug("[{}] Updating diff {}", group, diffPeriod);
         PeriodDiffDates diffDates = new PeriodDiffDates(diffPeriod.getDatePeriod(now), new DateRange(now, now));
-        log.debug("[{}] Diff dates: \nPeriod: {} - {}\nTrack: {} - {}", group,
+        log.trace("[{}] Diff dates: \nPeriod: {} - {}\nTrack: {} - {}", group,
                 diffDates.getPeriodStart(), diffDates.getPeriodEnd(),
                 diffDates.getTrackStart(), diffDates.getTrackEnd());
         updateGroupDiff(group, diffPeriod, diffDates);
@@ -205,15 +205,15 @@ public class TrackStoreServiceImpl implements TrackStoreService {
         diffRecord.setTrackStart(diffRecord.getTrackStart() != null ? diffRecord.getTrackStart() :
                 diffDates.getTrackStart());
         if (diffRecord.getTrackRecord() != null) {
-            log.debug("[{}] Delete old diff record (id={})", group, diffRecord.getTrackRecord().getId());
+            log.trace("[{}] Delete old diff record (id={})", group, diffRecord.getTrackRecord().getId());
             trackRepository.delete(diffRecord.getTrackRecord());
         }
 
         TrackFullData diffData = getActivityGroupData(diffDates.toPeriodRange(), diffPeriod, group.getMeta());
-        log.debug("[{}] Track time: {}", group, diffData.getBase().getTime());
+        log.trace("[{}] Track time: {}", group, diffData.getBase().getTime());
         diffRecord.setTrackRecord(dataMapper.toTrackRecord(diffData));
         var saved = diffRepository.save(diffRecord);
-        log.debug("[{}] Diff has been saved (id={})", group, saved.getId());
+        log.trace("[{}] Diff has been saved (id={})", group, saved.getId());
     }
 
     private TrackDiffRecord getOrCreateDiffRecord(Integer targetId, DiffPeriodUnit diffPeriod, DateRange diffDates) {
@@ -239,12 +239,12 @@ public class TrackStoreServiceImpl implements TrackStoreService {
                 dayRec.setHasPremium(hasPremium);
                 dayRec.setPeriod(snapshotPeriod);
                 var created = snapshotRepository.save(dayRec);
-                log.debug("[{}] Created snapshot (id={})", targetId, created.getId());
+                log.trace("[{}] Created first day snapshot (id={})", targetId, created.getId());
                 return;
             }
         }
         long id = snapshotService.save(new TrackSnapshot(targetId, snapshotPeriod, dayStart, data, hasPremium)); // TODO: remove day with real period
-        log.debug("[{}] Created snapshot (id={})", targetId, id);
+        log.trace("[{}] Created first day snapshot (id={})", targetId, id);
     }
 
     private SnapshotPeriod computeSnapshotPeriod(Integer targetId, LocalDateTime dayStart) {
