@@ -1,3 +1,20 @@
+## TankiRating 2.5.x
+
+### RU
+
+* [2.5.0] Восстановлена работа портала
+* [2.5.0] Механизм очистки старых данных (оптимизация работы с памятью). Реализация помогла уменьшить базу в 5 раз и продлит жизнь портала на долгие годы вперед (надеюсь)
+  * Полная статистика может быть недоступна для малых периодов в прошлом
+  * DISABLED аккауты удаляются спустя полгода неактивности со всеми данными
+
+
+### EN
+
+* [2.5.0] The portal has been restored
+* [2.5.0] The mechanism of cleaning old data. The implementation helped reduce the database by 5 times
+    * Full statistics may not be available for small periods in the past
+    * DISABLED accounts will be deleted after six months of inactivity
+
 ## TankiRating 2.4.x
 
 ### RU
