@@ -11,12 +11,22 @@ public class AccountUpdateResult {
     private TrackTargetDTO account;
     private boolean processed;
 
-    public static AccountUpdateResult processed(TrackTargetDTO account) {
-        return new AccountUpdateResult(account, true);
+    private Throwable throwable;
+    private String exceptionClass;
+
+    public static AccountUpdateResult failed(TrackTargetDTO account, String exceptionClass) {
+        return new AccountUpdateResult(account, true, null, exceptionClass);
+    }
+
+    public static AccountUpdateResult failed(TrackTargetDTO account, Throwable ex) {
+        return new AccountUpdateResult(account, true, ex, ex.getClass().getSimpleName());
+    }
+
+    public static AccountUpdateResult ok(TrackTargetDTO account) {
+        return new AccountUpdateResult(account, true, null, null);
     }
 
     public static AccountUpdateResult retrying(TrackTargetDTO account) {
-        return new AccountUpdateResult(account, false);
+        return new AccountUpdateResult(account, false, null, null);
     }
-
 }

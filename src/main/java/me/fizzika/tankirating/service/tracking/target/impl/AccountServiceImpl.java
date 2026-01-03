@@ -1,12 +1,19 @@
 package me.fizzika.tankirating.service.tracking.target.impl;
 
+import static me.fizzika.tankirating.enums.ExceptionType.TRACK_TARGET_NOT_FOUND;
+import static me.fizzika.tankirating.enums.track.TrackTargetType.ACCOUNT;
+
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.fizzika.tankirating.dto.target.AccountUpdateResultDTO;
-import me.fizzika.tankirating.dto.target.TrackTargetDTO;
+import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
 import me.fizzika.tankirating.dto.target.AccountAddDTO;
 import me.fizzika.tankirating.dto.target.AccountAddResultDTO;
-import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
+import me.fizzika.tankirating.dto.target.AccountUpdateResultDTO;
+import me.fizzika.tankirating.dto.target.TrackTargetDTO;
 import me.fizzika.tankirating.enums.AccountAddStatus;
 import me.fizzika.tankirating.exceptions.ExternalException;
 import me.fizzika.tankirating.exceptions.alternativa.AlternativaUserNotFoundException;
@@ -17,21 +24,12 @@ import me.fizzika.tankirating.model.AccountUpdateResult;
 import me.fizzika.tankirating.model.track_data.TrackFullData;
 import me.fizzika.tankirating.record.tracking.TrackTargetRecord;
 import me.fizzika.tankirating.repository.tracking.TrackTargetRepository;
-import me.fizzika.tankirating.service.tracking.target.AccountService;
-import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
 import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingService;
 import me.fizzika.tankirating.service.tracking.internal.TrackStoreService;
-import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import me.fizzika.tankirating.service.tracking.target.AccountService;
+import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
+import me.fizzika.tankirating.service.tracking.update.TrackingUpdateService;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletionException;
-import java.util.stream.Collectors;
-
-import static me.fizzika.tankirating.enums.ExceptionType.TRACK_TARGET_NOT_FOUND;
-import static me.fizzika.tankirating.enums.track.TrackTargetType.ACCOUNT;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
 @Slf4j
@@ -63,14 +61,14 @@ public class AccountServiceImpl implements AccountService {
     public TrackTargetDTO activate(Integer id) {
         TrackTargetDTO trackTargetDTO = trackTargetService.getOptionalById(id, ACCOUNT)
                 .orElseThrow(() -> new ExternalException(TRACK_TARGET_NOT_FOUND));
-        return trackingUpdateService.updateOne(trackTargetDTO).getAccount();
+        return trackingUpdateService.updateAccount(trackTargetDTO).getAccount();
     }
 
     @Override
     public AccountUpdateResultDTO update(Integer id) {
         TrackTargetDTO trackTargetDTO = trackTargetService.getOptionalById(id, ACCOUNT)
                 .orElseThrow(() -> new ExternalException(TRACK_TARGET_NOT_FOUND));
-        AccountUpdateResult updateResult = trackingUpdateService.updateOne(trackTargetDTO);
+        AccountUpdateResult updateResult = trackingUpdateService.updateAccount(trackTargetDTO);
         log.info("Account {} has been manually updated", trackTargetDTO.getName());
         return trackTargetMapper.toDto(updateResult);
     }

@@ -11,14 +11,8 @@ import me.fizzika.tankirating.enums.track.TrackTargetType;
 import me.fizzika.tankirating.repository.tracking.TrackDiffRepository;
 import me.fizzika.tankirating.repository.tracking.TrackSnapshotRepository;
 import me.fizzika.tankirating.service.online.OnlineUpdateService;
-import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
-import me.fizzika.tankirating.service.tracking.maintenance.jobs.DeleteDisabledAccountMaintenanceJob;
-import me.fizzika.tankirating.service.tracking.maintenance.jobs.MarkFrozenAsDisabledMaintenanceJob;
-import me.fizzika.tankirating.service.tracking.maintenance.jobs.DeleteHeadSnapshotMaintenanceJob;
-import me.fizzika.tankirating.service.tracking.maintenance.jobs.MarkActiveAccountsAsSleepMaintenanceJob;
-import me.fizzika.tankirating.service.tracking.maintenance.jobs.RemoveFullDiffMaintenanceJob;
-import me.fizzika.tankirating.service.tracking.maintenance.jobs.DeleteSnapshotsMaintenanceJob;
 import me.fizzika.tankirating.service.tracking.target.TrackTargetService;
+import me.fizzika.tankirating.service.tracking.update.TrackingUpdateService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,7 +38,7 @@ public class DebugController {
     @PostMapping("/update/{account}")
     public void updateOne(@PathVariable String account) {
         TrackTargetDTO target = targetService.getByName(account, TrackTargetType.ACCOUNT);
-        updateService.updateOne(target);
+        updateService.updateAccount(target);
     }
 
     @PostMapping("/update/online")

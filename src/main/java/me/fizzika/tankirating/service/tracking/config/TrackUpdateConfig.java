@@ -6,39 +6,48 @@ import static me.fizzika.tankirating.enums.track.TrackTargetStatus.FROZEN;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.PREMIUM;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.SLEEP;
 
-import jakarta.annotation.Resource;
-import me.fizzika.tankirating.service.tracking.internal.TrackingUpdateService;
+import me.fizzika.tankirating.service.tracking.maintenance.jobs.MarkActiveAccountsAsSleepMaintenanceJob;
+import me.fizzika.tankirating.service.tracking.update.batch.BatchTrackingUpdateService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TrackUpdateConfig {
 
-    @Resource
-    private TrackingUpdateService updateService;
+    @Autowired
+    private BatchTrackingUpdateService updateService;
+    @Autowired
+    private MarkActiveAccountsAsSleepMaintenanceJob markActiveAccountsAsSleepJob;
 
     @Scheduled(cron = "${app.cron.update-premium}")
     public void updatePremium() {
-        updateService.updateAll(PREMIUM);
+        updateService.updateAccounts(PREMIUM);
     }
 
     @Scheduled(cron = "${app.cron.update-active}")
     public void updateActive() {
-        updateService.updateAll(ACTIVE);
+        updateService.updateAccounts(ACTIVE);
+        markActiveAccountsAsSleepJob.runMaintenance();
     }
 
     @Scheduled(cron = "${app.cron.update-frozen}")
     public void updateFrozen() {
-        updateService.updateAll(FROZEN);
+        updateService.updateAccounts(FROZEN);
     }
 
     @Scheduled(cron = "${app.cron.update-sleep}")
     public void updateSleep() {
-        updateService.updateAll(SLEEP);
+        updateService.updateAccounts(SLEEP);
     }
 
     @Scheduled(cron = "${app.cron.update-disabled}")
     public void updateDisabled() {
-        updateService.updateAll(DISABLED);
+        updateService.updateAccounts(DISABLED);
+    }
+
+    @Scheduled(cron = "${app.cron.update-groups}")
+    public void updateGroups() {
+        updateService.updateGroups();
     }
 }

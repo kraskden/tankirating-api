@@ -160,7 +160,7 @@ public class TrackStoreServiceImpl implements TrackStoreService {
             periodDiff.ifPresent(d -> TrackUtils.validateDiffData(d, diffPeriod.getChronoUnit().getDuration().toSeconds(),
                                                                   timeInaccuracyInterval, isStrict));
         } catch (SkipDiffException ex) {
-            log.warn("[{}] Skip diff {}, cause: {}", targetId, diffPeriod, ex.getMessage());
+            log.debug("[{}] Skip diff {}, cause: {}", targetId, diffPeriod, ex.getMessage());
             return;
         }
 

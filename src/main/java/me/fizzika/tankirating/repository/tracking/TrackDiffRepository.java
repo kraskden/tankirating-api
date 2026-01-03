@@ -76,7 +76,7 @@ public interface TrackDiffRepository extends JpaRepository<TrackDiffRecord, Long
     @Query("select new me.fizzika.tankirating.model.activity.EntityIdActivityTrack(A.entityId, sum(A.time), sum(A.score)) " +
             "from TrackDiffRecord D " +
             "inner join fetch TrackRecord T on D.trackRecord = T " +
-            "left join fetch TrackActivityRecord A on A.track = T " +
+            "inner join fetch TrackActivityRecord A on A.track = T " +
             "where D.periodStart = :periodStart and D.period = :period " +
             "and (:minScore is null or D.maxScore >= :minScore) " +
             "and (:maxScore is null or D.maxScore <= :maxScore) " +

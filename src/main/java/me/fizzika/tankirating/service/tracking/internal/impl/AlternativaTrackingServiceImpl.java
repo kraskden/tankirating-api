@@ -1,5 +1,9 @@
 package me.fizzika.tankirating.service.tracking.internal.impl;
 
+import static io.github.bucket4j.BlockingStrategy.PARKING;
+
+import io.github.bucket4j.BlockingStrategy;
+import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.fizzika.tankirating.dto.alternativa.track.AlternativaTrackDTO;
@@ -12,6 +16,7 @@ import me.fizzika.tankirating.service.tracking.internal.AlternativaTrackingServi
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,11 +33,14 @@ public class AlternativaTrackingServiceImpl implements AlternativaTrackingServic
     private static final String OK_RESPONSE = "OK";
 
     private final RestTemplate restTemplate;
+    private final Bucket alternativaApiBucket;
 
     @Async("apiTaskExecutor")
     @Override
     public CompletableFuture<AlternativaTrackDTO> getTracking(String username) {
         try {
+            alternativaApiBucket.asBlocking().consume(1, PARKING);
+
             var response = restTemplate.getForObject(RATING_URL_TEMPLATE, AlternativaTrackResponseDTO.class, username);
             if (response != null && OK_RESPONSE.equals(response.getResponseType())) {
                 return CompletableFuture.completedFuture(response.getTrack());
@@ -46,6 +54,8 @@ public class AlternativaTrackingServiceImpl implements AlternativaTrackingServic
             } else {
                 throw new AlternativaServerUnavailableException(e);
             }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -14,6 +14,7 @@
 	<name>tankirating</name>
 	<description>TankiRating REST API</description>
 	<properties>
+    <maven.compiler.parameters>true</maven.compiler.parameters>
 		<org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
 		<java.version>17</java.version>
 	</properties>
@@ -87,6 +88,12 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+    <dependency>
+      <groupId>com.bucket4j</groupId>
+      <artifactId>bucket4j_jdk17-core</artifactId>
+      <version>8.15.0</version>
+    </dependency>
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
@@ -119,6 +126,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
