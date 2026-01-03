@@ -27,9 +27,12 @@ public class MtCaptchaProvider implements CaptchaProvider {
             return false;
         }
 
-        var response = restTemplate.getForObject(URL_TEMPLATE, MtCaptchaResponseDTO.class,
-                privateKey, captcha);
-        return response != null && response.isSuccess();
+        try {
+            var response = restTemplate.getForObject(URL_TEMPLATE, MtCaptchaResponseDTO.class,
+                                                     privateKey, captcha);
+            return response != null && response.isSuccess();
+        } catch (Exception e) {
+            return false;
+        }
     }
-
 }
