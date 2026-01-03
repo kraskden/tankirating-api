@@ -2,6 +2,7 @@
 
 ### RU
 
+* [2.5.1] Изменен механизм обновления аккаунтов - аккаунты будут стараться обновляться равномерно в течении дня, что должно снизить нагрузку на API альтернативы
 * [2.5.0] Восстановлена работа портала
 * [2.5.0] Механизм очистки старых данных (оптимизация работы с памятью). Реализация помогла уменьшить базу в 5 раз и продлит жизнь портала на долгие годы вперед (надеюсь)
   * Полная статистика может быть недоступна для малых периодов в прошлом
@@ -10,6 +11,7 @@
 
 ### EN
 
+* [2.5.1] Change batch account update logic: try to evenly update accounts, reduce load to alternativa API
 * [2.5.0] The portal has been restored
 * [2.5.0] The mechanism of cleaning old data. The implementation helped reduce the database by 5 times
     * Full statistics may not be available for small periods in the past
