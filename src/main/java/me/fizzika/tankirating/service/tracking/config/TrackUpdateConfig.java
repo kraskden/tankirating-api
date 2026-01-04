@@ -6,7 +6,6 @@ import static me.fizzika.tankirating.enums.track.TrackTargetStatus.FROZEN;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.PREMIUM;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.SLEEP;
 
-import me.fizzika.tankirating.service.tracking.maintenance.jobs.MarkActiveAccountsAsSleepMaintenanceJob;
 import me.fizzika.tankirating.service.tracking.update.batch.BatchTrackingUpdateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,8 +16,6 @@ public class TrackUpdateConfig {
 
     @Autowired
     private BatchTrackingUpdateService updateService;
-    @Autowired
-    private MarkActiveAccountsAsSleepMaintenanceJob markActiveAccountsAsSleepJob;
 
     @Scheduled(cron = "${app.cron.update-premium}")
     public void updatePremium() {
@@ -28,7 +25,6 @@ public class TrackUpdateConfig {
     @Scheduled(cron = "${app.cron.update-active}")
     public void updateActive() {
         updateService.updateAccounts(ACTIVE);
-        markActiveAccountsAsSleepJob.runMaintenance();
     }
 
     @Scheduled(cron = "${app.cron.update-frozen}")

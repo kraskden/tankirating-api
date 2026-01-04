@@ -51,13 +51,12 @@ public class BatchTrackingUpdateService {
     public void updateGroups() {
         LocalDateTime startAt = LocalDateTime.now();
 
-        log.info("Groups update has been started");
         List<TrackGroup> groups = targetService.getAllGroups();
-        log.info("Found {} groups: {}", groups.size(), groups);
+        log.info("Start updating {} groups: {}", groups.size(), groups);
         groups.forEach(trackStoreService::updateCurrentGroupData);
 
         Duration updateDuration = Duration.between(startAt, LocalDateTime.now());
-        log.info("Groups update finished. Duration: {}", updateDuration);
+        log.info("Groups update has finished. Duration: {}", updateDuration);
     }
 
     public void updateAccounts(TrackTargetStatus targetStatus) {
@@ -72,12 +71,20 @@ public class BatchTrackingUpdateService {
             Bucket batchUpdateBucket = batchUpdateBucketFactory.createBucketForBatchUpdate(targetStatus, accounts.size()).orElse(null);
             LocalDateTime startAt = LocalDateTime.now();
             log.info("Start updating {} {} accounts", accounts.size(), targetStatus);
-            doUpdate(accounts, batchUpdateBucket);
+            AccountsUpdateStat stat = doUpdate(accounts, batchUpdateBucket);
             Duration updateDuration = Duration.between(startAt, LocalDateTime.now());
+            logFinishBatchUpdate(stat, targetStatus, updateDuration);
             log.info("Finish updating {} {} accounts. Duration: {}", accounts.size(), targetStatus, updateDuration);
         } finally {
             lock.unlock();
         }
+    }
+
+    private void logFinishBatchUpdate(AccountsUpdateStat stat, TrackTargetStatus targetStatus, Duration updateDuration) {
+        String reportStat = stat == null ? "<empty_update_stat>" : stat.toReportString();
+        String message = "Finish updating accounts\nStatus: %s; Duration: %s\n%s"
+                .formatted(targetStatus, updateDuration, reportStat);
+        log.info(message);
     }
 
     private List<TrackTargetDTO> getAccounts(Set<TrackTargetStatus> statuses) {
@@ -90,24 +97,23 @@ public class BatchTrackingUpdateService {
         return targetService.findAll(filter, sort);
     }
 
-    private void doUpdate(List<TrackTargetDTO> accounts, Bucket batchUpdateBucket) {
+    private AccountsUpdateStat doUpdate(List<TrackTargetDTO> accounts, Bucket batchUpdateBucket) {
         try {
             alternativaService.healthCheck().join();
         } catch (CompletionException ex) {
             log.error("Alternativa service is unavailable ", ex.getCause());
             log.error("Skipping accounts updating");
-            return;
+            return null;
         }
 
-        log.info("Found {} accounts", accounts.size());
-        updateAccounts(accounts, batchUpdateBucket);
+        return updateAccounts(accounts, batchUpdateBucket);
     }
 
-    private void updateAccounts(Collection<TrackTargetDTO> accounts, Bucket batchUpdateBucket) {
+    private AccountsUpdateStat updateAccounts(Collection<TrackTargetDTO> accounts, Bucket batchUpdateBucket) {
         AccountsUpdateStat stat = updateAccountsAsync(accounts, batchUpdateBucket).join();
 
-        log.info(stat.toReportString());
         stat.getRetried().forEach(this::markAccountAsFrozen);
+        return stat;
     }
 
     private CompletableFuture<AccountsUpdateStat> updateAccountsAsync(Collection<TrackTargetDTO> accounts, Bucket batchUpdateBucket) {
@@ -151,7 +157,7 @@ public class BatchTrackingUpdateService {
         }
         account.setStatus(FROZEN);
         targetService.update(account.getId(), account);
-        log.info("[{}/{}] Marked as Frozen", account.getId(),
+        log.debug("[{}/{}] Marked as Frozen", account.getId(),
                  account.getName());
     }
 }

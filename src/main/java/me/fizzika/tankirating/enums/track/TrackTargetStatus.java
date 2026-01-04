@@ -7,4 +7,8 @@ public enum TrackTargetStatus {
     SLEEP, // In the last period (active-to-sleep-timeout) player is not played. System will not update this player frequently
     FROZEN, // Last account updates are fails, but system made new attempts
     DISABLED; // Account is disabled, system is not actively updating it
+
+    public boolean isBroken() {
+        return this == FROZEN || this == DISABLED;
+    }
 }

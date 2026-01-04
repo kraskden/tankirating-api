@@ -1,6 +1,5 @@
-package me.fizzika.tankirating.service.tracking.maintenance.jobs;
+package me.fizzika.tankirating.service.tracking.maintenance.jobs.status;
 
-import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MarkFrozenAsDisabledMaintenanceJob extends MaintenanceJob {
+public class FrozenToDisabledMaintenanceJob extends MaintenanceJob {
 
     @Value("${app.tracking.frozen-to-disabled-timeout}")
     private Duration frozenToDisabledDuration;

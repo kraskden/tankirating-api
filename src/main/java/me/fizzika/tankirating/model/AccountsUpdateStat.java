@@ -28,9 +28,12 @@ public class AccountsUpdateStat {
                                                    .stream()
                                                    .map(e -> "%s: %d".formatted(e.getKey(), e.getValue()))
                                                    .collect(Collectors.joining("\n"));
+        long totalExceptions = getExceptionStats().values()
+                                                  .stream()
+                                                  .reduce(0, Integer::sum);
         return """
                 Total: %d; Processed: %d; Retried: %d;
-                Exceptions:
-                %s""".formatted(totalCount, processedCount, getRetriedCount(), exceptionStats);
+                Exceptions: %d
+                %s""".formatted(totalCount, processedCount, getRetriedCount(), totalExceptions, exceptionStats);
     }
 }

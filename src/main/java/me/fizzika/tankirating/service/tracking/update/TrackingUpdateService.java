@@ -1,9 +1,9 @@
 package me.fizzika.tankirating.service.tracking.update;
 
-import static me.fizzika.tankirating.enums.track.TrackTargetStatus.ACTIVE;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.DISABLED;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.FROZEN;
 import static me.fizzika.tankirating.enums.track.TrackTargetStatus.PREMIUM;
+import static me.fizzika.tankirating.enums.track.TrackTargetStatus.SLEEP;
 
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +44,7 @@ public class TrackingUpdateService {
                                  .thenAccept(data -> trackStoreService.updateTargetData(account.getId(), data.getTrackData(), data.isHasPremium()))
                                  .handle((ignored, ex) -> {
                                      if (ex == null) {
-                                         log.debug("[{}] Updated {}", account.getId(), account.getName());
-                                         updateAccountStatusIfNeed(account, ACTIVE);
+                                         enableAccountIfNeed(account);
                                          return AccountUpdateResult.ok(account);
                                      }
 
@@ -70,19 +69,29 @@ public class TrackingUpdateService {
                                  });
     }
 
+    private void enableAccountIfNeed(TrackTargetDTO account) {
+        TrackTargetStatus oldStatus = account.getStatus();
+        if (!oldStatus.isBroken()) {
+            return;
+        }
+        account.setStatus(SLEEP);
+        targetService.update(account.getId(), account);
+
+        if (oldStatus == DISABLED) {
+            log.info("[{}/{}] Activate account", account.getId(), account.getName());
+        }
+    }
+
     private void updateAccountStatusIfNeed(TrackTargetDTO account, TrackTargetStatus newStatus) {
         if (account.getStatus() == PREMIUM) {
             return;
         }
         if (account.getStatus() != newStatus) {
-            TrackTargetStatus oldStatus = account.getStatus();
             account.setStatus(newStatus);
             targetService.update(account.getId(), account);
-            if (newStatus != DISABLED && newStatus != FROZEN) {
-                return;
+            if (newStatus == DISABLED) {
+                log.info("[{}/{}] Deactivate account", account.getId(), account.getName());
             }
-            log.info("[{}] Changed account {} status from {} to {}", account.getId(),
-                     account.getName(), oldStatus, account.getStatus());
         }
     }
 }

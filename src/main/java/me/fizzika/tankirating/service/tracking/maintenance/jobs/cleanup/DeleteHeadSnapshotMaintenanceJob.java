@@ -1,8 +1,7 @@
-package me.fizzika.tankirating.service.tracking.maintenance.jobs;
+package me.fizzika.tankirating.service.tracking.maintenance.jobs.cleanup;
 
 import static java.time.LocalDateTime.now;
 
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;

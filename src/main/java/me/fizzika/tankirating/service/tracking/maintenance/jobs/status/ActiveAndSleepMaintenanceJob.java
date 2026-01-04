@@ -1,7 +1,6 @@
-package me.fizzika.tankirating.service.tracking.maintenance.jobs;
+package me.fizzika.tankirating.service.tracking.maintenance.jobs.status;
 
 import jakarta.annotation.Resource;
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class MarkActiveAccountsAsSleepMaintenanceJob extends MaintenanceJob {
+public class ActiveAndSleepMaintenanceJob extends MaintenanceJob {
 
     @Value("${app.tracking.active-to-sleep-timeout}")
     private Period activeToSleepTimeout;
@@ -22,11 +21,11 @@ public class MarkActiveAccountsAsSleepMaintenanceJob extends MaintenanceJob {
     private TrackTargetRepository targetRepository;
 
     @Override
-    public void runMaintenance() {
+    protected void runMaintenance() {
         LocalDateTime minActivityDate = LocalDate.now()
                 .minus(activeToSleepTimeout)
                 .atStartOfDay();
 
-        targetRepository.markActiveAccountsAsSleep(minActivityDate);
+        targetRepository.setActiveAndSleepStatuses(minActivityDate);
     }
 }

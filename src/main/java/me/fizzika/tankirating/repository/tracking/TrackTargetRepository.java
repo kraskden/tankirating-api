@@ -41,16 +41,24 @@ public interface TrackTargetRepository extends JpaRepository<TrackTargetRecord, 
     void markFrozenAccountsAsBlocked(@Param("updateDate") LocalDateTime minLastUpdateDate);
 
     @Modifying
-    @Query(value = "update target t set status = 'SLEEP' " +
-            "where t.status = 'ACTIVE' " +
-            "and t.type = 'ACCOUNT' " +
-            "and not exists(select 1 from \"diff\" d " +
-                "where d.period_start >= :minActivityDate " +
-                "and d.period = cast('DAY' as diff_period) " +
-                "and d.target_id = t.id " +
-                "and d.track_id is not null) ",
-            nativeQuery = true)
-    void markActiveAccountsAsSleep(LocalDateTime minActivityDate);
+    @Query(value = """
+            update target t set status = (
+            				case
+            					when exists(select 1 from diff d
+                            		where d.period_start >= :minActivityDate
+                            		and d.period = cast('DAY' as diff_period)
+                            		and d.target_id = t.id
+                            		and d.track_id is not null)
+                            	then 'ACTIVE'
+            					else 'SLEEP'
+            				end
+            			)
+            where
+            t.status = 'ACTIVE'
+            or t.status = 'SLEEP'
+            and t.type = 'ACCOUNT'
+            """, nativeQuery = true)
+    void setActiveAndSleepStatuses(LocalDateTime minActivityDate);
 
     int countByStatus(TrackTargetStatus status);
 
